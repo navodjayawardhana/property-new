@@ -1,3 +1,7 @@
+"use client";
+import { useState } from "react";
+import { Heart, Bed, Bath, Maximize2, MapPin, Eye } from "lucide-react";
+
 interface PropertyCardProps {
   image: string;
   price: string;
@@ -8,75 +12,95 @@ interface PropertyCardProps {
   area: string;
   type: string;
   badge?: string;
+  badgeColor?: string;
+  views?: string;
 }
 
 export default function PropertyCard({
-  image,
-  price,
-  title,
-  location,
-  beds,
-  baths,
-  area,
-  type,
-  badge,
+  image, price, title, location,
+  beds, baths, area, type,
+  badge, badgeColor = "bg-[#C8102E]",
+  views = "1.2k",
 }: PropertyCardProps) {
+  const [liked, setLiked] = useState(false);
+
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow overflow-hidden group cursor-pointer">
+    <div className="bg-white rounded-2xl overflow-hidden card-hover shadow-sm border border-gray-100 group">
       {/* Image */}
-      <div className="relative overflow-hidden h-52">
+      <div className="relative overflow-hidden h-56">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
-        {badge && (
-          <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-            {badge}
-          </span>
-        )}
-        <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow hover:bg-red-50 transition-colors">
-          <svg className="w-4 h-4 text-gray-500 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-        <span className="absolute bottom-3 left-3 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full">
-          {type}
-        </span>
+
+        {/* Top row */}
+        <div className="absolute top-0 left-0 right-0 p-3 flex items-start justify-between">
+          <div className="flex flex-col gap-1.5">
+            {badge && (
+              <span className={`tag-pill text-white ${badgeColor}`}>
+                {badge}
+              </span>
+            )}
+            <span className="tag-pill bg-black/50 text-white backdrop-blur-sm">
+              {type}
+            </span>
+          </div>
+          <button
+            onClick={() => setLiked(!liked)}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${
+              liked ? "bg-[#C8102E] text-white" : "bg-white/90 text-gray-500 hover:bg-white"
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${liked ? "fill-white" : ""}`}/>
+          </button>
+        </div>
+
+        {/* Bottom overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3">
+          <div className="flex items-center justify-between">
+            <span className="text-2xl font-black text-white">{price}</span>
+            <span className="flex items-center gap-1 text-xs text-white/80">
+              <Eye className="w-3.5 h-3.5"/> {views}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <div className="text-xl font-bold text-red-600 mb-1">{price}</div>
-        <h3 className="font-semibold text-gray-900 text-sm mb-1 line-clamp-1">{title}</h3>
-        <p className="text-gray-500 text-xs flex items-center gap-1 mb-3">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-          </svg>
+        <h3 className="font-bold text-gray-900 text-sm mb-1.5 leading-snug line-clamp-2 group-hover:text-[#C8102E] transition-colors">
+          {title}
+        </h3>
+        <p className="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
+          <MapPin className="w-3.5 h-3.5 text-[#C8102E] shrink-0"/>
           {location}
         </p>
 
-        {/* Features */}
-        <div className="flex items-center gap-4 text-xs text-gray-600 border-t border-gray-100 pt-3">
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            {beds} Beds
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            {baths} Baths
-          </span>
-          <span className="flex items-center gap-1">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-            {area}
-          </span>
+        {/* Stats */}
+        <div className="flex items-center gap-1 border-t border-gray-100 pt-3">
+          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
+            <Bed className="w-4 h-4 text-gray-400"/>
+            <span>{beds}</span>
+            <span className="text-gray-400 text-[10px]">Beds</span>
+          </div>
+          <div className="w-px h-6 bg-gray-100"/>
+          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
+            <Bath className="w-4 h-4 text-gray-400"/>
+            <span>{baths}</span>
+            <span className="text-gray-400 text-[10px]">Baths</span>
+          </div>
+          <div className="w-px h-6 bg-gray-100"/>
+          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
+            <Maximize2 className="w-4 h-4 text-gray-400"/>
+            <span>{area}</span>
+          </div>
         </div>
+
+        {/* CTA */}
+        <button className="mt-3 w-full py-2.5 rounded-xl border-2 border-[#C8102E] text-[#C8102E] text-xs font-bold hover:bg-[#C8102E] hover:text-white transition-all">
+          View Property →
+        </button>
       </div>
     </div>
   );
