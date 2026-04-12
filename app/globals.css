@@ -1,61 +1,48 @@
 @import "tailwindcss";
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 :root {
   --brand: #C8102E;
   --brand-dark: #9b0d22;
-  --gold: #D4AF37;
 }
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: #f8f8f8;
-  color: #111;
+  background: #ffffff;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
 }
 
 .hero-bg {
-  background: linear-gradient(135deg, #0f0c29, #1a1a2e, #16213e);
+  background: linear-gradient(160deg, #0d0d1a 0%, #1a0a10 50%, #0d0d1a 100%);
 }
 
 .glass {
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-hover {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .card-hover:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.14);
-}
-
-.tag-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  transform: translateY(-5px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #C8102E, #ff6b6b);
+  background: linear-gradient(90deg, #ff4d6d, #C8102E);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #C8102E;
+  display: block;
+  margin-bottom: 8px;
 }
-.fade-up { animation: fadeUp 0.6s ease forwards; }

@@ -25,81 +25,81 @@ export default function PropertyCard({
   const [liked, setLiked] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden card-hover shadow-sm border border-gray-100 group">
-      {/* Image */}
-      <div className="relative overflow-hidden h-56">
+    <div className="bg-white rounded-2xl overflow-hidden card-hover border border-gray-100 group flex flex-col">
+
+      {/* Image container — fixed height */}
+      <div className="relative overflow-hidden h-52 shrink-0">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
+        {/* Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"/>
 
-        {/* Top row */}
-        <div className="absolute top-0 left-0 right-0 p-3 flex items-start justify-between">
-          <div className="flex flex-col gap-1.5">
-            {badge && (
-              <span className={`tag-pill text-white ${badgeColor}`}>
-                {badge}
-              </span>
-            )}
-            <span className="tag-pill bg-black/50 text-white backdrop-blur-sm">
-              {type}
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {badge && (
+            <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold text-white ${badgeColor}`}>
+              {badge}
             </span>
-          </div>
-          <button
-            onClick={() => setLiked(!liked)}
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-md ${
-              liked ? "bg-[#C8102E] text-white" : "bg-white/90 text-gray-500 hover:bg-white"
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${liked ? "fill-white" : ""}`}/>
-          </button>
+          )}
+          <span className="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold text-white bg-black/40 backdrop-blur-sm">
+            {type}
+          </span>
         </div>
 
-        {/* Bottom overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-black text-white">{price}</span>
-            <span className="flex items-center gap-1 text-xs text-white/80">
-              <Eye className="w-3.5 h-3.5"/> {views}
-            </span>
-          </div>
+        {/* Heart */}
+        <button
+          onClick={() => setLiked(!liked)}
+          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow ${
+            liked ? "bg-[#C8102E]" : "bg-white/90 hover:bg-white"
+          }`}
+        >
+          <Heart className={`w-3.5 h-3.5 ${liked ? "text-white fill-white" : "text-gray-500"}`}/>
+        </button>
+
+        {/* Price overlay */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+          <span className="text-lg font-black text-white leading-none">{price}</span>
+          <span className="flex items-center gap-1 text-[11px] text-white/70 font-medium">
+            <Eye className="w-3 h-3"/> {views}
+          </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="font-bold text-gray-900 text-sm mb-1.5 leading-snug line-clamp-2 group-hover:text-[#C8102E] transition-colors">
-          {title}
-        </h3>
-        <p className="flex items-center gap-1.5 text-xs text-gray-500 mb-4">
-          <MapPin className="w-3.5 h-3.5 text-[#C8102E] shrink-0"/>
-          {location}
-        </p>
+      <div className="p-4 flex flex-col flex-1 gap-3">
+        {/* Title + location */}
+        <div>
+          <h3 className="font-bold text-gray-900 text-sm leading-snug line-clamp-2 group-hover:text-[#C8102E] transition-colors">
+            {title}
+          </h3>
+          <p className="flex items-center gap-1 text-xs text-gray-400 mt-1.5">
+            <MapPin className="w-3 h-3 text-[#C8102E] shrink-0"/>
+            {location}
+          </p>
+        </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-1 border-t border-gray-100 pt-3">
-          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
-            <Bed className="w-4 h-4 text-gray-400"/>
-            <span>{beds}</span>
-            <span className="text-gray-400 text-[10px]">Beds</span>
-          </div>
-          <div className="w-px h-6 bg-gray-100"/>
-          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
-            <Bath className="w-4 h-4 text-gray-400"/>
-            <span>{baths}</span>
-            <span className="text-gray-400 text-[10px]">Baths</span>
-          </div>
-          <div className="w-px h-6 bg-gray-100"/>
-          <div className="flex-1 flex items-center gap-1.5 justify-center text-xs text-gray-600 font-semibold">
-            <Maximize2 className="w-4 h-4 text-gray-400"/>
-            <span>{area}</span>
-          </div>
+        {/* Features */}
+        <div className="flex items-center border-t border-gray-100 pt-3 gap-0">
+          {[
+            { icon: <Bed className="w-3.5 h-3.5"/>,      val: beds  > 0 ? beds  : "—", label: "Beds"  },
+            { icon: <Bath className="w-3.5 h-3.5"/>,     val: baths > 0 ? baths : "—", label: "Baths" },
+            { icon: <Maximize2 className="w-3.5 h-3.5"/>, val: area,                    label: ""      },
+          ].map((f, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center">
+              {i > 0 && <span className="absolute w-px h-5 bg-gray-100 self-center"/>}
+              <div className="flex items-center gap-1 text-gray-400">{f.icon}</div>
+              <span className="text-xs font-bold text-gray-800">{f.val}</span>
+              {f.label && <span className="text-[10px] text-gray-400">{f.label}</span>}
+            </div>
+          ))}
         </div>
 
         {/* CTA */}
-        <button className="mt-3 w-full py-2.5 rounded-xl border-2 border-[#C8102E] text-[#C8102E] text-xs font-bold hover:bg-[#C8102E] hover:text-white transition-all">
-          View Property →
+        <button className="w-full py-2.5 rounded-xl text-xs font-bold border-2 border-[#C8102E] text-[#C8102E] hover:bg-[#C8102E] hover:text-white transition-all mt-auto">
+          View Property
         </button>
       </div>
     </div>
