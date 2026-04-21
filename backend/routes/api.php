@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/properties/{property}/inquiries', [InquiryController::class, 'index']);
     Route::get('/my-inquiries', [InquiryController::class, 'myInquiries']);
     Route::get('/received-inquiries', [InquiryController::class, 'receivedInquiries']);
+
+    // Favorites / saved properties
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::get('/favorites/ids', [FavoriteController::class, 'ids']);
+    Route::post('/favorites/{property}', [FavoriteController::class, 'toggle']);
 
     // Admin routes
     Route::prefix('admin')->group(function () {

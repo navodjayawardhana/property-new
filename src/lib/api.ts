@@ -344,6 +344,22 @@ export const admin = {
     request<{ message: string }>(`/admin/inquiries/${id}`, { method: 'DELETE', token }),
 };
 
+// ─── Favorites ───────────────────────────────────────────────────────────────
+
+export const favorites = {
+  /** Returns full property objects the user has saved */
+  list: (token: string) =>
+    request<Property[]>('/favorites', { token }),
+
+  /** Returns a plain array of saved property IDs */
+  ids: (token: string) =>
+    request<number[]>('/favorites/ids', { token }),
+
+  /** Toggle save/unsave a property. Returns { saved: boolean } */
+  toggle: (propertyId: number, token: string) =>
+    request<{ saved: boolean }>(`/favorites/${propertyId}`, { method: 'POST', token }),
+};
+
 // ─── Profile ─────────────────────────────────────────────────────────────────
 
 export const profile = {
