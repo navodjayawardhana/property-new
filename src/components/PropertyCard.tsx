@@ -1,11 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { Bed, Bath, Car, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { Property } from "@/lib/api";
 import { formatPrice, getPrimaryImageUrl } from "@/lib/utils";
+import { isSaved, toggleSaved } from "@/lib/saved-properties";
 
 export default function PropertyCard({ property }: { property: Property }) {
   const isSold = property.listing_type === "sold";
   const isNew = !isSold && property.days_listed <= 3;
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => { setSaved(isSaved(property.id)); }, [property.id]);
 
   return (
     <Link href={`/property/${property.id}`} className="block group">
@@ -27,10 +34,10 @@ export default function PropertyCard({ property }: { property: Property }) {
             )}
           </div>
           <button
-            onClick={(e) => e.preventDefault()}
-            className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-500 hover:text-[#121e80] transition-colors shadow-sm"
+            onClick={(e) => { e.preventDefault(); setSaved(toggleSaved(property)); }}
+            className={`absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors shadow-sm ${saved ? "text-red-500" : "text-gray-500 hover:text-red-400"}`}
           >
-            <Heart size={14} />
+            <Heart size={14} fill={saved ? "currentColor" : "none"} />
           </button>
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent h-16" />
           <span className="absolute bottom-2.5 left-3 text-white text-xs font-semibold">{property.property_type}</span>

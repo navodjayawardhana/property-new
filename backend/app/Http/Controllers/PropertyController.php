@@ -18,8 +18,24 @@ class PropertyController extends Controller
             $query->where('listing_type', $request->listing_type);
         }
 
+        // Full-text keyword search across title, address, suburb, postcode, state
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($builder) use ($q) {
+                $builder->where('title', 'like', "%{$q}%")
+                        ->orWhere('address', 'like', "%{$q}%")
+                        ->orWhere('suburb', 'like', "%{$q}%")
+                        ->orWhere('postcode', 'like', "%{$q}%")
+                        ->orWhere('state', 'like', "%{$q}%")
+                        ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
         if ($request->filled('property_type')) {
-            $query->where('property_type', $request->property_type);
+            $types = is_array($request->property_type)
+                ? $request->property_type
+                : explode(',', $request->property_type);
+            $query->whereIn('property_type', $types);
         }
 
         if ($request->filled('suburb')) {
@@ -30,16 +46,28 @@ class PropertyController extends Controller
             $query->where('state', $request->state);
         }
 
+        if ($request->filled('postcode')) {
+            $query->where('postcode', 'like', $request->postcode . '%');
+        }
+
         if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
+            $query->where('price', '>=', (int) $request->min_price);
         }
 
         if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
+            $query->where('price', '<=', (int) $request->max_price);
         }
 
         if ($request->filled('beds')) {
-            $query->where('beds', '>=', $request->beds);
+            $query->where('beds', '>=', (int) $request->beds);
+        }
+
+        if ($request->filled('baths')) {
+            $query->where('baths', '>=', (int) $request->baths);
+        }
+
+        if ($request->filled('cars')) {
+            $query->where('cars', '>=', (int) $request->cars);
         }
 
         if ($request->filled('status')) {
@@ -154,6 +182,17 @@ class PropertyController extends Controller
         $property->delete();
 
         return response()->json(['message' => 'Property deleted successfully.']);
+    }
+
+    public function myProperties(Request $request): JsonResponse
+    {
+        $properties = $request->user()
+            ->properties()
+            ->with('images')
+            ->latest()
+            ->paginate($request->get('per_page', 50));
+
+        return response()->json($properties);
     }
 
     public function uploadImages(Request $request, Property $property): JsonResponse

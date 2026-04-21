@@ -11,7 +11,7 @@ const navLinks = [
   { label: "Rent", href: "/rent" },
   { label: "Sold", href: "/sold" },
   { label: "New homes", href: "/buy" },
-  { label: "Find agents", href: "/" },
+  { label: "Find agents", href: "/agents" },
   { label: "Home loans", href: "/" },
   { label: "News", href: "/news" },
   { label: "Commercial", href: "/" },
@@ -45,8 +45,14 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#121e80] transition-colors font-medium"
               >
-                <div className="w-8 h-8 bg-[#121e80] rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-[#121e80] flex items-center justify-center text-white text-xs font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
                 <span>{user.name.split(" ")[0]}</span>
               </button>
@@ -57,8 +63,11 @@ export default function Navbar() {
                     <p className="text-xs font-semibold text-gray-900 truncate">{user.name}</p>
                     <p className="text-xs text-gray-400 truncate">{user.email}</p>
                   </div>
-                  <Link href="/" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                    <UserIcon size={14} /> My account
+                  <Link href={`/dashboard/${user.role}`} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setMenuOpen(false)}>
+                    <UserIcon size={14} /> Dashboard
+                  </Link>
+                  <Link href="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setMenuOpen(false)}>
+                    <UserIcon size={14} /> My Profile
                   </Link>
                   <button
                     onClick={() => { logout(); setMenuOpen(false); }}

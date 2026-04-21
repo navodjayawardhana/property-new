@@ -51,6 +51,10 @@ export type User = {
   phone: string | null;
   role: 'buyer' | 'seller' | 'agent' | 'admin';
   avatar: string | null;
+  suburb: string | null;
+  state: string | null;
+  postcode: string | null;
+  country: string | null;
 };
 
 export type AuthResponse = { user: User; token: string };
@@ -85,9 +89,18 @@ export type PropertyImage = {
   sort_order: number;
 };
 
+export type PropertyOwner = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+};
+
 export type Property = {
   id: number;
   user_id: number;
+  user?: PropertyOwner;
   title: string;
   price: number;
   price_per_week: number | null;
@@ -123,12 +136,16 @@ export type PaginatedProperties = {
 
 export type PropertyFilters = {
   listing_type?: 'buy' | 'rent' | 'sold';
+  q?: string;
   property_type?: string;
   suburb?: string;
   state?: string;
+  postcode?: string;
   min_price?: number;
   max_price?: number;
   beds?: number;
+  baths?: number;
+  cars?: number;
   featured?: boolean;
   per_page?: number;
   page?: number;
@@ -169,9 +186,24 @@ export const properties = {
       method: 'DELETE',
       token,
     }),
+
+  mine: (token: string) =>
+    request<PaginatedProperties>('/my-properties', { token }),
 };
 
 // ─── Inquiries ───────────────────────────────────────────────────────────────
+
+export type InquiryProperty = {
+  id: number;
+  title: string;
+  address: string;
+  suburb: string;
+  state: string;
+  postcode: string;
+  listing_type: string;
+  price: number;
+  price_per_week: number | null;
+};
 
 export type Inquiry = {
   id: number;
@@ -184,6 +216,8 @@ export type Inquiry = {
   inquiry_type: 'buying' | 'renting' | 'general';
   status: 'pending' | 'contacted' | 'resolved';
   created_at: string;
+  property?: InquiryProperty;
+  user?: { id: number; name: string; email: string; phone: string | null; avatar: string | null };
 };
 
 export const inquiries = {
@@ -202,4 +236,72 @@ export const inquiries = {
     request<Inquiry[]>(`/properties/${propertyId}/inquiries`, { token }),
 
   mine: (token: string) => request<Inquiry[]>('/my-inquiries', { token }),
+
+  received: (token: string) => request<Inquiry[]>('/received-inquiries', { token }),
+};
+
+// ─── Agents ──────────────────────────────────────────────────────────────────
+
+export type Agent = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  suburb: string | null;
+  state: string | null;
+  postcode: string | null;
+  country: string | null;
+};
+
+export type PaginatedAgents = {
+  data: Agent[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+export type AgentFilters = {
+  search?: string;
+  suburb?: string;
+  state?: string;
+  page?: number;
+};
+
+export const agentsApi = {
+  list: (filters?: AgentFilters) => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([k, v]) => {
+        if (v !== undefined && v !== '') params.set(k, String(v));
+      });
+    }
+    const qs = params.toString();
+    return request<PaginatedAgents>(`/agents${qs ? `?${qs}` : ''}`);
+  },
+};
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+
+export const profile = {
+  update: (data: {
+    name?: string;
+    email?: string;
+    phone?: string | null;
+    suburb?: string | null;
+    state?: string | null;
+    postcode?: string | null;
+    country?: string | null;
+  }, token: string) =>
+    request<User>('/profile', { method: 'PATCH', body: data, token }),
+
+  updatePassword: (data: { current_password: string; password: string; password_confirmation: string }, token: string) =>
+    request<{ message: string }>('/profile/password', { method: 'PUT', body: data, token }),
+
+  uploadAvatar: (formData: FormData, token: string) =>
+    request<User>('/profile/avatar', { method: 'POST', body: formData, token }),
+
+  deleteAvatar: (token: string) =>
+    request<User>('/profile/avatar', { method: 'DELETE', token }),
 };

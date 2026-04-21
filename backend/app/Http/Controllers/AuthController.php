@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -30,10 +32,7 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ], 201);
+        return response()->json(['user' => $user, 'token' => $token], 201);
     }
 
     public function login(Request $request): JsonResponse
@@ -52,10 +51,7 @@ class AuthController extends Controller
         $user  = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'user'  => $user,
-            'token' => $token,
-        ]);
+        return response()->json(['user' => $user, 'token' => $token]);
     }
 
     public function logout(Request $request): JsonResponse
@@ -68,5 +64,95 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json($request->user());
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'     => 'sometimes|string|max:255',
+            'email'    => 'sometimes|email|unique:users,email,' . $user->id,
+            'phone'    => 'nullable|string|max:20',
+            'suburb'   => 'nullable|string|max:100',
+            'state'    => 'nullable|string|max:10',
+            'postcode' => 'nullable|string|max:10',
+            'country'  => 'nullable|string|max:60',
+        ]);
+
+        $user->update($validated);
+
+        return response()->json($user->fresh());
+    }
+
+    public function updatePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        if (! Hash::check($request->current_password, $request->user()->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['Current password is incorrect.'],
+            ]);
+        }
+
+        $request->user()->update(['password' => $request->password]);
+
+        return response()->json(['message' => 'Password updated successfully.']);
+    }
+
+    public function uploadAvatar(Request $request): JsonResponse
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
+
+        $user = $request->user();
+
+        $oldPath = $user->getAttributes()['avatar'] ?? null;
+        if ($oldPath && ! str_starts_with($oldPath, 'http')) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->update(['avatar' => $path]);
+
+        return response()->json($user->fresh());
+    }
+
+    public function agents(Request $request): JsonResponse
+    {
+        $query = User::where('role', 'agent')->orderBy('name');
+
+        if ($request->filled('suburb')) {
+            $query->where('suburb', 'like', '%' . $request->suburb . '%');
+        }
+        if ($request->filled('state')) {
+            $query->where('state', $request->state);
+        }
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        $agents = $query->select(['id', 'name', 'email', 'phone', 'avatar', 'suburb', 'state', 'postcode', 'country'])
+            ->paginate(24);
+
+        return response()->json($agents);
+    }
+
+    public function deleteAvatar(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $oldPath = $user->getAttributes()['avatar'] ?? null;
+        if ($oldPath && ! str_starts_with($oldPath, 'http')) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $user->update(['avatar' => null]);
+
+        return response()->json($user->fresh());
     }
 }

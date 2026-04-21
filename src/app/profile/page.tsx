@@ -1,0 +1,310 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { useAuth } from "@/lib/auth-context";
+import { profile as profileApi, type User } from "@/lib/api";
+import { Camera, Trash2, Loader2, Check, Eye, EyeOff, Shield, Phone, Mail, UserIcon, MapPin } from "lucide-react";
+
+const ROLE_LABELS: Record<string, { label: string; color: string }> = {
+  buyer:  { label: 'Buyer',  color: 'bg-blue-100 text-blue-700' },
+  seller: { label: 'Seller', color: 'bg-green-100 text-green-700' },
+  agent:  { label: 'Agent',  color: 'bg-purple-100 text-purple-700' },
+  admin:  { label: 'Admin',  color: 'bg-red-100 text-red-700' },
+};
+
+export default function ProfilePage() {
+  const { user, token, loading, updateUser } = useAuth();
+  const router = useRouter();
+  const avatarRef = useRef<HTMLInputElement>(null);
+
+  // Profile form
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [suburb, setSuburb] = useState('');
+  const [userState, setUserState] = useState('');
+  const [postcode, setPostcode] = useState('');
+  const [country, setCountry] = useState('Australia');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
+  // Password form
+  const [currentPw, setCurrentPw] = useState('');
+  const [newPw, setNewPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [showPw, setShowPw] = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+
+  // Avatar
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && !user) router.replace('/signin');
+  }, [loading, user, router]);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPhone(user.phone ?? '');
+      setSuburb(user.suburb ?? '');
+      setUserState(user.state ?? '');
+      setPostcode(user.postcode ?? '');
+      setCountry(user.country ?? 'Australia');
+    }
+  }, [user]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setAvatarLoading(true);
+    const preview = URL.createObjectURL(file);
+    setAvatarPreview(preview);
+    try {
+      const fd = new FormData();
+      fd.append('avatar', file);
+      const updated = await profileApi.uploadAvatar(fd, token);
+      updateUser(updated);
+      setAvatarPreview(null);
+    } catch (err: unknown) {
+      setAvatarPreview(null);
+      alert((err as Error).message ?? 'Upload failed');
+    } finally {
+      setAvatarLoading(false);
+      if (avatarRef.current) avatarRef.current.value = '';
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    if (!token || !user?.avatar) return;
+    if (!confirm('Remove your profile photo?')) return;
+    setAvatarLoading(true);
+    try {
+      const updated = await profileApi.deleteAvatar(token);
+      updateUser(updated);
+    } catch { /* ignore */ }
+    finally { setAvatarLoading(false); }
+  }
+
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setSavingProfile(true);
+    setProfileMsg(null);
+    try {
+      const updated = await profileApi.update({
+        name, email,
+        phone: phone || null,
+        suburb: suburb || null,
+        state: userState || null,
+        postcode: postcode || null,
+        country: country || null,
+      }, token);
+      updateUser(updated);
+      setProfileMsg({ type: 'ok', text: 'Profile updated successfully.' });
+    } catch (err: unknown) {
+      const e = err as Error & { errors?: Record<string, string[]> };
+      setProfileMsg({ type: 'err', text: e.errors ? Object.values(e.errors).flat().join(' · ') : (e.message ?? 'Update failed') });
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    if (newPw !== confirmPw) { setPwMsg({ type: 'err', text: 'New passwords do not match.' }); return; }
+    setSavingPw(true);
+    setPwMsg(null);
+    try {
+      await profileApi.updatePassword({ current_password: currentPw, password: newPw, password_confirmation: confirmPw }, token);
+      setPwMsg({ type: 'ok', text: 'Password changed successfully.' });
+      setCurrentPw(''); setNewPw(''); setConfirmPw('');
+    } catch (err: unknown) {
+      const e = err as Error & { errors?: Record<string, string[]> };
+      setPwMsg({ type: 'err', text: e.errors ? Object.values(e.errors).flat().join(' · ') : (e.message ?? 'Failed to change password') });
+    } finally {
+      setSavingPw(false);
+    }
+  }
+
+  if (loading || !user) return null;
+
+  const avatarSrc = avatarPreview ?? user.avatar;
+  const role = ROLE_LABELS[user.role] ?? { label: user.role, color: 'bg-gray-100 text-gray-600' };
+  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#121e80] transition-colors bg-white";
+  const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
+
+      <div className="max-w-2xl mx-auto px-4 py-8 w-full flex-1">
+        <div className="mb-6">
+          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Settings</p>
+          <h1 className="text-2xl font-black text-gray-900 mt-0.5">My Profile</h1>
+        </div>
+
+        {/* Avatar card */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
+          <h2 className="text-sm font-bold text-gray-900 mb-4">Profile Photo</h2>
+          <div className="flex items-center gap-5">
+            <div className="relative shrink-0">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center">
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white text-2xl font-black">{user.name.charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              {avatarLoading && (
+                <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                  <Loader2 size={18} className="animate-spin text-white" />
+                </div>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-gray-900">{user.name}</p>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${role.color}`}>{role.label}</span>
+              <div className="flex gap-2 mt-3">
+                <button type="button" onClick={() => avatarRef.current?.click()} disabled={avatarLoading}
+                  className="flex items-center gap-1.5 text-xs font-semibold bg-[#121e80] text-white px-3 py-1.5 rounded-lg hover:bg-[#0d1660] transition-colors disabled:opacity-50">
+                  <Camera size={12} /> Change photo
+                </button>
+                {user.avatar && (
+                  <button type="button" onClick={handleRemoveAvatar} disabled={avatarLoading}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-red-500 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50">
+                    <Trash2 size={12} /> Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+          <input ref={avatarRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp" className="hidden" onChange={handleAvatarChange} />
+        </div>
+
+        {/* Profile info card */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
+          <h2 className="text-sm font-bold text-gray-900 mb-4">Personal Information</h2>
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            <div>
+              <label className={lbl}><span className="flex items-center gap-1.5"><UserIcon size={11} /> Full Name</span></label>
+              <input required className={inp} value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
+            </div>
+            <div>
+              <label className={lbl}><span className="flex items-center gap-1.5"><Mail size={11} /> Email Address</span></label>
+              <input required type="email" className={inp} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            </div>
+            <div>
+              <label className={lbl}><span className="flex items-center gap-1.5"><Phone size={11} /> Phone Number</span></label>
+              <input type="tel" className={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+61 4XX XXX XXX" />
+            </div>
+
+            <div className="border-t border-gray-100 pt-4">
+              <p className="text-xs font-semibold text-gray-500 flex items-center gap-1.5 mb-3"><MapPin size={11} /> Location</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <label className={lbl}>Suburb</label>
+                  <input className={inp} value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Richmond" />
+                </div>
+                <div>
+                  <label className={lbl}>State</label>
+                  <select className={inp} value={userState} onChange={(e) => setUserState(e.target.value)}>
+                    <option value="">Select state</option>
+                    <option value="VIC">VIC</option>
+                    <option value="NSW">NSW</option>
+                    <option value="QLD">QLD</option>
+                    <option value="WA">WA</option>
+                    <option value="SA">SA</option>
+                    <option value="TAS">TAS</option>
+                    <option value="ACT">ACT</option>
+                    <option value="NT">NT</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Postcode</label>
+                  <input className={inp} value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="e.g. 3121" maxLength={10} />
+                </div>
+                <div className="col-span-2">
+                  <label className={lbl}>Country</label>
+                  <input className={inp} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Australia" />
+                </div>
+              </div>
+            </div>
+
+            {profileMsg && (
+              <div className={`text-sm px-3 py-2 rounded-lg ${profileMsg.type === 'ok' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                {profileMsg.text}
+              </div>
+            )}
+
+            <button type="submit" disabled={savingProfile}
+              className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+              Save changes
+            </button>
+          </form>
+        </div>
+
+        {/* Password card */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
+          <h2 className="text-sm font-bold text-gray-900 mb-1">Change Password</h2>
+          <p className="text-xs text-gray-400 mb-4">Leave fields blank to keep your current password</p>
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label className={lbl}><span className="flex items-center gap-1.5"><Shield size={11} /> Current Password</span></label>
+              <div className="relative">
+                <input required type={showPw ? 'text' : 'password'} className={inp + ' pr-10'} value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} placeholder="Enter current password" />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className={lbl}>New Password</label>
+              <input required type={showPw ? 'text' : 'password'} className={inp} value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Min 8 characters" minLength={8} />
+            </div>
+            <div>
+              <label className={lbl}>Confirm New Password</label>
+              <input required type={showPw ? 'text' : 'password'} className={inp} value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} placeholder="Repeat new password" />
+            </div>
+
+            {pwMsg && (
+              <div className={`text-sm px-3 py-2 rounded-lg ${pwMsg.type === 'ok' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                {pwMsg.text}
+              </div>
+            )}
+
+            <button type="submit" disabled={savingPw}
+              className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              {savingPw ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />}
+              Update password
+            </button>
+          </form>
+        </div>
+
+        {/* Account info card */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <h2 className="text-sm font-bold text-gray-900 mb-4">Account Details</h2>
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-gray-500">Account type</dt>
+              <dd><span className={`font-semibold text-xs px-2 py-0.5 rounded-full ${role.color}`}>{role.label}</span></dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-gray-500">User ID</dt>
+              <dd className="text-gray-700 font-mono text-xs">#{user.id}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+}

@@ -7,14 +7,28 @@ import { Search, SlidersHorizontal, X, ChevronDown, MapPin } from "lucide-react"
 type SearchTab = "Buy" | "Rent" | "Sold" | "Address" | "Agents";
 
 const tabRoutes: Record<string, string> = {
-  Buy: "/buy", Rent: "/rent", Sold: "/sold", Address: "/buy", Agents: "/",
+  Buy: "/buy", Rent: "/rent", Sold: "/sold", Address: "/buy", Agents: "/agents",
 };
+
+const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
 const priceRangesBuy = ["Any","$200,000","$300,000","$400,000","$500,000","$600,000","$700,000","$800,000","$900,000","$1,000,000","$1,250,000","$1,500,000","$2,000,000","$3,000,000+"];
 const priceRangesRent = ["Any","$200/wk","$300/wk","$400/wk","$500/wk","$600/wk","$700/wk","$800/wk","$1,000/wk","$1,500/wk+"];
 const bedroomOptions = ["Any","1+","2+","3+","4+","5+"];
 const propertyTypes = ["House","Apartment / Unit","Townhouse","Villa","Land","Rural","Block of Units","Retirement Living"];
-const suggestions = ["Sydney NSW","Melbourne VIC","Brisbane QLD","Perth WA","Adelaide SA","Gold Coast QLD","Hobart TAS"];
+
+const suggestions = [
+  "Sydney NSW","Melbourne VIC","Brisbane QLD","Perth WA","Adelaide SA",
+  "Gold Coast QLD","Hobart TAS","Canberra ACT","Darwin NT","Newcastle NSW",
+  "Geelong VIC","Sunshine Coast QLD","Wollongong NSW","Cairns QLD","Toowoomba QLD",
+];
+
+// Strip price string to integer (returns null for "Any" or "...+")
+function parsePrice(p: string): number | null {
+  if (!p || p === "Any" || p.endsWith("+")) return null;
+  const n = parseInt(p.replace(/[^0-9]/g, ""), 10);
+  return isNaN(n) ? null : n;
+}
 
 type Props = { defaultTab?: SearchTab; title?: string };
 
@@ -26,28 +40,95 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
   const [minPrice, setMinPrice] = useState("Any");
   const [maxPrice, setMaxPrice] = useState("Any");
   const [minBeds, setMinBeds] = useState("Any");
+  const [minBaths, setMinBaths] = useState("Any");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const router = useRouter();
 
   const priceRanges = tab === "Rent" ? priceRangesRent : priceRangesBuy;
 
-  // lock body scroll when modal open
   useEffect(() => {
     document.body.style.overflow = showModal ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [showModal]);
 
-  const handleSearch = () => { setShowSuggestions(false); router.push(tabRoutes[tab]); };
-  const toggleType = (t: string) => setSelectedTypes((p) => p.includes(t) ? p.filter((x) => x !== t) : [...p, t]);
-  const clearAll = () => { setMinPrice("Any"); setMaxPrice("Any"); setMinBeds("Any"); setSelectedTypes([]); };
+  const handleSearch = () => {
+    setShowSuggestions(false);
+    setShowModal(false);
 
-  const activeFilterCount = [minPrice !== "Any", maxPrice !== "Any", minBeds !== "Any", selectedTypes.length > 0].filter(Boolean).length;
+    const params = new URLSearchParams();
+    const trimmed = query.trim();
 
-  const placeholder = tab === "Agents" ? "Search by agent name, suburb or postcode" : tab === "Address" ? "Enter a street address" : "Search suburb, postcode or state";
+    if (tab === "Agents") {
+      if (trimmed) params.set("search", trimmed);
+      router.push(`/agents${params.toString() ? "?" + params.toString() : ""}`);
+      return;
+    }
+
+    if (trimmed) {
+      // "Suburb STATE" → extract both
+      const stateMatch = trimmed.match(
+        new RegExp(`^(.+?)\\s+(${AU_STATES.join("|")})$`, "i")
+      );
+      if (stateMatch) {
+        params.set("suburb", stateMatch[1].trim());
+        params.set("state", stateMatch[2].toUpperCase());
+      } else if (/^\d{4}$/.test(trimmed)) {
+        params.set("postcode", trimmed);
+      } else if (AU_STATES.includes(trimmed.toUpperCase())) {
+        params.set("state", trimmed.toUpperCase());
+      } else {
+        // General keyword: suburb name, address, title, etc.
+        params.set("q", trimmed);
+      }
+    }
+
+    // Price
+    const min = parsePrice(minPrice);
+    const max = parsePrice(maxPrice);
+    if (min !== null) params.set("min_price", String(min));
+    if (max !== null) params.set("max_price", String(max));
+
+    // Beds
+    if (minBeds !== "Any") params.set("beds", minBeds.replace("+", ""));
+
+    // Baths
+    if (minBaths !== "Any") params.set("baths", minBaths.replace("+", ""));
+
+    // Property types
+    if (selectedTypes.length > 0) {
+      params.set("property_type", selectedTypes.join(","));
+    }
+
+    const qs = params.toString();
+    router.push(`${tabRoutes[tab]}${qs ? "?" + qs : ""}`);
+  };
+
+  const toggleType = (t: string) =>
+    setSelectedTypes((p) => p.includes(t) ? p.filter((x) => x !== t) : [...p, t]);
+
+  const clearAll = () => {
+    setMinPrice("Any"); setMaxPrice("Any");
+    setMinBeds("Any"); setMinBaths("Any");
+    setSelectedTypes([]);
+  };
+
+  const filteredSuggestions = suggestions.filter((s) =>
+    s.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const activeFilterCount = [
+    minPrice !== "Any", maxPrice !== "Any",
+    minBeds !== "Any", minBaths !== "Any",
+    selectedTypes.length > 0,
+  ].filter(Boolean).length;
+
+  const placeholder =
+    tab === "Agents" ? "Search by agent name, suburb or postcode" :
+    tab === "Address" ? "Enter a street address" :
+    "Search suburb, postcode or state";
 
   return (
     <>
-      {/* ── Hero card ── */}
       <div className="max-w-7xl mx-auto px-4 py-5 w-full">
         <div
           className="relative rounded-2xl overflow-hidden min-h-[300px] flex items-center justify-center bg-cover bg-center"
@@ -58,10 +139,14 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
         >
           <div className="relative w-full max-w-2xl mx-auto px-4 py-10">
             <div className="bg-white rounded-xl shadow-2xl overflow-visible">
-              {/* Title */}
               <div className="px-5 pt-4 pb-1">
                 <p className="text-sm font-semibold text-gray-800">
-                  {title ?? `Search properties for ${tab === "Buy" ? "sale" : tab === "Rent" ? "rent" : tab === "Sold" ? "sold" : tab === "Address" ? "sale" : "agents"}`}
+                  {title ??
+                    (tab === "Buy" ? "Search properties for sale" :
+                     tab === "Rent" ? "Search properties for rent" :
+                     tab === "Sold" ? "Search sold properties" :
+                     tab === "Address" ? "Search by address" :
+                     "Find a real estate agent")}
                 </p>
               </div>
 
@@ -83,14 +168,15 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     type="text" value={query}
                     onChange={(e) => { setQuery(e.target.value); setShowSuggestions(e.target.value.length > 0); }}
                     onFocus={() => setShowSuggestions(query.length > 0)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     placeholder={placeholder}
                     className="w-full text-sm text-gray-800 placeholder-gray-400 outline-none"
                   />
-                  {showSuggestions && (
+                  {showSuggestions && filteredSuggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                      {suggestions.filter((s) => s.toLowerCase().includes(query.toLowerCase())).map((s) => (
-                        <button key={s} onClick={() => { setQuery(s); setShowSuggestions(false); }}
+                      {filteredSuggestions.slice(0, 6).map((s) => (
+                        <button key={s} onMouseDown={() => { setQuery(s); setShowSuggestions(false); }}
                           className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left">
                           <MapPin size={13} className="text-gray-400 shrink-0" />{s}
                         </button>
@@ -98,20 +184,25 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     </div>
                   )}
                 </div>
-                {query && <button onClick={() => { setQuery(""); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>}
+                {query && (
+                  <button onClick={() => { setQuery(""); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600">
+                    <X size={14} />
+                  </button>
+                )}
 
                 <div className="w-px h-5 bg-gray-200 shrink-0" />
 
-                {/* Filters → opens modal */}
-                <button
-                  onClick={() => setShowModal(true)}
-                  className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded border transition-colors shrink-0 ${activeFilterCount > 0 ? "bg-blue-50 border-[#121e80] text-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-500"}`}>
-                  <SlidersHorizontal size={14} />
-                  Filters
-                  {activeFilterCount > 0 && (
-                    <span className="bg-[#121e80] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{activeFilterCount}</span>
-                  )}
-                </button>
+                {tab !== "Agents" && (
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded border transition-colors shrink-0 ${activeFilterCount > 0 ? "bg-blue-50 border-[#121e80] text-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-500"}`}>
+                    <SlidersHorizontal size={14} />
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <span className="bg-[#121e80] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{activeFilterCount}</span>
+                    )}
+                  </button>
+                )}
 
                 <button onClick={handleSearch}
                   className="bg-[#121e80] hover:bg-[#0d1660] active:scale-95 text-white text-sm font-bold px-5 py-1.5 rounded transition-all shrink-0">
@@ -123,15 +214,11 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
         </div>
       </div>
 
-      {/* ── Filter modal ── */}
+      {/* Filter modal */}
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-
-          {/* Modal panel */}
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-2xl z-10">
               <h2 className="text-base font-bold text-gray-900">Filters</h2>
               <button onClick={() => setShowModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
@@ -169,11 +256,24 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
               {/* Bedrooms */}
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Bedrooms</h3>
-                <div className="flex gap-2">
+                <h3 className="text-sm font-bold text-gray-900 mb-3">Bedrooms (min)</h3>
+                <div className="flex gap-2 flex-wrap">
                   {bedroomOptions.map((b) => (
                     <button key={b} onClick={() => setMinBeds(b)}
-                      className={`flex-1 text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBeds === b ? "bg-[#121e80] text-white border-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBeds === b ? "bg-[#121e80] text-white border-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                      {b}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bathrooms */}
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 mb-3">Bathrooms (min)</h3>
+                <div className="flex gap-2 flex-wrap">
+                  {bedroomOptions.map((b) => (
+                    <button key={b} onClick={() => setMinBaths(b)}
+                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBaths === b ? "bg-[#121e80] text-white border-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
                       {b}
                     </button>
                   ))}
@@ -188,7 +288,11 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     <button key={type} onClick={() => toggleType(type)}
                       className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-blue-50 border-[#121e80] text-[#121e80]" : "border-gray-200 text-gray-700 hover:border-gray-400 bg-white"}`}>
                       <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#121e80] border-[#121e80]" : "border-gray-300"}`}>
-                        {selectedTypes.includes(type) && <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        {selectedTypes.includes(type) && (
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
                       </div>
                       {type}
                     </button>
@@ -197,7 +301,6 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               </div>
             </div>
 
-            {/* Modal footer */}
             <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 sticky bottom-0 bg-white rounded-b-2xl">
               <button onClick={clearAll} className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors underline">
                 Clear all
