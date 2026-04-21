@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, LogOut, User as UserIcon } from "lucide-react";
+import { Menu, X, LogOut, User as UserIcon, Shield } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const navLinks = [
@@ -66,6 +66,11 @@ export default function Navbar() {
                   <Link href={`/dashboard/${user.role}`} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setMenuOpen(false)}>
                     <UserIcon size={14} /> Dashboard
                   </Link>
+                  {user.role === "admin" && (
+                    <Link href="/dashboard/admin" className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-semibold" onClick={() => setMenuOpen(false)}>
+                      <Shield size={14} /> Admin Panel
+                    </Link>
+                  )}
                   <Link href="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setMenuOpen(false)}>
                     <UserIcon size={14} /> My Profile
                   </Link>

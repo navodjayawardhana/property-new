@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\PropertyController;
@@ -48,4 +49,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/properties/{property}/inquiries', [InquiryController::class, 'index']);
     Route::get('/my-inquiries', [InquiryController::class, 'myInquiries']);
     Route::get('/received-inquiries', [InquiryController::class, 'receivedInquiries']);
+
+    // Admin routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/stats',                      [AdminController::class, 'stats']);
+        Route::get('/users',                      [AdminController::class, 'users']);
+        Route::patch('/users/{user}',             [AdminController::class, 'updateUser']);
+        Route::delete('/users/{user}',            [AdminController::class, 'deleteUser']);
+        Route::get('/properties',                 [AdminController::class, 'properties']);
+        Route::patch('/properties/{property}',    [AdminController::class, 'updateProperty']);
+        Route::delete('/properties/{property}',   [AdminController::class, 'deleteProperty']);
+        Route::get('/inquiries',                  [AdminController::class, 'inquiries']);
+        Route::patch('/inquiries/{inquiry}',      [AdminController::class, 'updateInquiry']);
+        Route::delete('/inquiries/{inquiry}',     [AdminController::class, 'deleteInquiry']);
+    });
 });

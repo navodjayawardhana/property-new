@@ -282,6 +282,68 @@ export const agentsApi = {
   },
 };
 
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export type AdminStats = {
+  users: { total: number; buyers: number; sellers: number; agents: number; admins: number; new_this_week: number };
+  properties: { total: number; active: number; inactive: number; sold: number; featured: number; buy: number; rent: number; new_this_week: number };
+  inquiries: { total: number; pending: number; contacted: number; resolved: number; new_this_week: number };
+};
+
+export type PaginatedUsers = {
+  data: (User & { created_at: string })[];
+  current_page: number; last_page: number; per_page: number; total: number;
+};
+
+export type PaginatedInquiries = {
+  data: Inquiry[];
+  current_page: number; last_page: number; per_page: number; total: number;
+};
+
+function buildQs(obj: Record<string, unknown>): string {
+  const p = new URLSearchParams();
+  Object.entries(obj).forEach(([k, v]) => { if (v !== undefined && v !== '' && v !== null) p.set(k, String(v)); });
+  return p.toString();
+}
+
+export const admin = {
+  stats: (token: string) =>
+    request<AdminStats>('/admin/stats', { token }),
+
+  users: (filters: { role?: string; search?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedUsers>(`/admin/users${qs ? '?' + qs : ''}`, { token });
+  },
+
+  updateUser: (id: number, data: { role?: string; name?: string; email?: string }, token: string) =>
+    request<User>(`/admin/users/${id}`, { method: 'PATCH', body: data, token }),
+
+  deleteUser: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE', token }),
+
+  properties: (filters: { status?: string; listing_type?: string; search?: string; featured?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedProperties>(`/admin/properties${qs ? '?' + qs : ''}`, { token });
+  },
+
+  updateProperty: (id: number, data: { status?: string; is_featured?: boolean; listing_type?: string }, token: string) =>
+    request<Property>(`/admin/properties/${id}`, { method: 'PATCH', body: data, token }),
+
+  deleteProperty: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/properties/${id}`, { method: 'DELETE', token }),
+
+  inquiries: (filters: { status?: string; inquiry_type?: string; search?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedInquiries>(`/admin/inquiries${qs ? '?' + qs : ''}`, { token });
+  },
+
+  updateInquiry: (id: number, status: string, token: string) =>
+    request<Inquiry>(`/admin/inquiries/${id}`, { method: 'PATCH', body: { status }, token }),
+
+  deleteInquiry: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/inquiries/${id}`, { method: 'DELETE', token }),
+};
+
 // ─── Profile ─────────────────────────────────────────────────────────────────
 
 export const profile = {
