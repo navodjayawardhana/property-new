@@ -1,27 +1,42 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
 import ExploreSection from "@/components/ExploreSection";
 import NewsCard from "@/components/NewsCard";
 import PropertyCard from "@/components/PropertyCard";
+import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
 import { newsArticles, brokers } from "@/data/news";
-import { properties } from "@/data/properties";
+import { properties as propertiesApi, type Property } from "@/lib/api";
 import { ChevronDown, ChevronRight, TrendingUp, Home, Key, Award } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
-  const featuredBuy = properties.filter((p) => p.listingType === "buy").slice(0, 3);
-  const featuredRent = properties.filter((p) => p.listingType === "rent").slice(0, 2);
+  const [buyProps, setBuyProps] = useState<Property[]>([]);
+  const [rentProps, setRentProps] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const latestNews = newsArticles.slice(0, 4);
+
+  useEffect(() => {
+    Promise.all([
+      propertiesApi.list({ listing_type: "buy", featured: true, per_page: 3 }),
+      propertiesApi.list({ listing_type: "rent", per_page: 2 }),
+    ])
+      .then(([buyRes, rentRes]) => {
+        setBuyProps(buyRes.data.slice(0, 3));
+        setRentProps(rentRes.data.slice(0, 2));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <SearchHero defaultTab="Buy" />
 
-      {/* ── Stats bar ── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
@@ -43,10 +58,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Explore section ── */}
       <ExploreSection />
 
-      {/* ── Featured for sale ── */}
+      {/* Featured for sale */}
       <section className="max-w-7xl mx-auto px-4 py-10 w-full">
         <div className="flex items-end justify-between mb-6">
           <div>
@@ -58,17 +72,20 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {featuredBuy.map((p) => <PropertyCard key={p.id} property={p} />)}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            : buyProps.length === 0
+              ? <p className="col-span-3 text-gray-400 text-center py-10">No properties listed yet.</p>
+              : buyProps.map((p) => <PropertyCard key={p.id} property={p} />)
+          }
         </div>
       </section>
 
-      {/* ── Promo banner ── */}
+      {/* Promo banner */}
       <div className="max-w-7xl mx-auto px-4 w-full pb-6">
         <div className="relative rounded-2xl overflow-hidden bg-[#0f172a] px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div
-            className="absolute inset-0 opacity-10 bg-cover bg-center"
-            style={{ backgroundImage: "url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }}
-          />
+          <div className="absolute inset-0 opacity-10 bg-cover bg-center"
+            style={{ backgroundImage: "url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }} />
           <div className="relative">
             <p className="text-white font-bold text-xs uppercase tracking-widest mb-1">Home loans</p>
             <h3 className="text-white font-black text-xl">Explore your home loan options</h3>
@@ -80,7 +97,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── For rent ── */}
+      {/* For rent */}
       <section className="max-w-7xl mx-auto px-4 pb-10 w-full">
         <div className="flex items-end justify-between mb-6">
           <div>
@@ -92,11 +109,16 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {featuredRent.map((p) => <PropertyCard key={p.id} property={p} />)}
+          {loading
+            ? Array.from({ length: 2 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            : rentProps.length === 0
+              ? <p className="col-span-2 text-gray-400 text-center py-10">No rentals listed yet.</p>
+              : rentProps.map((p) => <PropertyCard key={p.id} property={p} />)
+          }
         </div>
       </section>
 
-      {/* ── News ── */}
+      {/* News */}
       <section className="bg-white border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-10 w-full">
           <div className="flex items-end justify-between mb-6">
@@ -114,7 +136,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Mortgage brokers ── */}
+      {/* Mortgage brokers */}
       <section className="border-t border-gray-100 bg-gray-50 pt-8 pb-6">
         <div className="max-w-7xl mx-auto px-4 mb-6">
           <div className="flex items-center justify-between">
@@ -152,15 +174,6 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full bg-[#121e80] flex items-center justify-center">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-            </div>
-            <span className="text-xs font-semibold text-gray-500">Mortgage Choice</span>
           </div>
         </div>
       </section>

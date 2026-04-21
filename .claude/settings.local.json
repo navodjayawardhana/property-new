@@ -15,7 +15,8 @@
       "Bash(xargs sed *)",
       "Bash(find src *)",
       "Bash(git init *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(php artisan *)"
     ]
   }
 }

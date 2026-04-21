@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const accountTypes = [
   { id: "buyer", label: "Buyer / Renter", desc: "Search and save properties" },
@@ -11,45 +13,51 @@ const accountTypes = [
 ];
 
 export default function JoinPage() {
+  const router = useRouter();
+  const { register } = useAuth();
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
   const [error, setError] = useState("");
 
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) { setStep(2); return; }
     if (!form.name || !form.email || !form.password) { setError("Please fill in all required fields."); return; }
+    if (form.password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (form.password !== form.confirm) { setError("Passwords do not match."); return; }
     if (!agree) { setError("Please accept the terms to continue."); return; }
     setError("");
     setLoading(true);
-    setTimeout(() => { setLoading(false); setDone(true); }, 1800);
+    try {
+      await register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        password_confirmation: form.confirm,
+        phone: form.phone || undefined,
+        role: accountType,
+      });
+      router.push("/");
+    } catch (err: unknown) {
+      const apiErr = err as { errors?: Record<string, string[]>; message?: string };
+      if (apiErr.errors) {
+        const first = Object.values(apiErr.errors)[0];
+        setError(first?.[0] ?? "Registration failed.");
+      } else {
+        setError(apiErr.message ?? "Registration failed.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
-
-  if (done) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-5">
-          <Check size={32} className="text-blue-600" />
-        </div>
-        <h2 className="text-2xl font-black text-gray-900 mb-2">Account created!</h2>
-        <p className="text-gray-500 text-sm mb-6">Welcome to Greenbrick.net. Your account is ready to use.</p>
-        <Link href="/" className="inline-block bg-[#121e80] hover:bg-[#0d1660] text-white font-bold px-8 py-3 rounded-xl text-sm transition-colors">
-          Start exploring
-        </Link>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Left panel */}
       <div
         className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
         style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }}
@@ -61,13 +69,12 @@ export default function JoinPage() {
             </div>
             <span className="text-white font-semibold text-sm">Greenbrick.net</span>
           </Link>
-
           <div>
             <h2 className="text-white font-black text-4xl leading-tight mb-4">
-              Join Australia's<br />largest property<br />community.
+              Join Australia&apos;s<br />largest property<br />community.
             </h2>
             <div className="space-y-3 mt-8">
-              {["Save and track your favourite properties","Get instant alerts on new listings","Connect with top agents and brokers","Access exclusive market insights"].map((item) => (
+              {["Save and track your favourite properties", "Get instant alerts on new listings", "Connect with top agents and brokers", "Access exclusive market insights"].map((item) => (
                 <div key={item} className="flex items-center gap-3">
                   <div className="w-5 h-5 bg-[#121e80] rounded-full flex items-center justify-center shrink-0">
                     <Check size={11} className="text-white" />
@@ -80,7 +87,6 @@ export default function JoinPage() {
         </div>
       </div>
 
-      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
@@ -90,7 +96,6 @@ export default function JoinPage() {
             <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
           </Link>
 
-          {/* Progress */}
           <div className="flex items-center gap-2 mb-8">
             {[1, 2].map((s) => (
               <div key={s} className="flex items-center gap-2">
@@ -113,7 +118,6 @@ export default function JoinPage() {
             <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in instead</Link>
           </p>
 
-          {/* Step 1 — account type */}
           {step === 1 && (
             <div className="space-y-3">
               {accountTypes.map((t) => (
@@ -128,7 +132,6 @@ export default function JoinPage() {
                   </div>
                 </button>
               ))}
-
               <button onClick={handleNext}
                 className="w-full bg-[#121e80] hover:bg-[#0d1660] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-4">
                 Continue <ArrowRight size={16} />
@@ -136,11 +139,10 @@ export default function JoinPage() {
             </div>
           )}
 
-          {/* Step 2 — details */}
           {step === 2 && (
             <div className="space-y-4">
               {error && (
-                <div className="bg-blue-50 border border-blue-200 text-blue-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
               )}
 
               {[
@@ -155,12 +157,11 @@ export default function JoinPage() {
                     <input type={field.type} value={form[field.key as keyof typeof form]}
                       onChange={(e) => update(field.key, e.target.value)}
                       placeholder={field.placeholder}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-green-100 transition-all placeholder-gray-400" />
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   </div>
                 </div>
               ))}
 
-              {/* Password */}
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Password</label>
                 <div className="relative">
@@ -168,7 +169,7 @@ export default function JoinPage() {
                   <input type={showPassword ? "text" : "password"} value={form.password}
                     onChange={(e) => update("password", e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-green-100 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -182,11 +183,10 @@ export default function JoinPage() {
                   <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)}
                     placeholder="Re-enter your password"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-green-100 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                 </div>
               </div>
 
-              {/* Terms */}
               <label className="flex items-start gap-3 cursor-pointer">
                 <div onClick={() => setAgree(!agree)}
                   className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${agree ? "bg-[#121e80] border-[#121e80]" : "border-gray-300 hover:border-gray-500"}`}>
@@ -209,7 +209,7 @@ export default function JoinPage() {
                   className="flex-1 bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                   {loading
                     ? <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" /></svg>
-                    : <> Create account <ArrowRight size={16} /> </>}
+                    : <>Create account <ArrowRight size={16} /></>}
                 </button>
               </div>
             </div>
