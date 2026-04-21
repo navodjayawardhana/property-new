@@ -8,10 +8,13 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import {
   admin as adminApi,
+  newsApi,
   type AdminStats,
   type PaginatedUsers,
   type PaginatedInquiries,
   type PaginatedProperties,
+  type PaginatedNews,
+  type NewsArticleApi,
   type Property,
   type Inquiry,
   type User,
@@ -20,6 +23,7 @@ import {
   Users, Home, MessageSquare, Star, TrendingUp, Search, Trash2,
   ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
+  Newspaper, Plus, Edit2,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -705,15 +709,279 @@ function InquiriesTab({ token }: { token: string }) {
   );
 }
 
+// ─── News tab ─────────────────────────────────────────────────────────────────
+
+const NEWS_CATS = ["News", "Buying & Building", "Finance", "Renting", "Guides", "Lifestyle", "Insights"];
+
+const emptyForm: Partial<NewsArticleApi> = {
+  title: "", excerpt: "", category: "News", tag: "", image_url: "", read_time: "3 min read", is_published: true,
+};
+
+function NewsTab({ token }: { token: string }) {
+  const [data, setData] = useState<PaginatedNews | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [confirm, setConfirm] = useState<{ id: number; title: string } | null>(null);
+  const [modal, setModal] = useState<"create" | "edit" | null>(null);
+  const [form, setForm] = useState<Partial<NewsArticleApi>>(emptyForm);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async (p = page, s = search, st = statusFilter) => {
+    setLoading(true);
+    try {
+      const res = await newsApi.adminList({ search: s, is_published: st, page: p }, token);
+      setData(res);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [page, search, statusFilter, token]);
+
+  useEffect(() => { load(); }, []);
+
+  function openCreate() { setForm(emptyForm); setImageFile(null); setImagePreview(""); setModal("create"); }
+  function openEdit(a: NewsArticleApi) { setForm({ ...a }); setImageFile(null); setImagePreview(a.image_url); setModal("edit"); }
+
+  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const payload = { ...form, ...(imageFile ? { imageFile } : {}) };
+      if (modal === "create") {
+        await newsApi.create(payload, token);
+      } else if (modal === "edit" && form.id) {
+        await newsApi.update(form.id, payload, token);
+      }
+      setModal(null);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setSaving(false); }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await newsApi.delete(id, token);
+      setConfirm(null);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleTogglePublish(a: NewsArticleApi) {
+    try {
+      await newsApi.update(a.id, { is_published: !a.is_published }, token);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-white border border-gray-200 rounded-xl px-3 py-2">
+          <Search size={14} className="text-gray-400 shrink-0" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (setPage(1), load(1, search, statusFilter))}
+            placeholder="Search articles…"
+            className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400" />
+          {search && <button onClick={() => { setSearch(""); setPage(1); load(1, "", statusFilter); }}><X size={12} className="text-gray-400 hover:text-gray-600" /></button>}
+        </div>
+        <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); load(1, search, e.target.value); }}
+          className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none text-gray-700">
+          <option value="">All</option>
+          <option value="true">Published</option>
+          <option value="false">Draft</option>
+        </select>
+        <button onClick={() => load(page)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
+          <RefreshCw size={13} /> Refresh
+        </button>
+        <button onClick={openCreate} className="flex items-center gap-2 bg-[#121e80] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#0d1660] transition-colors">
+          <Plus size={14} /> New Article
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} articles`}</p>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-gray-400 text-sm">Loading articles…</div>
+        ) : !data?.data.length ? (
+          <div className="p-8 text-center text-gray-400 text-sm">No articles found.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                <tr>
+                  <th className="px-5 py-3">Article</th>
+                  <th className="px-4 py-3 hidden md:table-cell">Category</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 hidden lg:table-cell">Published</th>
+                  <th className="px-5 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {data.data.map((a) => (
+                  <tr key={a.id} className="hover:bg-gray-50/30 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <img src={a.image_url} alt="" className="w-12 h-10 object-cover rounded-lg shrink-0 bg-gray-100" />
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm line-clamp-1">{a.title}</p>
+                          <p className="text-xs text-gray-400 line-clamp-1 mt-0.5">{a.excerpt}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell">
+                      <span className="text-xs font-medium text-gray-600">{a.category}</span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <button onClick={() => handleTogglePublish(a)}
+                        className={`flex items-center gap-1.5 text-xs font-semibold transition-colors ${a.is_published ? "text-green-700" : "text-gray-500"}`}>
+                        {a.is_published ? <ToggleRight size={18} className="text-green-500" /> : <ToggleLeft size={18} />}
+                        {a.is_published ? "Published" : "Draft"}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-500">
+                      {a.published_at ? fmtDate(a.published_at) : "—"}
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link href={`/news`} target="_blank"
+                          className="text-gray-400 hover:text-[#121e80] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                          <Eye size={14} />
+                        </Link>
+                        <button onClick={() => openEdit(a)}
+                          className="text-gray-400 hover:text-[#121e80] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                          <Edit2 size={14} />
+                        </button>
+                        <button onClick={() => setConfirm({ id: a.id, title: a.title })}
+                          className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p); }} /></div>}
+      </div>
+
+      {/* Create/Edit modal */}
+      {modal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 className="text-base font-bold text-gray-900">{modal === "create" ? "New Article" : "Edit Article"}</h2>
+              <button onClick={() => setModal(null)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-700 block mb-1">Title *</label>
+                <input value={form.title ?? ""} onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-700 block mb-1">Excerpt *</label>
+                <textarea value={form.excerpt ?? ""} onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
+                  rows={3} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80] resize-none" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1">Category</label>
+                  <select value={form.category ?? "News"} onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]">
+                    {NEWS_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1">Tag (optional)</label>
+                  <input value={form.tag ?? ""} onChange={(e) => setForm({ ...form, tag: e.target.value })}
+                    placeholder="e.g. INTEREST RATES"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-700 block mb-1">Article Image *</label>
+                <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#121e80] transition-colors bg-gray-50 overflow-hidden">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="" className="w-full h-36 object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center py-6 text-gray-400">
+                      <Plus size={22} className="mb-1" />
+                      <span className="text-xs font-medium">Click to upload image</span>
+                      <span className="text-xs mt-0.5">JPG, PNG, WEBP · max 5 MB</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImagePick} />
+                </label>
+                {imagePreview && (
+                  <button onClick={() => { setImageFile(null); setImagePreview(""); setForm({ ...form, image_url: "" }); }}
+                    className="mt-1.5 text-xs text-red-500 hover:text-red-700 font-medium">
+                    Remove image
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1">Read time</label>
+                  <input value={form.read_time ?? ""} onChange={(e) => setForm({ ...form, read_time: e.target.value })}
+                    placeholder="3 min read"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+                </div>
+                <div className="flex items-end pb-1">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={form.is_published ?? true}
+                      onChange={(e) => setForm({ ...form, is_published: e.target.checked })}
+                      className="w-4 h-4 rounded" />
+                    <span className="text-sm font-semibold text-gray-700">Publish now</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+              <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 text-sm font-semibold py-2 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={handleSave} disabled={saving}
+                className="flex-1 bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-bold py-2 rounded-xl transition-colors disabled:opacity-60">
+                {saving ? "Saving…" : modal === "create" ? "Create Article" : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirm && (
+        <ConfirmDialog
+          msg={`Delete "${confirm.title}"? This cannot be undone.`}
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries";
+type Tab = "overview" | "users" | "properties" | "inquiries" | "news";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview",    label: "Overview",    icon: <LayoutDashboard size={16} /> },
   { id: "users",       label: "Users",       icon: <Users size={16} /> },
   { id: "properties",  label: "Properties",  icon: <Home size={16} /> },
   { id: "inquiries",   label: "Inquiries",   icon: <MessageSquare size={16} /> },
+  { id: "news",        label: "News",        icon: <Newspaper size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -778,6 +1046,7 @@ export default function AdminPage() {
         {tab === "users"       && token && <UsersTab token={token} />}
         {tab === "properties"  && token && <PropertiesTab token={token} />}
         {tab === "inquiries"   && token && <InquiriesTab token={token} />}
+        {tab === "news"        && token && <NewsTab token={token} />}
       </div>
 
       <Footer />

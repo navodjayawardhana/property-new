@@ -8,8 +8,7 @@ import NewsCard from "@/components/NewsCard";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
-import { newsArticles } from "@/data/news";
-import { properties as propertiesApi, agentsApi, type Property, type Agent } from "@/lib/api";
+import { properties as propertiesApi, agentsApi, newsApi, type Property, type Agent, type NewsArticleApi } from "@/lib/api";
 import { ChevronRight, TrendingUp, Home, Key, Award } from "lucide-react";
 import Link from "next/link";
 
@@ -17,19 +16,21 @@ export default function HomePage() {
   const [buyProps, setBuyProps] = useState<Property[]>([]);
   const [rentProps, setRentProps] = useState<Property[]>([]);
   const [featuredAgents, setFeaturedAgents] = useState<Agent[]>([]);
+  const [latestNews, setLatestNews] = useState<NewsArticleApi[]>([]);
   const [loading, setLoading] = useState(true);
-  const latestNews = newsArticles.slice(0, 4);
 
   useEffect(() => {
     Promise.all([
       propertiesApi.list({ listing_type: "buy", featured: true, per_page: 3 }),
       propertiesApi.list({ listing_type: "rent", per_page: 2 }),
       agentsApi.list({ page: 1 }),
+      newsApi.list({ per_page: 4 }),
     ])
-      .then(([buyRes, rentRes, agentsRes]) => {
+      .then(([buyRes, rentRes, agentsRes, newsRes]) => {
         setBuyProps(buyRes.data.slice(0, 3));
         setRentProps(rentRes.data.slice(0, 2));
         setFeaturedAgents(agentsRes.data.slice(0, 8));
+        setLatestNews(newsRes.data.slice(0, 4));
       })
       .catch(console.error)
       .finally(() => setLoading(false));

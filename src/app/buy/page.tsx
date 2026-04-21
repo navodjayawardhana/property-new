@@ -9,8 +9,8 @@ import NewsCard from "@/components/NewsCard";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
-import { newsArticles } from "@/data/news";
-import { properties as propertiesApi, type Property } from "@/lib/api";
+
+import { properties as propertiesApi, newsApi, type Property, type NewsArticleApi } from "@/lib/api";
 import { X } from "lucide-react";
 
 const PROPERTY_TYPES = ["Any", "House", "Apartment", "Townhouse", "Villa", "Land", "Rural"];
@@ -51,6 +51,11 @@ function BuyContent() {
   const [items, setItems] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [latestNews, setLatestNews] = useState<NewsArticleApi[]>([]);
+
+  useEffect(() => {
+    newsApi.list({ per_page: 4 }).then((res) => setLatestNews(res.data)).catch(() => {});
+  }, []);
 
   const buildFilters = useCallback(() => ({
     listing_type: "buy" as const,
@@ -160,7 +165,7 @@ function BuyContent() {
         <div className="max-w-7xl mx-auto px-4 py-10 w-full">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Latest property news</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {newsArticles.slice(0, 4).map((a) => <NewsCard key={a.id} article={a} />)}
+            {latestNews.map((a) => <NewsCard key={a.id} article={a} />)}
           </div>
         </div>
       </section>

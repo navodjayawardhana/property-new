@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::post('/properties/{property}/inquiries', [InquiryController::class, 'stor
 
 // Public agents directory
 Route::get('/agents', [AuthController::class, 'agents']);
+
+// Public news
+Route::get('/news', [NewsController::class, 'index']);
+Route::get('/news/{newsArticle}', [NewsController::class, 'show']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -68,5 +73,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/inquiries',                  [AdminController::class, 'inquiries']);
         Route::patch('/inquiries/{inquiry}',      [AdminController::class, 'updateInquiry']);
         Route::delete('/inquiries/{inquiry}',     [AdminController::class, 'deleteInquiry']);
+
+        // News management
+        Route::get('/news',                       [NewsController::class, 'adminIndex']);
+        Route::post('/news',                      [NewsController::class, 'store']);
+        Route::patch('/news/{newsArticle}',       [NewsController::class, 'update']);
+        Route::delete('/news/{newsArticle}',      [NewsController::class, 'destroy']);
     });
 });

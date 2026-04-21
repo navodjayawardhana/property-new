@@ -360,6 +360,77 @@ export const favorites = {
     request<{ saved: boolean }>(`/favorites/${propertyId}`, { method: 'POST', token }),
 };
 
+// ─── News ─────────────────────────────────────────────────────────────────────
+
+export type NewsArticleApi = {
+  id: number;
+  title: string;
+  excerpt: string;
+  category: string;
+  tag: string | null;
+  image_url: string;
+  read_time: string;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PaginatedNews = {
+  data: NewsArticleApi[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+const NEWS_READONLY = new Set(['id', 'created_at', 'updated_at']);
+
+function appendNewsFields(fd: FormData, data: Partial<NewsArticleApi> & { imageFile?: File }) {
+  Object.entries(data).forEach(([k, v]) => {
+    if (NEWS_READONLY.has(k)) return;
+    if (k === 'imageFile') { if (v) fd.append('image', v as File); return; }
+    if (v === undefined || v === null) return;
+    if (typeof v === 'boolean') { fd.append(k, v ? '1' : '0'); return; }
+    fd.append(k, String(v));
+  });
+}
+
+export const newsApi = {
+  list: (filters?: { category?: string; search?: string; per_page?: number; page?: number }) => {
+    const qs = filters ? new URLSearchParams(
+      Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== undefined && v !== '').map(([k, v]) => [k, String(v)]))
+    ).toString() : '';
+    return request<PaginatedNews>(`/news${qs ? '?' + qs : ''}`);
+  },
+
+  get: (id: number) => request<NewsArticleApi>(`/news/${id}`),
+
+  adminList: (filters: { search?: string; is_published?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedNews>(`/admin/news${qs ? '?' + qs : ''}`, { token });
+  },
+
+  create: (data: Partial<NewsArticleApi> & { imageFile?: File }, token: string) => {
+    const fd = new FormData();
+    appendNewsFields(fd, data);
+    return request<NewsArticleApi>('/admin/news', { method: 'POST', body: fd, token });
+  },
+
+  update: (id: number, data: Partial<NewsArticleApi> & { imageFile?: File }, token: string) => {
+    if (data.imageFile || Object.keys(data).some((k) => !['imageFile'].includes(k))) {
+      const fd = new FormData();
+      fd.append('_method', 'PATCH');
+      appendNewsFields(fd, data);
+      return request<NewsArticleApi>(`/admin/news/${id}`, { method: 'POST', body: fd, token });
+    }
+    return request<NewsArticleApi>(`/admin/news/${id}`, { method: 'PATCH', body: data, token });
+  },
+
+  delete: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/news/${id}`, { method: 'DELETE', token }),
+};
+
 // ─── Profile ─────────────────────────────────────────────────────────────────
 
 export const profile = {
