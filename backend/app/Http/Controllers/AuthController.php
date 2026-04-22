@@ -257,7 +257,10 @@ class AuthController extends Controller
 
     public function sendPhoneOtp(Request $request): JsonResponse
     {
-        $request->validate(['phone' => 'required|string']);
+        $request->validate([
+            'phone' => 'required|string',
+            'role'  => 'nullable|in:buyer,seller,agent',
+        ]);
 
         $user = User::where('role', '!=', 'admin')
             ->whereIn('phone', $this->phoneVariants($request->phone))
@@ -268,7 +271,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name'              => 'User ' . substr(preg_replace('/\D/', '', $request->phone), -4),
                 'phone'             => $request->phone,
-                'role'              => 'buyer',
+                'role'              => $request->role ?? 'buyer',
                 'email_verified_at' => now(),
             ]);
         }

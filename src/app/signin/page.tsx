@@ -145,7 +145,7 @@ export default function SignInPage() {
     if (!phone) { setError("Please enter your phone number."); return; }
     setError(""); setLoading(true);
     try {
-      const res = await auth.sendPhoneOtp(phone);
+      const res = await auth.sendPhoneOtp(phone, role);
       setMaskedPhone(res.masked_phone);
       setPhoneForOtp(phone);
       if (res.dev_otp) {
@@ -370,27 +370,25 @@ export default function SignInPage() {
           <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl">
             {([["email", "Email", <Mail key="m" size={14} />], ["phone", "Phone", <Phone key="p" size={14} />]] as const).map(([m, label, icon]) => (
               <button key={m} type="button"
-                onClick={() => { setLoginMethod(m as LoginMethod); setError(""); }}
+                onClick={() => { setLoginMethod(m as LoginMethod); setError(""); if (m === "phone" && role === "admin") setRole("buyer"); }}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${loginMethod === m ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
                 {icon}{label}
               </button>
             ))}
           </div>
 
-          {/* Role tabs — email only, not admin for phone */}
-          {loginMethod === "email" && (
-            <div className="flex gap-2 mb-5 bg-gray-100 p-1 rounded-xl">
-              {ROLES.map((r) => (
-                <button key={r.key} type="button"
-                  onClick={() => { setRole(r.key); setError(""); }}
-                  className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${role === r.key ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
-                  {r.icon}
-                  <span>{r.label}</span>
-                  <span className="text-[10px] font-normal text-gray-400">{r.desc}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Role tabs — all roles for email, no admin for phone */}
+          <div className="flex gap-2 mb-5 bg-gray-100 p-1 rounded-xl">
+            {ROLES.filter((r) => loginMethod === "phone" ? r.key !== "admin" : true).map((r) => (
+              <button key={r.key} type="button"
+                onClick={() => { setRole(r.key); setError(""); }}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${role === r.key ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                {r.icon}
+                <span>{r.label}</span>
+                <span className="text-[10px] font-normal text-gray-400">{r.desc}</span>
+              </button>
+            ))}
+          </div>
 
           {/* OTP hint */}
           {loginMethod === "email" && role !== "admin" && (
