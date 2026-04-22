@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Inquiry;
+use App\Models\LoanEnquiry;
 use App\Models\Property;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -218,5 +219,50 @@ class AdminController extends Controller
         $inquiry->delete();
 
         return response()->json(['message' => 'Inquiry deleted.']);
+    }
+
+    // ── Loan Enquiries ────────────────────────────────────────────────────────
+
+    public function loanEnquiries(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $query = LoanEnquiry::latest();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('email', 'like', "%{$s}%");
+            });
+        }
+
+        return response()->json($query->paginate(20));
+    }
+
+    public function updateLoanEnquiry(Request $request, LoanEnquiry $loanEnquiry): JsonResponse
+    {
+        $this->gate($request);
+
+        $validated = $request->validate([
+            'status' => 'required|in:new,in_review,pre_approved,declined',
+        ]);
+
+        $loanEnquiry->update($validated);
+
+        return response()->json($loanEnquiry);
+    }
+
+    public function deleteLoanEnquiry(Request $request, LoanEnquiry $loanEnquiry): JsonResponse
+    {
+        $this->gate($request);
+
+        $loanEnquiry->delete();
+
+        return response()->json(['message' => 'Loan enquiry deleted.']);
     }
 }

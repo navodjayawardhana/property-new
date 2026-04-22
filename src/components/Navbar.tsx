@@ -23,7 +23,7 @@ const navLinks = [
   { label: "Sold", href: "/sold" },
   { label: "New homes", href: "/new-homes" },
   { label: "Find agents", href: "/agents" },
-  { label: "Home loans", href: "/" },
+  { label: "Home loans", href: "/home-loans" },
   { label: "News", href: "/news" },
   { label: "Commercial", href: "/commercial" },
 ];

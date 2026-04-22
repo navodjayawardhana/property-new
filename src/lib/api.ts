@@ -368,6 +368,17 @@ export const admin = {
 
   deleteInquiry: (id: number, token: string) =>
     request<{ message: string }>(`/admin/inquiries/${id}`, { method: 'DELETE', token }),
+
+  loanEnquiries: (filters: { status?: string; search?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedLoanEnquiries>(`/admin/loan-enquiries${qs ? '?' + qs : ''}`, { token });
+  },
+
+  updateLoanEnquiry: (id: number, status: string, token: string) =>
+    request<LoanEnquiry>(`/admin/loan-enquiries/${id}`, { method: 'PATCH', body: { status }, token }),
+
+  deleteLoanEnquiry: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/loan-enquiries/${id}`, { method: 'DELETE', token }),
 };
 
 // ─── Favorites ───────────────────────────────────────────────────────────────
@@ -384,6 +395,40 @@ export const favorites = {
   /** Toggle save/unsave a property. Returns { saved: boolean } */
   toggle: (propertyId: number, token: string) =>
     request<{ saved: boolean }>(`/favorites/${propertyId}`, { method: 'POST', token }),
+};
+
+// ─── Loan Enquiries ───────────────────────────────────────────────────────────
+
+export type LoanEnquiry = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  employment_type: 'full_time' | 'part_time' | 'self_employed' | 'casual';
+  annual_income: number;
+  deposit_amount: number;
+  loan_amount: number;
+  loan_purpose: 'buy_home' | 'investment' | 'refinance';
+  property_type: string;
+  property_state: string;
+  estimated_property_value: number | null;
+  message: string | null;
+  status: 'new' | 'in_review' | 'pre_approved' | 'declined';
+  created_at: string;
+  updated_at: string;
+};
+
+export type PaginatedLoanEnquiries = {
+  data: LoanEnquiry[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+export const loanEnquiries = {
+  submit: (data: Omit<LoanEnquiry, 'id' | 'status' | 'created_at' | 'updated_at'>) =>
+    request<LoanEnquiry>('/loan-enquiries', { method: 'POST', body: data }),
 };
 
 // ─── News ─────────────────────────────────────────────────────────────────────

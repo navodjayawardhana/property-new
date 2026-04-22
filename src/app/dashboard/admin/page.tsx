@@ -14,7 +14,9 @@ import {
   type PaginatedInquiries,
   type PaginatedProperties,
   type PaginatedNews,
+  type PaginatedLoanEnquiries,
   type NewsArticleApi,
+  type LoanEnquiry,
   type Property,
   type Inquiry,
   type User,
@@ -23,7 +25,7 @@ import {
   Users, Home, MessageSquare, Star, TrendingUp, Search, Trash2,
   ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
-  Newspaper, Plus, Edit2,
+  Newspaper, Plus, Edit2, DollarSign,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -972,9 +974,182 @@ function NewsTab({ token }: { token: string }) {
   );
 }
 
+// ─── Loan Enquiries tab ───────────────────────────────────────────────────────
+
+const LOAN_STATUS_COLORS: Record<string, string> = {
+  new:          "bg-blue-100 text-blue-700",
+  in_review:    "bg-yellow-100 text-yellow-700",
+  pre_approved: "bg-green-100 text-green-700",
+  declined:     "bg-red-100 text-red-700",
+};
+
+const LOAN_STATUS_LABELS: Record<string, string> = {
+  new:          "New",
+  in_review:    "In Review",
+  pre_approved: "Pre-Approved",
+  declined:     "Declined",
+};
+
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  full_time:     "Full-time",
+  part_time:     "Part-time",
+  self_employed: "Self-employed",
+  casual:        "Casual",
+};
+
+const PURPOSE_LABELS: Record<string, string> = {
+  buy_home:   "Buy a home",
+  investment: "Investment",
+  refinance:  "Refinance",
+};
+
+function LoanEnquiriesTab({ token }: { token: string }) {
+  const [data, setData] = useState<PaginatedLoanEnquiries | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const load = useCallback(async (p = page, s = search, st = statusFilter) => {
+    setLoading(true);
+    try {
+      const res = await adminApi.loanEnquiries({ search: s, status: st, page: p }, token);
+      setData(res);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [page, search, statusFilter, token]);
+
+  useEffect(() => { load(); }, []);
+
+  async function handleStatusChange(enq: LoanEnquiry, status: string) {
+    try {
+      await adminApi.updateLoanEnquiry(enq.id, status, token);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await adminApi.deleteLoanEnquiry(id, token);
+      setConfirm(null);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  const AUD = (n: number) => n.toLocaleString("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-white border border-gray-200 rounded-xl px-3 py-2">
+          <Search size={14} className="text-gray-400 shrink-0" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (setPage(1), load(1, search, statusFilter))}
+            placeholder="Search by name or email…"
+            className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400" />
+          {search && <button onClick={() => { setSearch(""); setPage(1); load(1, "", statusFilter); }}><X size={12} className="text-gray-400 hover:text-gray-600" /></button>}
+        </div>
+        <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); load(1, search, e.target.value); }}
+          className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none text-gray-700">
+          <option value="">All statuses</option>
+          <option value="new">New</option>
+          <option value="in_review">In Review</option>
+          <option value="pre_approved">Pre-Approved</option>
+          <option value="declined">Declined</option>
+        </select>
+        <button onClick={() => load(page)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
+          <RefreshCw size={13} /> Refresh
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} loan enquiries`}</p>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-gray-400 text-sm">Loading loan enquiries…</div>
+        ) : !data?.data.length ? (
+          <div className="p-8 text-center text-gray-400 text-sm">No loan enquiries yet.</div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {data.data.map((enq) => (
+              <div key={enq.id} className="hover:bg-gray-50/30 transition-colors">
+                <div className="flex items-start gap-3 px-5 py-4">
+                  <Avatar name={enq.name} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <span className="font-semibold text-sm text-gray-900">{enq.name}</span>
+                      <Badge label={LOAN_STATUS_LABELS[enq.status] ?? enq.status} color={LOAN_STATUS_COLORS[enq.status] ?? "bg-gray-100 text-gray-600"} />
+                      <Badge label={PURPOSE_LABELS[enq.loan_purpose] ?? enq.loan_purpose} color="bg-indigo-100 text-indigo-700" />
+                    </div>
+                    <p className="text-xs text-gray-400">{enq.email}{enq.phone ? ` · ${enq.phone}` : ""}</p>
+
+                    {/* Loan details row */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-600">
+                      <span><span className="text-gray-400">Income:</span> <span className="font-semibold">{AUD(enq.annual_income)} p.a.</span></span>
+                      <span><span className="text-gray-400">Loan:</span> <span className="font-semibold">{AUD(enq.loan_amount)}</span></span>
+                      <span><span className="text-gray-400">Deposit:</span> <span className="font-semibold">{AUD(enq.deposit_amount)}</span></span>
+                      <span><span className="text-gray-400">Employment:</span> <span className="font-semibold">{EMPLOYMENT_LABELS[enq.employment_type] ?? enq.employment_type}</span></span>
+                      <span><span className="text-gray-400">Property:</span> <span className="font-semibold">{enq.property_type}, {enq.property_state}</span></span>
+                    </div>
+
+                    {enq.message && (
+                      <>
+                        <p className={`text-sm text-gray-500 mt-2 ${expanded === enq.id ? "" : "line-clamp-2"}`}>{enq.message}</p>
+                        {enq.message.length > 100 && (
+                          <button onClick={() => setExpanded(expanded === enq.id ? null : enq.id)}
+                            className="text-xs text-[#121e80] font-medium mt-0.5 hover:underline">
+                            {expanded === enq.id ? "Show less" : "Show more"}
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <select value={enq.status} onChange={(e) => handleStatusChange(enq, e.target.value)}
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none bg-white text-gray-700 hidden sm:block">
+                      <option value="new">New</option>
+                      <option value="in_review">In Review</option>
+                      <option value="pre_approved">Pre-Approved</option>
+                      <option value="declined">Declined</option>
+                    </select>
+                    <span className="text-xs text-gray-400 hidden lg:block">{fmtDate(enq.created_at)}</span>
+                    <a href={`mailto:${enq.email}`}
+                      className="text-[#121e80] hover:text-[#0d1660] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                      <TrendingUp size={14} />
+                    </a>
+                    <button onClick={() => setConfirm({ id: enq.id, name: enq.name })}
+                      className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p); }} /></div>}
+      </div>
+
+      {confirm && (
+        <ConfirmDialog
+          msg={`Delete loan enquiry from "${confirm.name}"?`}
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries" | "news";
+type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview",    label: "Overview",    icon: <LayoutDashboard size={16} /> },
@@ -982,6 +1157,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "properties",  label: "Properties",  icon: <Home size={16} /> },
   { id: "inquiries",   label: "Inquiries",   icon: <MessageSquare size={16} /> },
   { id: "news",        label: "News",        icon: <Newspaper size={16} /> },
+  { id: "loans",       label: "Loan Enquiries", icon: <DollarSign size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -1047,6 +1223,7 @@ export default function AdminPage() {
         {tab === "properties"  && token && <PropertiesTab token={token} />}
         {tab === "inquiries"   && token && <InquiriesTab token={token} />}
         {tab === "news"        && token && <NewsTab token={token} />}
+        {tab === "loans"       && token && <LoanEnquiriesTab token={token} />}
       </div>
 
       <Footer />

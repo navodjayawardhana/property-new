@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\LoanEnquiryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,9 @@ Route::get('/agents/{id}', [AuthController::class, 'agent']);
 // Public news
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{newsArticle}', [NewsController::class, 'show']);
+
+// Public loan pre-approval enquiry
+Route::post('/loan-enquiries', [LoanEnquiryController::class, 'store']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -85,5 +89,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/news',                      [NewsController::class, 'store']);
         Route::patch('/news/{newsArticle}',       [NewsController::class, 'update']);
         Route::delete('/news/{newsArticle}',      [NewsController::class, 'destroy']);
+
+        // Loan enquiry management
+        Route::get('/loan-enquiries',                        [AdminController::class, 'loanEnquiries']);
+        Route::patch('/loan-enquiries/{loanEnquiry}',        [AdminController::class, 'updateLoanEnquiry']);
+        Route::delete('/loan-enquiries/{loanEnquiry}',       [AdminController::class, 'deleteLoanEnquiry']);
     });
 });
