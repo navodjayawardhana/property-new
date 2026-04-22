@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { auth } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
   const params = useSearchParams();
+  const { loginWithToken } = useAuth();
 
   useEffect(() => {
     const token = params.get("token");
@@ -17,15 +18,10 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    auth.me(token).then((user) => {
-      localStorage.setItem("auth_token", token);
-      // Dispatch a storage event so AuthProvider picks it up across tabs
-      window.dispatchEvent(new StorageEvent("storage", { key: "auth_token", newValue: token }));
-      router.replace("/");
-    }).catch(() => {
-      router.replace("/signin?error=google_failed");
-    });
-  }, [params, router]);
+    loginWithToken(token)
+      .then(() => router.replace("/"))
+      .catch(() => router.replace("/signin?error=google_failed"));
+  }, [params, router, loginWithToken]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

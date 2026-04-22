@@ -15,6 +15,7 @@ type AuthContextValue = {
   loading: boolean;
   otpPending: OtpPending | null;
   login: (email: string, password: string) => Promise<LoginResult>;
+  loginWithToken: (token: string) => Promise<void>;
   verifyOtp: (otp: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
@@ -79,6 +80,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { status: "done" };
   }, []);
 
+  const loginWithToken = useCallback(async (token: string) => {
+    const user = await auth.me(token);
+    persist(user, token);
+  }, []);
+
   const verifyOtp = useCallback(async (otp: string) => {
     if (!otpPending) throw new Error("No OTP pending");
     const res = await auth.verifyOtp({ email: otpPending.email, otp });
@@ -113,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, otpPending, login, verifyOtp, verifyEmail, resendVerification, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, otpPending, login, loginWithToken, verifyOtp, verifyEmail, resendVerification, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
