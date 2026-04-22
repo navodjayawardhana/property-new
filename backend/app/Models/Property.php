@@ -25,6 +25,8 @@ class Property extends Model
         'cars',
         'land_size',
         'property_type',
+        'condition',
+        'category',
         'listing_type',
         'description',
         'agent_name',

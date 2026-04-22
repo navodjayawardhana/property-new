@@ -21,7 +21,7 @@ const navLinks = [
   { label: "Buy", href: "/buy" },
   { label: "Rent", href: "/rent" },
   { label: "Sold", href: "/sold" },
-  { label: "New homes", href: "/buy" },
+  { label: "New homes", href: "/new-homes" },
   { label: "Find agents", href: "/agents" },
   { label: "Home loans", href: "/" },
   { label: "News", href: "/news" },
@@ -42,11 +42,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const transparent = !scrolled && !open;
+  const isHomepage  = pathname === '/';
+  const transparent = isHomepage && !scrolled && !open;
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 ${
         transparent
           ? "bg-black/30 backdrop-blur-sm border-white/10 border-b"
           : "bg-white border-b border-gray-200 shadow-sm"

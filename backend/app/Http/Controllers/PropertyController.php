@@ -76,6 +76,18 @@ class PropertyController extends Controller
             $query->where('status', '!=', 'inactive');
         }
 
+        if ($request->filled('condition')) {
+            $query->where('condition', $request->condition);
+        }
+
+        if ($request->filled('category')) {
+            $cat = $request->category;
+            $query->where(function ($builder) use ($cat) {
+                $builder->where('category', $cat)
+                        ->orWhere('category', 'both');
+            });
+        }
+
         if ($request->filled('featured')) {
             $query->where('is_featured', true);
         }
@@ -107,6 +119,8 @@ class PropertyController extends Controller
             'cars'           => 'required|integer|min:0|max:20',
             'land_size'      => 'nullable|string|max:50',
             'property_type'  => 'required|string|max:50',
+            'condition'      => 'required|in:new,used',
+            'category'       => 'required|in:domestic,commercial,both',
             'listing_type'   => 'required|in:buy,rent,sold',
             'description'    => 'required|string',
             'agent_name'     => 'required|string|max:100',
@@ -155,6 +169,8 @@ class PropertyController extends Controller
             'cars'           => 'sometimes|integer|min:0|max:20',
             'land_size'      => 'nullable|string|max:50',
             'property_type'  => 'sometimes|string|max:50',
+            'condition'      => 'sometimes|in:new,used',
+            'category'       => 'sometimes|in:domestic,commercial,both',
             'listing_type'   => 'sometimes|in:buy,rent,sold',
             'description'    => 'sometimes|string',
             'agent_name'     => 'sometimes|string|max:100',

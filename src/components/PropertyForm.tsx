@@ -8,6 +8,8 @@ type FormState = {
   title: string;
   listing_type: 'buy' | 'rent' | 'sold';
   property_type: string;
+  condition: 'new' | 'used';
+  category: 'domestic' | 'commercial' | 'both';
   address: string;
   suburb: string;
   state: string;
@@ -38,6 +40,8 @@ const defaultForm: FormState = {
   title: '',
   listing_type: 'buy',
   property_type: 'House',
+  condition: 'used',
+  category: 'domestic',
   address: '',
   suburb: '',
   state: '',
@@ -106,6 +110,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         fd.append('title', form.title);
         fd.append('listing_type', form.listing_type);
         fd.append('property_type', form.property_type);
+        fd.append('condition', form.condition);
+        fd.append('category', form.category);
         fd.append('address', form.address);
         fd.append('suburb', form.suburb);
         fd.append('state', form.state);
@@ -128,6 +134,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           title: form.title,
           listing_type: form.listing_type,
           property_type: form.property_type,
+          condition: form.condition,
+          category: form.category,
           address: form.address,
           suburb: form.suburb,
           state: form.state,
@@ -189,6 +197,56 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           <select required className={inp} value={form.property_type} onChange={(e) => set('property_type', e.target.value)}>
             {TYPES.map((t) => <option key={t}>{t}</option>)}
           </select>
+        </div>
+
+        {/* Condition */}
+        <div>
+          <label className={lbl}>Condition *</label>
+          <div className="flex gap-2">
+            {(['new', 'used'] as const).map((c) => (
+              <button key={c} type="button"
+                onClick={() => set('condition', c)}
+                className={`flex-1 py-2 rounded-lg border text-sm font-semibold capitalize transition-colors ${
+                  form.condition === c
+                    ? 'bg-[#121e80] text-white border-[#121e80]'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#121e80] hover:text-[#121e80]'
+                }`}>
+                {c === 'new' ? 'New' : 'Used'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Category — both can be selected at once */}
+        <div>
+          <label className={lbl}>Category *</label>
+          <div className="flex gap-2">
+            {(['domestic', 'commercial'] as const).map((c) => {
+              const active = form.category === c || form.category === 'both';
+              return (
+                <button key={c} type="button"
+                  onClick={() => {
+                    if (form.category === 'both') {
+                      // deselect this one, keep the other
+                      set('category', c === 'domestic' ? 'commercial' : 'domestic');
+                    } else if (form.category === c) {
+                      // already solo — don't allow deselecting the last one
+                    } else {
+                      // other is selected → select both
+                      set('category', 'both');
+                    }
+                  }}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-semibold capitalize transition-colors ${
+                    active
+                      ? 'bg-[#121e80] text-white border-[#121e80]'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#121e80] hover:text-[#121e80]'
+                  }`}>
+                  {c.charAt(0).toUpperCase() + c.slice(1)}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1">Select one or both</p>
         </div>
 
         <div className="md:col-span-2">

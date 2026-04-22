@@ -39,8 +39,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
-      <SearchHero defaultTab="Buy" />
-
+      <div className="-mt-20">
+        <SearchHero defaultTab="Buy" />
+      </div>
 
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">

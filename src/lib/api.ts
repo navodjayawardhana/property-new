@@ -132,6 +132,8 @@ export type Property = {
   cars: number;
   land_size: string | null;
   property_type: string;
+  condition: 'new' | 'used';
+  category: 'domestic' | 'commercial' | 'both';
   listing_type: 'buy' | 'rent' | 'sold';
   description: string;
   agent_name: string;
@@ -155,6 +157,8 @@ export type PaginatedProperties = {
 
 export type PropertyFilters = {
   listing_type?: 'buy' | 'rent' | 'sold';
+  condition?: 'new' | 'used';
+  category?: 'domestic' | 'commercial' | 'both';
   q?: string;
   property_type?: string;
   suburb?: string;
