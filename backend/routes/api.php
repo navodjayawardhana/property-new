@@ -14,6 +14,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/resend-verification', [AuthController::class, 'resendVerification']);
+Route::post('/phone-login', [AuthController::class, 'sendPhoneOtp']);
+Route::post('/verify-phone-otp', [AuthController::class, 'verifyPhoneOtp']);
 
 // Public property routes
 Route::get('/properties', [PropertyController::class, 'index']);

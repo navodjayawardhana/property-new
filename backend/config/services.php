@@ -41,4 +41,10 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'notify_lk' => [
+        'user_id'    => env('NOTIFY_LK_USER_ID'),
+        'api_key'    => env('NOTIFY_LK_API_KEY'),
+        'service_id' => env('NOTIFY_LK_SERVICE_ID'),
+    ],
+
 ];

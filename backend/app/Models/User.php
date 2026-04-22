@@ -28,6 +28,7 @@ class User extends Authenticatable
         'country',
         'otp',
         'otp_expires_at',
+        'email_verified_at',
     ];
 
     protected $hidden = [

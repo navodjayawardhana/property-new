@@ -8,8 +8,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -253,6 +255,83 @@ class AuthController extends Controller
         return response()->json($agents);
     }
 
+    public function sendPhoneOtp(Request $request): JsonResponse
+    {
+        $request->validate(['phone' => 'required|string']);
+
+        $user = User::where('role', '!=', 'admin')
+            ->whereIn('phone', $this->phoneVariants($request->phone))
+            ->first();
+
+        // Auto-register if no account found for this phone
+        if (! $user) {
+            $user = User::create([
+                'name'              => 'User ' . substr(preg_replace('/\D/', '', $request->phone), -4),
+                'phone'             => $request->phone,
+                'role'              => 'buyer',
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        $otp    = (string) random_int(100000, 999999);
+        $sendTo = $this->normalizePhone($user->phone);
+        $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
+
+        Log::info('phone-otp generated', ['to' => $sendTo, 'otp' => $otp]);
+
+        $smsResponse = Http::get('https://app.notify.lk/api/v1/send', [
+            'user_id'     => config('services.notify_lk.user_id'),
+            'api_key'     => config('services.notify_lk.api_key'),
+            'service_id'  => config('services.notify_lk.service_id'),
+            'notify_type' => 'Direct',
+            'to'          => $sendTo,
+            'message'     => "Your Greenbrick.net login code is: {$otp}. Valid for 10 minutes.",
+        ]);
+
+        Log::info('notify.lk response', [
+            'status' => $smsResponse->status(),
+            'body'   => $smsResponse->body(),
+            'config' => [
+                'user_id'    => config('services.notify_lk.user_id'),
+                'service_id' => config('services.notify_lk.service_id'),
+                'to'         => $sendTo,
+            ],
+        ]);
+
+        $masked = $this->maskPhone($user->phone);
+
+        $response = ['requires_otp' => true, 'masked_phone' => $masked];
+        if (app()->isLocal()) {
+            $response['dev_otp'] = $otp;
+        }
+
+        return response()->json($response);
+    }
+
+    public function verifyPhoneOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'otp'   => 'required|string|size:6',
+        ]);
+
+        $user = User::where('role', '!=', 'admin')
+            ->whereIn('phone', $this->phoneVariants($request->phone))
+            ->first();
+
+        if (! $user || $user->otp !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+            throw ValidationException::withMessages([
+                'otp' => ['Invalid or expired code. Please try again.'],
+            ]);
+        }
+
+        $user->update(['otp' => null, 'otp_expires_at' => null]);
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json(['user' => $user->fresh(), 'token' => $token]);
+    }
+
     public function resendVerification(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
@@ -269,6 +348,31 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
 
         return response()->json(['message' => 'Verification code resent.']);
+    }
+
+    private function phoneVariants(string $phone): array
+    {
+        $normalized = $this->normalizePhone($phone);         // 94XXXXXXXXX
+        $local      = '0' . substr($normalized, 2);          // 0XXXXXXXXX
+        return array_unique([$normalized, $local, '+' . $normalized, $phone]);
+    }
+
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D/', '', $phone);
+        if (str_starts_with($digits, '0')) {
+            return '94' . substr($digits, 1);
+        }
+        if (! str_starts_with($digits, '94')) {
+            return '94' . $digits;
+        }
+        return $digits;
+    }
+
+    private function maskPhone(string $phone): string
+    {
+        $clean = preg_replace('/\D/', '', $phone);
+        return substr($clean, 0, 3) . str_repeat('*', max(1, strlen($clean) - 4)) . substr($clean, -1);
     }
 
     private function maskEmail(string $email): string

@@ -3,10 +3,16 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck, Home, TrendingUp, Briefcase, ShieldAlert } from "lucide-react";
+import {
+  Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck,
+  Home, TrendingUp, Briefcase, ShieldAlert, Phone,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { auth } from "@/lib/api";
 
 type Role = "buyer" | "seller" | "agent" | "admin";
+type LoginMethod = "email" | "phone";
+type Screen = "login" | "otp" | "verify" | "phone-otp";
 
 const ROLES: { key: Role; label: string; icon: React.ReactNode; desc: string }[] = [
   { key: "buyer",  label: "Buyer",  icon: <Home size={15} />,        desc: "Find a property" },
@@ -15,34 +21,40 @@ const ROLES: { key: Role; label: string; icon: React.ReactNode; desc: string }[]
   { key: "admin",  label: "Admin",  icon: <ShieldAlert size={15} />, desc: "Site admin" },
 ];
 
-type Screen = "login" | "otp" | "verify";
-
 export default function SignInPage() {
   const router = useRouter();
-  const { login, verifyOtp, verifyEmail, resendVerification, otpPending } = useAuth();
+  const { login, verifyOtp, verifyEmail, resendVerification, otpPending, loginWithToken } = useAuth();
 
-  const [role, setRole] = useState<Role>("buyer");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
+  const [role, setRole]               = useState<Role>("buyer");
+
+  // Email login
+  const [email, setEmail]             = useState("");
+  const [password, setPassword]       = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // Which screen is active
-  const [screen, setScreen] = useState<Screen>("login");
-  // For the verify screen (unverified account) — holds email + masked email
-  const [verifyData, setVerifyData] = useState<{ email: string; maskedEmail: string } | null>(null);
+  // Phone login
+  const [phone, setPhone]             = useState("");
+  const [maskedPhone, setMaskedPhone] = useState("");
+  const [phoneForOtp, setPhoneForOtp] = useState("");
 
-  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  // Screen routing
+  const [screen, setScreen]           = useState<Screen>("login");
+  const [verifyData, setVerifyData]   = useState<{ email: string; maskedEmail: string } | null>(null);
+
+  // OTP digits (shared across otp / verify / phone-otp screens)
+  const [digits, setDigits]           = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading]         = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown]     = useState(60);
   const [countdownKey, setCountdownKey] = useState(0);
-  const [error, setError] = useState("");
+  const [error, setError]             = useState("");
 
-  // 60-second countdown for the verify screen resend button
+  // Countdown for verify / phone-otp screens
   useEffect(() => {
-    if (screen !== "verify") return;
+    if (screen !== "verify" && screen !== "phone-otp") return;
     setCountdown(60);
     const id = setInterval(() => setCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(id);
@@ -57,9 +69,7 @@ export default function SignInPage() {
 
   const handleDigitChange = (i: number, value: string) => {
     const v = value.replace(/\D/g, "").slice(-1);
-    const next = [...digits];
-    next[i] = v;
-    setDigits(next);
+    const next = [...digits]; next[i] = v; setDigits(next);
     if (v && i < 5) digitRefs.current[i + 1]?.focus();
   };
 
@@ -75,43 +85,36 @@ export default function SignInPage() {
     digitRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  // ── handlers ─────────────────────────────────────────────────────────────────
+  // ── email login ───────────────────────────────────────────────────────────────
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) { setError("Please fill in all fields."); return; }
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
       const result = await login(email, password);
       if (result.status === "done") router.push("/");
-      if (result.status === "otp") setScreen("otp");
+      if (result.status === "otp") { resetDigits(); setScreen("otp"); }
       if (result.status === "verify") {
         setVerifyData({ email: result.email, maskedEmail: result.maskedEmail });
-        setScreen("verify");
+        resetDigits(); setScreen("verify");
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign in failed.");
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const handleOtp = async (e: React.FormEvent) => {
+  const handleEmailOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const otp = digits.join("");
     if (otp.length < 6) { setError("Please enter all 6 digits."); return; }
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
       await verifyOtp(otp);
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid code.");
-      resetDigits();
-    } finally {
-      setLoading(false);
-    }
+      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+    } finally { setLoading(false); }
   };
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -119,40 +122,77 @@ export default function SignInPage() {
     if (!verifyData) return;
     const otp = digits.join("");
     if (otp.length < 6) { setError("Please enter all 6 digits."); return; }
-    setError("");
-    setLoading(true);
+    setError(""); setLoading(true);
     try {
       await verifyEmail(verifyData.email, otp);
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid code.");
-      resetDigits();
-    } finally {
-      setLoading(false);
-    }
+      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+    } finally { setLoading(false); }
   };
 
-  const handleResend = async (emailToResend: string) => {
-    setResendLoading(true);
-    setError("");
-    setDigits(["", "", "", "", "", ""]);
+  const handleResendEmail = async (emailAddr: string) => {
+    setResendLoading(true); setError(""); setDigits(["", "", "", "", "", ""]);
+    try { await resendVerification(emailAddr); setCountdownKey((k) => k + 1); }
+    catch { setError("Failed to resend. Please try again."); }
+    finally { setResendLoading(false); }
+  };
+
+  // ── phone login ───────────────────────────────────────────────────────────────
+
+  const handleSendPhoneOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phone) { setError("Please enter your phone number."); return; }
+    setError(""); setLoading(true);
     try {
-      await resendVerification(emailToResend);
-      setCountdownKey((k) => k + 1);
-    } catch {
-      setError("Failed to resend. Please try again.");
-    } finally {
-      setResendLoading(false);
-    }
+      const res = await auth.sendPhoneOtp(phone);
+      setMaskedPhone(res.masked_phone);
+      setPhoneForOtp(phone);
+      if (res.dev_otp) {
+        setDigits(res.dev_otp.split(""));
+      } else {
+        resetDigits();
+      }
+      setScreen("phone-otp");
+    } catch (err: unknown) {
+      const e2 = err as { errors?: Record<string, string[]>; message?: string };
+      const first = e2.errors ? Object.values(e2.errors)[0]?.[0] : undefined;
+      setError(first ?? e2.message ?? "Failed to send OTP.");
+    } finally { setLoading(false); }
+  };
+
+  const handlePhoneOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const otp = digits.join("");
+    if (otp.length < 6) { setError("Please enter all 6 digits."); return; }
+    setError(""); setLoading(true);
+    try {
+      const res = await auth.verifyPhoneOtp({ phone: phoneForOtp, otp });
+      await loginWithToken(res.token);
+      router.push("/");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+    } finally { setLoading(false); }
+  };
+
+  const handleResendPhone = async () => {
+    setResendLoading(true); setError(""); setDigits(["", "", "", "", "", ""]);
+    try { await auth.sendPhoneOtp(phoneForOtp); setCountdownKey((k) => k + 1); }
+    catch { setError("Failed to resend. Please try again."); }
+    finally { setResendLoading(false); }
   };
 
   // ── shared UI ─────────────────────────────────────────────────────────────────
 
+  const spinner = (
+    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
+    </svg>
+  );
+
   const leftPanel = (
-    <div
-      className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
-      style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}
-    >
+    <div className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
+      style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}>
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center">
@@ -185,38 +225,42 @@ export default function SignInPage() {
     </Link>
   );
 
-  const digitInputs = (onPaste: React.ClipboardEventHandler) => (
-    <div className="flex gap-3 justify-center" onPaste={onPaste}>
+  const digitInputs = (
+    <div className="flex gap-3 justify-center" onPaste={handleDigitPaste}>
       {digits.map((d, i) => (
-        <input
-          key={i}
-          ref={(el) => { digitRefs.current[i] = el; }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={d}
+        <input key={i} ref={(el) => { digitRefs.current[i] = el; }}
+          type="text" inputMode="numeric" maxLength={1} value={d}
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleDigitKeyDown(i, e)}
-          className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all"
-        />
+          className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all" />
       ))}
     </div>
   );
 
-  const spinner = (
-    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
-    </svg>
+  const resendCountdown = (onResend: () => void) => (
+    <div className="text-center mt-5">
+      {countdown > 0 ? (
+        <p className="text-xs text-gray-400">
+          Resend available in <span className="font-semibold text-gray-600">{countdown}s</span>
+        </p>
+      ) : (
+        <p className="text-xs text-gray-400">
+          Didn&apos;t receive it?{" "}
+          <button type="button" disabled={resendLoading} onClick={onResend}
+            className="text-[#121e80] font-semibold hover:underline disabled:opacity-50">
+            {resendLoading ? "Sending…" : "Resend code"}
+          </button>
+        </p>
+      )}
+    </div>
   );
 
-  // ── Login OTP step (2FA after successful login) ───────────────────────────────
+  // ── OTP screen (email 2FA) ────────────────────────────────────────────────────
   if (screen === "otp" && otpPending) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        {leftPanel}
+      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
         <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-md">
-            {logo}
+          <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
                 <ShieldCheck size={32} className="text-[#121e80]" />
@@ -224,13 +268,12 @@ export default function SignInPage() {
             </div>
             <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Check your email</h1>
             <p className="text-gray-500 text-sm mb-8 text-center">
-              We sent a 6-digit code to{" "}
-              <span className="font-semibold text-gray-700">{otpPending.maskedEmail}</span>.<br />
+              We sent a 6-digit code to <span className="font-semibold text-gray-700">{otpPending.maskedEmail}</span>.<br />
               It expires in 10 minutes.
             </p>
-            <form onSubmit={handleOtp} className="space-y-6">
+            <form onSubmit={handleEmailOtp} className="space-y-6">
               {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
-              {digitInputs(handleDigitPaste)}
+              {digitInputs}
               <button type="submit" disabled={loading}
                 className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
@@ -242,14 +285,12 @@ export default function SignInPage() {
     );
   }
 
-  // ── Email verification step (unverified account tried to login) ───────────────
+  // ── Email verification screen (unverified account) ────────────────────────────
   if (screen === "verify" && verifyData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
-        {leftPanel}
+      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
         <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="w-full max-w-md">
-            {logo}
+          <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
                 <ShieldCheck size={32} className="text-amber-500" />
@@ -261,32 +302,52 @@ export default function SignInPage() {
               <span className="font-semibold text-gray-700">{verifyData.maskedEmail}</span>.
             </p>
             <p className="text-gray-400 text-xs mb-8 text-center">Enter it below to verify and sign in.</p>
-
             <form onSubmit={handleVerify} className="space-y-6">
               {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
-              {digitInputs(handleDigitPaste)}
+              {digitInputs}
               <button type="submit" disabled={loading}
                 className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
               </button>
             </form>
+            {resendCountdown(() => handleResendEmail(verifyData.email))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-            <div className="text-center mt-5">
-              {countdown > 0 ? (
-                <p className="text-xs text-gray-400">
-                  Resend available in <span className="font-semibold text-gray-600">{countdown}s</span>
-                </p>
-              ) : (
-                <p className="text-xs text-gray-400">
-                  Didn&apos;t receive it?{" "}
-                  <button type="button" disabled={resendLoading}
-                    onClick={() => handleResend(verifyData.email)}
-                    className="text-[#121e80] font-semibold hover:underline disabled:opacity-50">
-                    {resendLoading ? "Sending…" : "Resend code"}
-                  </button>
-                </p>
-              )}
+  // ── Phone OTP screen ──────────────────────────────────────────────────────────
+  if (screen === "phone-otp") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">{logo}
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+                <Phone size={30} className="text-[#121e80]" />
+              </div>
             </div>
+            <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Check your phone</h1>
+            <p className="text-gray-500 text-sm mb-8 text-center">
+              We sent a 6-digit code via SMS to <span className="font-semibold text-gray-700">{maskedPhone}</span>.<br />
+              It expires in 10 minutes.
+            </p>
+            <form onSubmit={handlePhoneOtp} className="space-y-6">
+              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {digitInputs}
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+            {resendCountdown(handleResendPhone)}
+            <p className="text-center text-xs text-gray-400 mt-3">
+              <button type="button" onClick={() => { setScreen("login"); setError(""); }}
+                className="text-[#121e80] font-semibold hover:underline">
+                ← Back to sign in
+              </button>
+            </p>
           </div>
         </div>
       </div>
@@ -295,11 +356,9 @@ export default function SignInPage() {
 
   // ── Login form ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {leftPanel}
+    <div className="min-h-screen bg-gray-50 flex">{leftPanel}
       <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md">
-          {logo}
+        <div className="w-full max-w-md">{logo}
 
           <h1 className="text-3xl font-black text-gray-900 mb-1">Welcome back</h1>
           <p className="text-gray-500 text-sm mb-6">
@@ -307,72 +366,107 @@ export default function SignInPage() {
             <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Create account</Link>
           </p>
 
-          {/* Role tabs */}
-          <div className="flex gap-2 mb-6 bg-gray-100 p-1 rounded-xl">
-            {ROLES.map((r) => (
-              <button key={r.key} type="button"
-                onClick={() => { setRole(r.key); setError(""); }}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-                  role === r.key ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"
-                }`}>
-                {r.icon}
-                <span>{r.label}</span>
-                <span className="text-[10px] font-normal text-gray-400">{r.desc}</span>
+          {/* Email / Phone toggle */}
+          <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl">
+            {([["email", "Email", <Mail key="m" size={14} />], ["phone", "Phone", <Phone key="p" size={14} />]] as const).map(([m, label, icon]) => (
+              <button key={m} type="button"
+                onClick={() => { setLoginMethod(m as LoginMethod); setError(""); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${loginMethod === m ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                {icon}{label}
               </button>
             ))}
           </div>
 
-          {role !== "admin" && (
+          {/* Role tabs — email only, not admin for phone */}
+          {loginMethod === "email" && (
+            <div className="flex gap-2 mb-5 bg-gray-100 p-1 rounded-xl">
+              {ROLES.map((r) => (
+                <button key={r.key} type="button"
+                  onClick={() => { setRole(r.key); setError(""); }}
+                  className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${role === r.key ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                  {r.icon}
+                  <span>{r.label}</span>
+                  <span className="text-[10px] font-normal text-gray-400">{r.desc}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* OTP hint */}
+          {loginMethod === "email" && role !== "admin" && (
             <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs px-3 py-2.5 rounded-xl mb-4">
               <ShieldCheck size={14} className="shrink-0" />
               <span>A verification code will be sent to your email after sign in.</span>
             </div>
           )}
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
-
-            <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
-              <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
-              </div>
+          {loginMethod === "phone" && (
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs px-3 py-2.5 rounded-xl mb-4">
+              <Phone size={14} className="shrink-0" />
+              <span>A 6-digit code will be sent to your phone via SMS.</span>
             </div>
+          )}
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-gray-600">Password</label>
-                <Link href="/" className="text-xs text-[#121e80] hover:underline font-medium">Forgot password?</Link>
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>}
+
+          {/* Email form */}
+          {loginMethod === "email" && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
               </div>
-              <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-semibold text-gray-600">Password</label>
+                  <Link href="/" className="text-xs text-[#121e80] hover:underline font-medium">Forgot password?</Link>
+                </div>
+                <div className="relative">
+                  <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"
+                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
-            </div>
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-2">
+                {loading ? spinner : (<>Sign in as {ROLES.find(r => r.key === role)?.label} <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+          )}
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-2">
-              {loading ? spinner : (<>Sign in as {ROLES.find(r => r.key === role)?.label} <ArrowRight size={16} /></>)}
-            </button>
-          </form>
+          {/* Phone form */}
+          {loginMethod === "phone" && (
+            <form onSubmit={handleSendPhoneOtp} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone number</label>
+                <div className="relative">
+                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07X XXX XXXX"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
+              </div>
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                {loading ? spinner : (<>Send OTP <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+          )}
 
-          {role !== "admin" && (
+          {/* Google + join link — email non-admin only */}
+          {loginMethod === "email" && role !== "admin" && (
             <>
               <div className="flex items-center gap-3 my-5">
                 <div className="flex-1 h-px bg-gray-200" />
                 <span className="text-xs text-gray-400">or</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
-
               <a href={`http://localhost:8000/auth/google/redirect?role=${role}`}
                 className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
                 <svg width="18" height="18" viewBox="0 0 48 48">
@@ -383,12 +477,18 @@ export default function SignInPage() {
                 </svg>
                 Continue with Google
               </a>
-
               <p className="text-center text-xs text-gray-400 mt-5">
                 Don&apos;t have an account?{" "}
                 <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Join for free</Link>
               </p>
             </>
+          )}
+
+          {loginMethod === "phone" && (
+            <p className="text-center text-xs text-gray-400 mt-5">
+              Don&apos;t have an account?{" "}
+              <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Join for free</Link>
+            </p>
           )}
         </div>
       </div>

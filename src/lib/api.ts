@@ -85,6 +85,12 @@ export const auth = {
   resendVerification: (email: string) =>
     request<{ message: string }>('/resend-verification', { method: 'POST', body: { email } }),
 
+  sendPhoneOtp: (phone: string) =>
+    request<{ requires_otp: true; masked_phone: string; dev_otp?: string }>('/phone-login', { method: 'POST', body: { phone } }),
+
+  verifyPhoneOtp: (data: { phone: string; otp: string }) =>
+    request<AuthResponse>('/verify-phone-otp', { method: 'POST', body: data }),
+
   logout: (token: string) =>
     request<{ message: string }>('/logout', { method: 'POST', token }),
 
