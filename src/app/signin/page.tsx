@@ -465,7 +465,7 @@ export default function SignInPage() {
                 <span className="text-xs text-gray-400">or</span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
-              <a href={`http://localhost:8000/auth/google/redirect?role=${role}`}
+              <a href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/google/redirect?role=${role}`}
                 className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
                 <svg width="18" height="18" viewBox="0 0 48 48">
                   <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
