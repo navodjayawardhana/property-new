@@ -4,13 +4,12 @@ import { useEffect, useState, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { agentsApi, type Agent } from "@/lib/api";
-import { Search, MapPin, Phone, Mail, X, MessageSquare, ChevronLeft, ChevronRight, User as UserIcon } from "lucide-react";
-import Link from "next/link";
+import { Search, MapPin, Phone, Mail, X, MessageSquare, ChevronLeft, ChevronRight, User as UserIcon, Users } from "lucide-react";
 
 const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 
-function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "sm" | "lg" }) {
-  const dim = size === "lg" ? "w-20 h-20 text-2xl" : "w-14 h-14 text-lg";
+function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "xs" | "sm" | "lg" }) {
+  const dim = size === "lg" ? "w-20 h-20 text-2xl" : size === "sm" ? "w-14 h-14 text-lg" : "w-10 h-10 text-sm";
   return (
     <div className={`${dim} rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center shrink-0`}>
       {agent.avatar ? (
@@ -23,28 +22,51 @@ function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "sm" | "lg" 
 }
 
 function ConnectModal({ agent, onClose }: { agent: Agent; onClose: () => void }) {
+  const [current, setCurrent] = useState<Agent>(agent);
   const [message, setMessage] = useState("");
+  const [nearby, setNearby] = useState<Agent[]>([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+
+  useEffect(() => {
+    if (!current.suburb && !current.state) return;
+    setNearbyLoading(true);
+    agentsApi.list({
+      suburb: current.suburb ?? undefined,
+      state: current.state ?? undefined,
+    })
+      .then((res) => {
+        setNearby(res.data.filter((a) => a.id !== current.id).slice(0, 6));
+      })
+      .catch(() => setNearby([]))
+      .finally(() => setNearbyLoading(false));
+  }, [current.id]);
+
+  function switchAgent(next: Agent) {
+    setCurrent(next);
+    setMessage("");
+  }
 
   function handleSendEmail() {
     const subject = encodeURIComponent(`Enquiry from Greenbrick.net`);
-    const body = encodeURIComponent(message || `Hi ${agent.name},\n\nI found your profile on Greenbrick.net and would like to connect.\n\nRegards`);
-    window.open(`mailto:${agent.email}?subject=${subject}&body=${body}`, "_blank");
+    const body = encodeURIComponent(message || `Hi ${current.name},\n\nI found your profile on Greenbrick.net and would like to connect.\n\nRegards`);
+    window.open(`mailto:${current.email}?subject=${subject}&body=${body}`, "_blank");
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-gray-100">
           <div className="flex items-center gap-4">
-            <AgentAvatar agent={agent} />
+            <AgentAvatar agent={current} />
             <div>
-              <h3 className="font-black text-gray-900 text-lg leading-tight">{agent.name}</h3>
+              <h3 className="font-black text-gray-900 text-lg leading-tight">{current.name}</h3>
               <p className="text-sm text-[#121e80] font-semibold">Real Estate Agent</p>
-              {(agent.suburb || agent.state) && (
+              {(current.suburb || current.state) && (
                 <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                   <MapPin size={10} />
-                  {[agent.suburb, agent.state].filter(Boolean).join(", ")}
+                  {[current.suburb, current.state].filter(Boolean).join(", ")}
                 </p>
               )}
             </div>
@@ -57,12 +79,12 @@ function ConnectModal({ agent, onClose }: { agent: Agent; onClose: () => void })
         {/* Contact buttons */}
         <div className="p-6 space-y-4">
           <div className="flex gap-3">
-            <a href={`mailto:${agent.email}`}
+            <a href={`mailto:${current.email}`}
               className="flex-1 flex items-center justify-center gap-2 border border-[#121e80] text-[#121e80] font-semibold text-sm py-2.5 rounded-xl hover:bg-blue-50 transition-colors">
               <Mail size={15} /> Email
             </a>
-            {agent.phone ? (
-              <a href={`tel:${agent.phone}`}
+            {current.phone ? (
+              <a href={`tel:${current.phone}`}
                 className="flex-1 flex items-center justify-center gap-2 border border-green-600 text-green-700 font-semibold text-sm py-2.5 rounded-xl hover:bg-green-50 transition-colors">
                 <Phone size={15} /> Call
               </a>
@@ -80,10 +102,10 @@ function ConnectModal({ agent, onClose }: { agent: Agent; onClose: () => void })
               <span className="flex items-center gap-1.5"><MessageSquare size={11} /> Send a message</span>
             </label>
             <textarea
-              rows={4}
+              rows={3}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder={`Hi ${agent.name.split(" ")[0]}, I'd like to connect about...`}
+              placeholder={`Hi ${current.name.split(" ")[0]}, I'd like to connect about...`}
               className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#121e80] transition-colors resize-none"
             />
           </div>
@@ -97,6 +119,44 @@ function ConnectModal({ agent, onClose }: { agent: Agent; onClose: () => void })
             Your default email app will open with the message pre-filled.
           </p>
         </div>
+
+        {/* Nearby agents in same suburb */}
+        {(nearbyLoading || nearby.length > 0) && (
+          <div className="border-t border-gray-100 px-6 py-5">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide flex items-center gap-1.5 mb-3">
+              <Users size={12} />
+              Other agents in {current.suburb || current.state}
+            </p>
+            {nearbyLoading ? (
+              <div className="flex gap-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1.5 shrink-0 w-16 animate-pulse">
+                    <div className="w-10 h-10 rounded-full bg-gray-200" />
+                    <div className="h-2.5 bg-gray-200 rounded w-12" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                {nearby.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => switchAgent(a)}
+                    className="flex flex-col items-center gap-1.5 shrink-0 w-16 group"
+                  >
+                    <div className="relative">
+                      <AgentAvatar agent={a} size="xs" />
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white" />
+                    </div>
+                    <span className="text-[10px] font-semibold text-gray-600 text-center leading-tight w-full truncate group-hover:text-[#121e80] transition-colors">
+                      {a.name.split(" ")[0]}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

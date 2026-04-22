@@ -61,7 +61,7 @@ export default function Navbar() {
                 <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-lg w-48 py-1 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-xs font-semibold text-gray-900 truncate">{user.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                    <p className="text-xs text-gray-400 truncate">{user.email ?? 'Phone user'}</p>
                   </div>
                   <Link href={`/dashboard/${user.role}`} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setMenuOpen(false)}>
                     <UserIcon size={14} /> Dashboard

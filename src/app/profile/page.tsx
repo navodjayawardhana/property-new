@@ -50,7 +50,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (user) {
       setName(user.name);
-      setEmail(user.email);
+      setEmail(user.email ?? '');
       setPhone(user.phone ?? '');
       setSuburb(user.suburb ?? '');
       setUserState(user.state ?? '');

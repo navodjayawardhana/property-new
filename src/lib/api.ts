@@ -47,7 +47,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 export type User = {
   id: number;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   role: 'buyer' | 'seller' | 'agent' | 'admin';
   avatar: string | null;

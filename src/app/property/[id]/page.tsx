@@ -54,7 +54,7 @@ export default function PropertyDetailPage() {
 
   useEffect(() => {
     if (user) {
-      setForm((f) => ({ ...f, name: user.name, email: user.email, phone: user.phone ?? "" }));
+      setForm((f) => ({ ...f, name: user.name, email: user.email ?? "", phone: user.phone ?? "" }));
     }
   }, [user]);
 
