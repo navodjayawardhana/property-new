@@ -3,12 +3,17 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { auth, type User } from "@/lib/api";
 
+export type OtpPending = { email: string; maskedEmail: string };
+
 type AuthContextValue = {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  otpPending: OtpPending | null;
+  login: (email: string, password: string) => Promise<"otp" | "verify" | "done">;
+  verifyOtp: (otp: string) => Promise<void>;
+  verifyEmail: (email: string, otp: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<{ email: string; maskedEmail: string }>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
 };
@@ -28,16 +33,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [otpPending, setOtpPending] = useState<OtpPending | null>(null);
+
+  const restoreSession = (t: string) => {
+    setToken(t);
+    auth.me(t)
+      .then(setUser)
+      .catch(() => { localStorage.removeItem("auth_token"); setToken(null); })
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem("auth_token");
     if (!stored) { setLoading(false); return; }
-    setToken(stored);
-    auth.me(stored)
-      .then(setUser)
-      .catch(() => { localStorage.removeItem("auth_token"); setToken(null); })
-      .finally(() => setLoading(false));
-  }, []);
+    restoreSession(stored);
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "auth_token" && e.newValue) restoreSession(e.newValue);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persist = (u: User, t: string) => {
     localStorage.setItem("auth_token", t);
@@ -45,14 +61,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(t);
   };
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<"otp" | "verify" | "done"> => {
     const res = await auth.login({ email, password });
+    if ("requires_otp" in res) {
+      setOtpPending({ email: res.email, maskedEmail: res.masked_email });
+      return "otp";
+    }
+    if ("requires_verification" in res) {
+      return "verify";
+    }
+    persist(res.user, res.token);
+    return "done";
+  }, []);
+
+  const verifyOtp = useCallback(async (otp: string) => {
+    if (!otpPending) throw new Error("No OTP pending");
+    const res = await auth.verifyOtp({ email: otpPending.email, otp });
+    setOtpPending(null);
+    persist(res.user, res.token);
+  }, [otpPending]);
+
+  // Called from join page after registration OTP
+  const verifyEmail = useCallback(async (email: string, otp: string) => {
+    const res = await auth.verifyEmail({ email, otp });
     persist(res.user, res.token);
   }, []);
 
-  const register = useCallback(async (data: RegisterData) => {
+  // Returns { email, maskedEmail } so join page can show the OTP step
+  const register = useCallback(async (data: RegisterData): Promise<{ email: string; maskedEmail: string }> => {
     const res = await auth.register(data);
-    persist(res.user, res.token);
+    return { email: res.email, maskedEmail: res.masked_email };
   }, []);
 
   const logout = useCallback(async () => {
@@ -67,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, otpPending, login, verifyOtp, verifyEmail, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

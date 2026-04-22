@@ -1,20 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const accountTypes = [
-  { id: "buyer", label: "Buyer / Renter", desc: "Search and save properties" },
-  { id: "seller", label: "Seller / Landlord", desc: "List and manage properties" },
-  { id: "agent", label: "Agent / Broker", desc: "Manage client listings" },
+  { id: "buyer",  label: "Buyer / Renter",     desc: "Search and save properties" },
+  { id: "seller", label: "Seller / Landlord",   desc: "List and manage properties" },
+  { id: "agent",  label: "Agent / Broker",      desc: "Manage client listings" },
 ];
 
 export default function JoinPage() {
   const router = useRouter();
-  const { register } = useAuth();
+  const { register, verifyEmail } = useAuth();
+
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
@@ -23,18 +24,47 @@ export default function JoinPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Step 3: email verification
+  const [verifyEmail_, setVerifyEmail_] = useState("");
+  const [maskedEmail, setMaskedEmail] = useState("");
+  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+
+  const handleDigitChange = (i: number, value: string) => {
+    const v = value.replace(/\D/g, "").slice(-1);
+    const next = [...digits];
+    next[i] = v;
+    setDigits(next);
+    if (v && i < 5) digitRefs.current[i + 1]?.focus();
+  };
+
+  const handleDigitKeyDown = (i: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !digits[i] && i > 0) digitRefs.current[i - 1]?.focus();
+  };
+
+  const handleDigitPaste = (e: React.ClipboardEvent) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    e.preventDefault();
+    const next = pasted.split("").concat(Array(6).fill("")).slice(0, 6);
+    setDigits(next);
+    digitRefs.current[Math.min(pasted.length, 5)]?.focus();
+  };
 
   const handleNext = async () => {
     if (step === 1) { setStep(2); return; }
+
     if (!form.name || !form.email || !form.password) { setError("Please fill in all required fields."); return; }
     if (form.password.length < 8) { setError("Password must be at least 8 characters."); return; }
     if (form.password !== form.confirm) { setError("Passwords do not match."); return; }
     if (!agree) { setError("Please accept the terms to continue."); return; }
+
     setError("");
     setLoading(true);
     try {
-      await register({
+      const { email, maskedEmail } = await register({
         name: form.name,
         email: form.email,
         password: form.password,
@@ -42,7 +72,9 @@ export default function JoinPage() {
         phone: form.phone || undefined,
         role: accountType,
       });
-      router.push("/");
+      setVerifyEmail_(email);
+      setMaskedEmail(maskedEmail);
+      setStep(3);
     } catch (err: unknown) {
       const apiErr = err as { errors?: Record<string, string[]>; message?: string };
       if (apiErr.errors) {
@@ -56,36 +88,127 @@ export default function JoinPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <div
-        className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
-        style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }}
-      >
-        <div className="absolute inset-0 flex flex-col justify-between p-12">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-            </div>
-            <span className="text-white font-semibold text-sm">Greenbrick.net</span>
-          </Link>
-          <div>
-            <h2 className="text-white font-black text-4xl leading-tight mb-4">
-              Join Australia&apos;s<br />largest property<br />community.
-            </h2>
-            <div className="space-y-3 mt-8">
-              {["Save and track your favourite properties", "Get instant alerts on new listings", "Connect with top agents and brokers", "Access exclusive market insights"].map((item) => (
-                <div key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 bg-[#121e80] rounded-full flex items-center justify-center shrink-0">
-                    <Check size={11} className="text-white" />
-                  </div>
-                  <span className="text-white/80 text-sm">{item}</span>
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const otp = digits.join("");
+    if (otp.length < 6) { setError("Please enter all 6 digits."); return; }
+    setError("");
+    setLoading(true);
+    try {
+      await verifyEmail(verifyEmail_, otp);
+      router.push("/");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Invalid code.");
+      setDigits(["", "", "", "", "", ""]);
+      digitRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const leftPanel = (
+    <div
+      className="hidden lg:flex lg:w-1/2 relative bg-cover bg-center"
+      style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }}
+    >
+      <div className="absolute inset-0 flex flex-col justify-between p-12">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
+          </div>
+          <span className="text-white font-semibold text-sm">Greenbrick.net</span>
+        </Link>
+        <div>
+          <h2 className="text-white font-black text-4xl leading-tight mb-4">
+            Join Australia&apos;s<br />largest property<br />community.
+          </h2>
+          <div className="space-y-3 mt-8">
+            {["Save and track your favourite properties", "Get instant alerts on new listings", "Connect with top agents and brokers", "Access exclusive market insights"].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <div className="w-5 h-5 bg-[#121e80] rounded-full flex items-center justify-center shrink-0">
+                  <Check size={11} className="text-white" />
                 </div>
-              ))}
-            </div>
+                <span className="text-white/80 text-sm">{item}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  // ── Step 3: Email verification OTP ────────────────────────────────────────────
+  if (step === 3) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        {leftPanel}
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">
+            <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
+              <div className="w-8 h-8 bg-[#121e80] rounded-full flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
+              </div>
+              <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
+            </Link>
+
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
+                <ShieldCheck size={32} className="text-green-600" />
+              </div>
+            </div>
+
+            <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Verify your email</h1>
+            <p className="text-gray-500 text-sm mb-2 text-center">
+              We sent a 6-digit code to{" "}
+              <span className="font-semibold text-gray-700">{maskedEmail}</span>.
+            </p>
+            <p className="text-gray-400 text-xs mb-8 text-center">Enter it below to activate your account.</p>
+
+            <form onSubmit={handleVerify} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+              )}
+
+              <div className="flex gap-3 justify-center" onPaste={handleDigitPaste}>
+                {digits.map((d, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { digitRefs.current[i] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={d}
+                    onChange={(e) => handleDigitChange(i, e.target.value)}
+                    onKeyDown={(e) => handleDigitKeyDown(i, e)}
+                    className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all"
+                  />
+                ))}
+              </div>
+
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                {loading ? (
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
+                  </svg>
+                ) : (<>Verify &amp; activate account <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+
+            <p className="text-center text-xs text-gray-400 mt-6">
+              Already verified?{" "}
+              <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Steps 1 & 2 ───────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {leftPanel}
 
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
         <div className="w-full max-w-md">
@@ -146,9 +269,9 @@ export default function JoinPage() {
               )}
 
               {[
-                { key: "name", label: "Full name", placeholder: "Jane Smith", icon: <User size={15} className="text-gray-400" />, type: "text" },
-                { key: "email", label: "Email address", placeholder: "you@example.com", icon: <Mail size={15} className="text-gray-400" />, type: "email" },
-                { key: "phone", label: "Phone (optional)", placeholder: "+61 400 000 000", icon: <Phone size={15} className="text-gray-400" />, type: "tel" },
+                { key: "name",  label: "Full name",        placeholder: "Jane Smith",        icon: <User size={15} className="text-gray-400" />,  type: "text" },
+                { key: "email", label: "Email address",    placeholder: "you@example.com",   icon: <Mail size={15} className="text-gray-400" />,  type: "email" },
+                { key: "phone", label: "Phone (optional)", placeholder: "+61 400 000 000",   icon: <Phone size={15} className="text-gray-400" />, type: "tel" },
               ].map((field) => (
                 <div key={field.key}>
                   <label className="text-xs font-semibold text-gray-600 mb-1.5 block">{field.label}</label>

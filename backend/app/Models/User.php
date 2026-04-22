@@ -26,11 +26,15 @@ class User extends Authenticatable
         'state',
         'postcode',
         'country',
+        'otp',
+        'otp_expires_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'otp',
+        'otp_expires_at',
     ];
 
     protected function casts(): array

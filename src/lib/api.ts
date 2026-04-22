@@ -58,6 +58,10 @@ export type User = {
 };
 
 export type AuthResponse = { user: User; token: string };
+export type OtpRequiredResponse = { requires_otp: true; email: string; masked_email: string };
+export type VerificationRequiredResponse = { requires_verification: true; email: string; masked_email: string };
+export type LoginResponse = AuthResponse | OtpRequiredResponse | VerificationRequiredResponse;
+export type RegisterResponse = VerificationRequiredResponse;
 
 export const auth = {
   register: (data: {
@@ -67,10 +71,16 @@ export const auth = {
     password_confirmation: string;
     phone?: string;
     role?: string;
-  }) => request<AuthResponse>('/register', { method: 'POST', body: data }),
+  }) => request<RegisterResponse>('/register', { method: 'POST', body: data }),
 
   login: (data: { email: string; password: string }) =>
-    request<AuthResponse>('/login', { method: 'POST', body: data }),
+    request<LoginResponse>('/login', { method: 'POST', body: data }),
+
+  verifyOtp: (data: { email: string; otp: string }) =>
+    request<AuthResponse>('/verify-otp', { method: 'POST', body: data }),
+
+  verifyEmail: (data: { email: string; otp: string }) =>
+    request<AuthResponse>('/verify-email', { method: 'POST', body: data }),
 
   logout: (token: string) =>
     request<{ message: string }>('/logout', { method: 'POST', token }),

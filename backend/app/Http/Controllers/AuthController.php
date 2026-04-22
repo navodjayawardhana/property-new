@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OtpNotification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -34,9 +36,47 @@ class AuthController extends Controller
             'role'     => $validated['role'] ?? 'buyer',
         ]);
 
+        // Send email verification OTP
+        $otp = (string) random_int(100000, 999999);
+        $user->update([
+            'otp'            => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
+        ]);
+        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+        $masked = $this->maskEmail($user->email);
+
+        return response()->json([
+            'requires_verification' => true,
+            'email'                 => $user->email,
+            'masked_email'          => $masked,
+        ], 201);
+    }
+
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|string|size:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || $user->otp !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+            throw ValidationException::withMessages([
+                'otp' => ['Invalid or expired code. Please try again.'],
+            ]);
+        }
+
+        $user->update([
+            'otp'               => null,
+            'otp_expires_at'    => null,
+            'email_verified_at' => now(),
+        ]);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token], 201);
+        return response()->json(['user' => $user->fresh(), 'token' => $token]);
     }
 
     public function login(Request $request): JsonResponse
@@ -46,7 +86,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Hardcoded admin login — always works regardless of database state
+        // Admin bypasses OTP — direct token
         if ($request->email === self::ADMIN_EMAIL && $request->password === self::ADMIN_PASSWORD) {
             $admin = User::firstOrCreate(
                 ['email' => self::ADMIN_EMAIL],
@@ -72,10 +112,57 @@ class AuthController extends Controller
             ]);
         }
 
-        $user  = Auth::user();
+        $user = Auth::user();
+
+        // Block login until email is verified
+        if (! $user->email_verified_at) {
+            // Resend a fresh OTP so they can complete verification
+            $otp = (string) random_int(100000, 999999);
+            $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
+            Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+            return response()->json([
+                'requires_verification' => true,
+                'email'                 => $user->email,
+                'masked_email'          => $this->maskEmail($user->email),
+            ], 403);
+        }
+
+        // Generate login OTP and send via email
+        $otp = (string) random_int(100000, 999999);
+        $user->update([
+            'otp'            => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
+        ]);
+        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+        return response()->json([
+            'requires_otp' => true,
+            'email'        => $user->email,
+            'masked_email' => $this->maskEmail($user->email),
+        ]);
+    }
+
+    public function verifyOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|string|size:6',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || $user->otp !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+            throw ValidationException::withMessages([
+                'otp' => ['Invalid or expired code. Please try again.'],
+            ]);
+        }
+
+        $user->update(['otp' => null, 'otp_expires_at' => null]);
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['user' => $user, 'token' => $token]);
+        return response()->json(['user' => $user->fresh(), 'token' => $token]);
     }
 
     public function logout(Request $request): JsonResponse
@@ -164,6 +251,12 @@ class AuthController extends Controller
             ->paginate(24);
 
         return response()->json($agents);
+    }
+
+    private function maskEmail(string $email): string
+    {
+        [$local, $domain] = explode('@', $email);
+        return substr($local, 0, 1) . str_repeat('*', max(1, strlen($local) - 1)) . '@' . $domain;
     }
 
     public function deleteAvatar(Request $request): JsonResponse
