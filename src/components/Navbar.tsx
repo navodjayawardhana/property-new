@@ -25,7 +25,7 @@ const navLinks = [
   { label: "Find agents", href: "/agents" },
   { label: "Home loans", href: "/" },
   { label: "News", href: "/news" },
-  { label: "Commercial", href: "/" },
+  { label: "Commercial", href: "/commercial" },
 ];
 
 export default function Navbar() {

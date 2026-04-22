@@ -7,7 +7,7 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
 import { properties as propertiesApi, type Property } from "@/lib/api";
-import { Home, X } from "lucide-react";
+import { Building2, X } from "lucide-react";
 
 const PROPERTY_TYPES = ["Any", "House", "Apartment", "Townhouse", "Villa", "Land", "Rural"];
 const LISTING_TYPES  = ["Any", "For Sale", "For Rent", "Sold"];
@@ -17,7 +17,7 @@ const listingMap: Record<string, "buy" | "rent" | "sold"> = {
   "For Sale": "buy", "For Rent": "rent", "Sold": "sold",
 };
 
-function NewHomesContent() {
+function CommercialContent() {
   const searchParams = useSearchParams();
   const router       = useRouter();
 
@@ -29,7 +29,7 @@ function NewHomesContent() {
   const buildFilters = useCallback(() => {
     const lt = searchParams.get("listing_type");
     return {
-      condition:     "new" as const,
+      category:      "commercial" as const,
       listing_type:  lt ? (lt as "buy" | "rent" | "sold") : undefined,
       q:             searchParams.get("q")             || undefined,
       suburb:        searchParams.get("suburb")        || undefined,
@@ -55,13 +55,13 @@ function NewHomesContent() {
   function setParam(key: string, value: string | null) {
     const p = new URLSearchParams(searchParams.toString());
     if (value && value !== "Any") p.set(key, value); else p.delete(key);
-    router.push(`/new-homes?${p.toString()}`);
+    router.push(`/commercial?${p.toString()}`);
   }
 
   function clearParam(key: string) {
     const p = new URLSearchParams(searchParams.toString());
     p.delete(key);
-    router.push(`/new-homes?${p.toString()}`);
+    router.push(`/commercial?${p.toString()}`);
   }
 
   const activeType    = searchParams.get("property_type") ?? "Any";
@@ -82,29 +82,27 @@ function NewHomesContent() {
   if (searchParams.get("listing_type"))  activeFilters.push({ key: "listing_type",  label: LISTING_TYPES.find((l) => listingMap[l] === searchParams.get("listing_type")) ?? "" });
   if (searchParams.get("min_price"))     activeFilters.push({ key: "min_price",     label: `From $${Number(searchParams.get("min_price")).toLocaleString()}` });
   if (searchParams.get("max_price"))     activeFilters.push({ key: "max_price",     label: `To $${Number(searchParams.get("max_price")).toLocaleString()}` });
-  if (searchParams.get("beds"))          activeFilters.push({ key: "beds",          label: `${searchParams.get("beds")}+ beds` });
-  if (searchParams.get("baths"))         activeFilters.push({ key: "baths",         label: `${searchParams.get("baths")}+ baths` });
 
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#121e80] py-12 px-4">
+      <div className="bg-[#0f172a] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
-              <Home size={18} className="text-white" />
+            <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+              <Building2 size={18} className="text-white" />
             </div>
-            <p className="text-blue-300 text-xs font-bold uppercase tracking-widest">Brand new</p>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Commercial &amp; Mixed</p>
           </div>
-          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">New Homes</h1>
-          <p className="text-blue-200 text-sm">Browse brand-new properties — never been lived in.</p>
+          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Commercial Properties</h1>
+          <p className="text-slate-400 text-sm">Commercial and mixed-use properties across Australia.</p>
         </div>
       </div>
 
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
         <div className="space-y-3 pb-5 border-b border-gray-200">
-          {/* Row 1 — Listing type segmented control + count + sort */}
+          {/* Row 1 — Listing type as segmented control + sort */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Listing type</p>
@@ -117,7 +115,7 @@ function NewHomesContent() {
                       onClick={() => setParam("listing_type", val ?? null)}
                       className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         active
-                          ? "bg-[#121e80] text-white shadow-sm"
+                          ? "bg-[#0f172a] text-white shadow-sm"
                           : "text-gray-500 hover:text-gray-800"
                       }`}>
                       {lt}
@@ -129,7 +127,7 @@ function NewHomesContent() {
 
             <div className="flex items-center gap-2 ml-auto">
               <span className="text-sm text-gray-500">
-                {loading ? "..." : <><span className="font-bold text-gray-900">{total}</span> new propert{total !== 1 ? "ies" : "y"}</>}
+                {loading ? "..." : <><span className="font-bold text-gray-900">{total}</span> propert{total !== 1 ? "ies" : "y"}</>}
               </span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}
                 className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#121e80] text-gray-600 bg-white">
@@ -138,7 +136,7 @@ function NewHomesContent() {
             </div>
           </div>
 
-          {/* Row 2 — Property type chips */}
+          {/* Row 2 — Property type as chips */}
           <div>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Property type</p>
             <div className="flex gap-2 flex-wrap">
@@ -164,7 +162,7 @@ function NewHomesContent() {
         {activeFilters.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {activeFilters.map(({ key, label }) => (
-              <span key={key} className="flex items-center gap-1 bg-blue-50 border border-[#121e80]/20 text-[#121e80] text-xs font-semibold px-2.5 py-1 rounded-full">
+              <span key={key} className="flex items-center gap-1 bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">
                 {label}
                 <button onClick={() => clearParam(key)} className="hover:text-red-500 transition-colors ml-0.5">
                   <X size={11} />
@@ -181,12 +179,12 @@ function NewHomesContent() {
             </div>
           ) : sorted.length === 0 ? (
             <div className="text-center py-20">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Home size={28} className="text-[#121e80]" />
+              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Building2 size={28} className="text-slate-400" />
               </div>
-              <p className="text-gray-500 font-medium mb-1">No new homes found</p>
+              <p className="text-gray-500 font-medium mb-1">No commercial properties found</p>
               <p className="text-gray-400 text-sm">Try clearing your filters</p>
-              <button onClick={() => router.push("/new-homes")}
+              <button onClick={() => router.push("/commercial")}
                 className="mt-4 text-sm text-[#121e80] font-semibold hover:underline">
                 Clear all filters
               </button>
@@ -202,12 +200,12 @@ function NewHomesContent() {
   );
 }
 
-export default function NewHomesPage() {
+export default function CommercialPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <Suspense fallback={null}>
-        <NewHomesContent />
+        <CommercialContent />
       </Suspense>
       <Footer />
     </div>
