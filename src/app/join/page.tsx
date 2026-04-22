@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck } from "lucide-react";
@@ -14,7 +16,7 @@ const accountTypes = [
 
 export default function JoinPage() {
   const router = useRouter();
-  const { register, verifyEmail } = useAuth();
+  const { register, verifyEmail, resendVerification } = useAuth();
 
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
@@ -22,6 +24,9 @@ export default function JoinPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+  const [countdownKey, setCountdownKey] = useState(0);
   const [error, setError] = useState("");
 
   // Step 3: email verification
@@ -29,6 +34,14 @@ export default function JoinPage() {
   const [maskedEmail, setMaskedEmail] = useState("");
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Start/restart 60-second countdown when entering step 3 or after resend
+  useEffect(() => {
+    if (step !== 3) return;
+    setCountdown(60);
+    const id = setInterval(() => setCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [step, countdownKey]);
 
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -85,6 +98,20 @@ export default function JoinPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResendLoading(true);
+    setError("");
+    setDigits(["", "", "", "", "", ""]);
+    try {
+      await resendVerification(verifyEmail_);
+      setCountdownKey((k) => k + 1); // restarts the useEffect countdown
+    } catch {
+      setError("Failed to resend. Please try again.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -195,10 +222,25 @@ export default function JoinPage() {
               </button>
             </form>
 
-            <p className="text-center text-xs text-gray-400 mt-6">
-              Already verified?{" "}
-              <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in</Link>
-            </p>
+            <div className="text-center mt-6 space-y-2">
+              {countdown > 0 ? (
+                <p className="text-xs text-gray-400">
+                  Resend available in <span className="font-semibold text-gray-600">{countdown}s</span>
+                </p>
+              ) : (
+                <p className="text-xs text-gray-400">
+                  Didn&apos;t receive it?{" "}
+                  <button type="button" disabled={resendLoading} onClick={handleResend}
+                    className="text-[#121e80] font-semibold hover:underline disabled:opacity-50">
+                    {resendLoading ? "Sending…" : "Resend code"}
+                  </button>
+                </p>
+              )}
+              <p className="text-xs text-gray-400">
+                Already verified?{" "}
+                <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in</Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>

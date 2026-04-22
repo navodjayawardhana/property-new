@@ -82,6 +82,9 @@ export const auth = {
   verifyEmail: (data: { email: string; otp: string }) =>
     request<AuthResponse>('/verify-email', { method: 'POST', body: data }),
 
+  resendVerification: (email: string) =>
+    request<{ message: string }>('/resend-verification', { method: 'POST', body: { email } }),
+
   logout: (token: string) =>
     request<{ message: string }>('/logout', { method: 'POST', token }),
 

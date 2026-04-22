@@ -4,15 +4,20 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { auth, type User } from "@/lib/api";
 
 export type OtpPending = { email: string; maskedEmail: string };
+export type LoginResult =
+  | { status: "done" }
+  | { status: "otp";    email: string; maskedEmail: string }
+  | { status: "verify"; email: string; maskedEmail: string };
 
 type AuthContextValue = {
   user: User | null;
   token: string | null;
   loading: boolean;
   otpPending: OtpPending | null;
-  login: (email: string, password: string) => Promise<"otp" | "verify" | "done">;
+  login: (email: string, password: string) => Promise<LoginResult>;
   verifyOtp: (otp: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   register: (data: RegisterData) => Promise<{ email: string; maskedEmail: string }>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
@@ -61,17 +66,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(t);
   };
 
-  const login = useCallback(async (email: string, password: string): Promise<"otp" | "verify" | "done"> => {
+  const login = useCallback(async (email: string, password: string): Promise<LoginResult> => {
     const res = await auth.login({ email, password });
     if ("requires_otp" in res) {
       setOtpPending({ email: res.email, maskedEmail: res.masked_email });
-      return "otp";
+      return { status: "otp", email: res.email, maskedEmail: res.masked_email };
     }
     if ("requires_verification" in res) {
-      return "verify";
+      return { status: "verify", email: res.email, maskedEmail: res.masked_email };
     }
     persist(res.user, res.token);
-    return "done";
+    return { status: "done" };
   }, []);
 
   const verifyOtp = useCallback(async (otp: string) => {
@@ -81,10 +86,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     persist(res.user, res.token);
   }, [otpPending]);
 
-  // Called from join page after registration OTP
   const verifyEmail = useCallback(async (email: string, otp: string) => {
     const res = await auth.verifyEmail({ email, otp });
     persist(res.user, res.token);
+  }, []);
+
+  const resendVerification = useCallback(async (email: string) => {
+    await auth.resendVerification(email);
   }, []);
 
   // Returns { email, maskedEmail } so join page can show the OTP step
@@ -105,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, otpPending, login, verifyOtp, verifyEmail, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, otpPending, login, verifyOtp, verifyEmail, resendVerification, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

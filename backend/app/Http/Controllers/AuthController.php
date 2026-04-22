@@ -125,7 +125,7 @@ class AuthController extends Controller
                 'requires_verification' => true,
                 'email'                 => $user->email,
                 'masked_email'          => $this->maskEmail($user->email),
-            ], 403);
+            ]);
         }
 
         // Generate login OTP and send via email
@@ -251,6 +251,24 @@ class AuthController extends Controller
             ->paginate(24);
 
         return response()->json($agents);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        // Silent success if user not found — avoids email enumeration
+        if (! $user || $user->email_verified_at) {
+            return response()->json(['message' => 'If that email exists and is unverified, a new code has been sent.']);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
+        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+        return response()->json(['message' => 'Verification code resent.']);
     }
 
     private function maskEmail(string $email): string
