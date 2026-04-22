@@ -41,6 +41,7 @@ export default function HomePage() {
       <Navbar />
       <SearchHero defaultTab="Buy" />
 
+
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
