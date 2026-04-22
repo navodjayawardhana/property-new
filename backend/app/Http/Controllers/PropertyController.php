@@ -14,6 +14,10 @@ class PropertyController extends Controller
     {
         $query = Property::with('images')->latest();
 
+        if ($request->filled('user_id')) {
+            $query->where('user_id', (int) $request->user_id);
+        }
+
         if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);
         }

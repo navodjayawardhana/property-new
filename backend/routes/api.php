@@ -26,6 +26,7 @@ Route::post('/properties/{property}/inquiries', [InquiryController::class, 'stor
 
 // Public agents directory
 Route::get('/agents', [AuthController::class, 'agents']);
+Route::get('/agents/{id}', [AuthController::class, 'agent']);
 
 // Public news
 Route::get('/news', [NewsController::class, 'index']);

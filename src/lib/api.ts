@@ -159,6 +159,7 @@ export type PropertyFilters = {
   listing_type?: 'buy' | 'rent' | 'sold';
   condition?: 'new' | 'used';
   category?: 'domestic' | 'commercial' | 'both';
+  user_id?: number;
   q?: string;
   property_type?: string;
   suburb?: string;
@@ -303,6 +304,8 @@ export const agentsApi = {
     const qs = params.toString();
     return request<PaginatedAgents>(`/agents${qs ? `?${qs}` : ''}`);
   },
+
+  get: (id: number) => request<Agent>(`/agents/${id}`),
 };
 
 // ─── Admin ───────────────────────────────────────────────────────────────────

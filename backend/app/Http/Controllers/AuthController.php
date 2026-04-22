@@ -235,6 +235,15 @@ class AuthController extends Controller
         return response()->json($user->fresh());
     }
 
+    public function agent(int $id): JsonResponse
+    {
+        $agent = User::where('role', 'agent')->findOrFail($id);
+
+        return response()->json(
+            $agent->only(['id', 'name', 'email', 'phone', 'avatar', 'suburb', 'state', 'postcode', 'country'])
+        );
+    }
+
     public function agents(Request $request): JsonResponse
     {
         $query = User::where('role', 'agent')->orderBy('name');
