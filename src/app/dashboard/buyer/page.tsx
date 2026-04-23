@@ -82,11 +82,11 @@ export default function BuyerDashboard() {
           </div>
           <div className="flex gap-2">
             <Link href="/buy"
-              className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-xl hover:border-[#121e80] hover:text-[#121e80] transition-colors">
+              className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
               <Search size={14} /> Browse properties
             </Link>
             <Link href="/agents"
-              className="flex items-center gap-2 bg-[#121e80] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#0d1660] transition-colors">
+              className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#15803d] transition-colors">
               <ArrowRight size={14} /> Find an agent
             </Link>
           </div>
@@ -111,14 +111,14 @@ export default function BuyerDashboard() {
         {/* Tabs */}
         <div className="flex gap-1 border-b border-gray-200 mb-6">
           <button onClick={() => setTab("saved")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "saved" ? "border-[#121e80] text-[#121e80]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "saved" ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
             <Heart size={14} /> Saved Properties
             {saved.length > 0 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-[#121e80] text-white">{saved.length}</span>
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-[#16a34a] text-white">{saved.length}</span>
             )}
           </button>
           <button onClick={() => setTab("inquiries")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "inquiries" ? "border-[#121e80] text-[#121e80]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "inquiries" ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
             <MessageSquare size={14} /> My Inquiries
             {pendingInquiries > 0 && (
               <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-orange-500 text-white">{pendingInquiries}</span>
@@ -140,7 +140,7 @@ export default function BuyerDashboard() {
               <p className="text-gray-700 font-bold text-lg">No saved properties yet</p>
               <p className="text-gray-400 text-sm mt-1">Tap the heart icon on any listing to save it here</p>
               <div className="flex gap-3 justify-center mt-5">
-                <Link href="/buy" className="bg-[#121e80] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#0d1660] transition-colors">Browse for sale</Link>
+                <Link href="/buy" className="bg-[#16a34a] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">Browse for sale</Link>
                 <Link href="/rent" className="border border-gray-300 text-gray-700 text-sm font-bold px-5 py-2.5 rounded-xl hover:border-gray-400 transition-colors">Browse rentals</Link>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function BuyerDashboard() {
                         .finally(() => setLoadingSaved(false));
                     }
                   }}
-                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#121e80] transition-colors font-medium"
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#16a34a] transition-colors font-medium"
                 >
                   <RefreshCw size={11} /> Sync
                 </button>
@@ -193,7 +193,7 @@ export default function BuyerDashboard() {
               <MessageSquare size={40} className="text-gray-200 mx-auto mb-3" />
               <p className="text-gray-700 font-bold text-lg">No inquiries yet</p>
               <p className="text-gray-400 text-sm mt-1">Your messages to agents and sellers will appear here</p>
-              <Link href="/buy" className="inline-block mt-5 bg-[#121e80] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#0d1660] transition-colors">
+              <Link href="/buy" className="inline-block mt-5 bg-[#16a34a] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
                 Browse properties
               </Link>
             </div>
@@ -245,7 +245,7 @@ export default function BuyerDashboard() {
                         Sent {new Date(inq.created_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                       <Link href={`/property/${inq.property_id}`}
-                        className="flex items-center gap-1 text-xs font-semibold text-[#121e80] hover:underline">
+                        className="flex items-center gap-1 text-xs font-semibold text-[#16a34a] hover:underline">
                         View listing <ExternalLink size={10} />
                       </Link>
                     </div>

@@ -33,7 +33,7 @@ export default function NewPropertyPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 py-8 w-full flex-1">
-        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#121e80] transition-colors mb-6">
+        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#16a34a] transition-colors mb-6">
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
 

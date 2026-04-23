@@ -195,7 +195,7 @@ export default function SignInPage() {
       style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}>
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center">
+          <div className="w-9 h-9 bg-[#16a34a] rounded-full flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
           </div>
           <span className="text-white font-semibold text-sm">Greenbrick.net</span>
@@ -218,7 +218,7 @@ export default function SignInPage() {
 
   const logo = (
     <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-      <div className="w-8 h-8 bg-[#121e80] rounded-full flex items-center justify-center">
+      <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
       </div>
       <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
@@ -232,7 +232,7 @@ export default function SignInPage() {
           type="text" inputMode="numeric" maxLength={1} value={d}
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleDigitKeyDown(i, e)}
-          className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all" />
+          className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all" />
       ))}
     </div>
   );
@@ -247,7 +247,7 @@ export default function SignInPage() {
         <p className="text-xs text-gray-400">
           Didn&apos;t receive it?{" "}
           <button type="button" disabled={resendLoading} onClick={onResend}
-            className="text-[#121e80] font-semibold hover:underline disabled:opacity-50">
+            className="text-[#16a34a] font-semibold hover:underline disabled:opacity-50">
             {resendLoading ? "Sending…" : "Resend code"}
           </button>
         </p>
@@ -263,7 +263,7 @@ export default function SignInPage() {
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
-                <ShieldCheck size={32} className="text-[#121e80]" />
+                <ShieldCheck size={32} className="text-[#16a34a]" />
               </div>
             </div>
             <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Check your email</h1>
@@ -275,7 +275,7 @@ export default function SignInPage() {
               {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
               {digitInputs}
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
               </button>
             </form>
@@ -306,7 +306,7 @@ export default function SignInPage() {
               {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
               {digitInputs}
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
               </button>
             </form>
@@ -325,7 +325,7 @@ export default function SignInPage() {
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
-                <Phone size={30} className="text-[#121e80]" />
+                <Phone size={30} className="text-[#16a34a]" />
               </div>
             </div>
             <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Check your phone</h1>
@@ -337,14 +337,14 @@ export default function SignInPage() {
               {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
               {digitInputs}
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Verify &amp; Sign in <ArrowRight size={16} /></>)}
               </button>
             </form>
             {resendCountdown(handleResendPhone)}
             <p className="text-center text-xs text-gray-400 mt-3">
               <button type="button" onClick={() => { setScreen("login"); setError(""); }}
-                className="text-[#121e80] font-semibold hover:underline">
+                className="text-[#16a34a] font-semibold hover:underline">
                 ← Back to sign in
               </button>
             </p>
@@ -363,7 +363,7 @@ export default function SignInPage() {
           <h1 className="text-3xl font-black text-gray-900 mb-1">Welcome back</h1>
           <p className="text-gray-500 text-sm mb-6">
             Sign in to your account to continue.{" "}
-            <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Create account</Link>
+            <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Create account</Link>
           </p>
 
           {/* Email / Phone toggle */}
@@ -371,7 +371,7 @@ export default function SignInPage() {
             {([["email", "Email", <Mail key="m" size={14} />], ["phone", "Phone", <Phone key="p" size={14} />]] as const).map(([m, label, icon]) => (
               <button key={m} type="button"
                 onClick={() => { setLoginMethod(m as LoginMethod); setError(""); if (m === "phone" && role === "admin") setRole("buyer"); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${loginMethod === m ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${loginMethod === m ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
                 {icon}{label}
               </button>
             ))}
@@ -382,7 +382,7 @@ export default function SignInPage() {
             {ROLES.filter((r) => loginMethod === "phone" ? r.key !== "admin" : true).map((r) => (
               <button key={r.key} type="button"
                 onClick={() => { setRole(r.key); setError(""); }}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${role === r.key ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${role === r.key ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
                 {r.icon}
                 <span>{r.label}</span>
                 <span className="text-[10px] font-normal text-gray-400">{r.desc}</span>
@@ -414,18 +414,18 @@ export default function SignInPage() {
                 <div className="relative">
                   <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                 </div>
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-semibold text-gray-600">Password</label>
-                  <Link href="/" className="text-xs text-[#121e80] hover:underline font-medium">Forgot password?</Link>
+                  <Link href="/" className="text-xs text-[#16a34a] hover:underline font-medium">Forgot password?</Link>
                 </div>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password"
-                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -433,7 +433,7 @@ export default function SignInPage() {
                 </div>
               </div>
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-2">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-2">
                 {loading ? spinner : (<>Sign in as {ROLES.find(r => r.key === role)?.label} <ArrowRight size={16} /></>)}
               </button>
             </form>
@@ -447,11 +447,11 @@ export default function SignInPage() {
                 <div className="relative">
                   <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07X XXX XXXX"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                 </div>
               </div>
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? spinner : (<>Send OTP <ArrowRight size={16} /></>)}
               </button>
             </form>
@@ -477,7 +477,7 @@ export default function SignInPage() {
               </a>
               <p className="text-center text-xs text-gray-400 mt-5">
                 Don&apos;t have an account?{" "}
-                <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Join for free</Link>
+                <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Join for free</Link>
               </p>
             </>
           )}
@@ -485,7 +485,7 @@ export default function SignInPage() {
           {loginMethod === "phone" && (
             <p className="text-center text-xs text-gray-400 mt-5">
               Don&apos;t have an account?{" "}
-              <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Join for free</Link>
+              <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Join for free</Link>
             </p>
           )}
         </div>

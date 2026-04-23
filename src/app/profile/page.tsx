@@ -137,7 +137,7 @@ export default function ProfilePage() {
 
   const avatarSrc = avatarPreview ?? user.avatar;
   const role = ROLE_LABELS[user.role] ?? { label: user.role, color: 'bg-gray-100 text-gray-600' };
-  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#121e80] transition-colors bg-white";
+  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
 
   return (
@@ -155,7 +155,7 @@ export default function ProfilePage() {
           <h2 className="text-sm font-bold text-gray-900 mb-4">Profile Photo</h2>
           <div className="flex items-center gap-5">
             <div className="relative shrink-0">
-              <div className="w-20 h-20 rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center">
                 {avatarSrc ? (
                   <img src={avatarSrc} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
@@ -173,7 +173,7 @@ export default function ProfilePage() {
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${role.color}`}>{role.label}</span>
               <div className="flex gap-2 mt-3">
                 <button type="button" onClick={() => avatarRef.current?.click()} disabled={avatarLoading}
-                  className="flex items-center gap-1.5 text-xs font-semibold bg-[#121e80] text-white px-3 py-1.5 rounded-lg hover:bg-[#0d1660] transition-colors disabled:opacity-50">
+                  className="flex items-center gap-1.5 text-xs font-semibold bg-[#16a34a] text-white px-3 py-1.5 rounded-lg hover:bg-[#15803d] transition-colors disabled:opacity-50">
                   <Camera size={12} /> Change photo
                 </button>
                 {user.avatar && (
@@ -244,7 +244,7 @@ export default function ProfilePage() {
             )}
 
             <button type="submit" disabled={savingProfile}
-              className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
               {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
               Save changes
             </button>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
             )}
 
             <button type="submit" disabled={savingPw}
-              className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
               {savingPw ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />}
               Update password
             </button>

@@ -84,7 +84,7 @@ function MoneyInput({ value, onChange, placeholder }: {
         value={value ? AUD(value) : ""}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
         placeholder={placeholder}
-        className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-3 text-sm outline-none focus:border-[#121e80] transition-colors"
+        className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors"
       />
     </div>
   );
@@ -166,14 +166,14 @@ export default function PreApprovalPage() {
       <Navbar />
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0d1660] via-[#121e80] to-[#1a2fa0] py-10 px-4">
+      <div className="bg-gradient-to-br from-[#15803d] via-[#16a34a] to-[#166534] py-10 px-4">
         <div className="max-w-xl mx-auto text-center">
           <Link href="/home-loans"
-            className="inline-flex items-center gap-1.5 text-blue-300 text-xs hover:text-white transition-colors mb-4">
+            className="inline-flex items-center gap-1.5 text-green-300 text-xs hover:text-white transition-colors mb-4">
             <ChevronLeft size={13} /> Back to Home Loans
           </Link>
           <h1 className="text-white font-black text-3xl mb-2">Get Pre-Approved</h1>
-          <p className="text-blue-200 text-sm">
+          <p className="text-green-200 text-sm">
             Tell us about yourself and your loan needs — a specialist will be in touch within 24 hours.
           </p>
         </div>
@@ -196,7 +196,7 @@ export default function PreApprovalPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/buy"
-                className="bg-[#121e80] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#0d1660] transition-colors text-sm flex items-center justify-center gap-2">
+                className="bg-[#16a34a] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#15803d] transition-colors text-sm flex items-center justify-center gap-2">
                 <Home size={14} /> Browse Properties
               </Link>
               <Link href="/home-loans"
@@ -214,12 +214,12 @@ export default function PreApprovalPage() {
                   <div key={s} className={`flex items-center gap-2 ${i < STEPS.length - 1 ? "flex-1" : ""}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-all ${
                       step > i + 1 ? "bg-green-500 text-white" :
-                      step === i + 1 ? "bg-[#121e80] text-white" :
+                      step === i + 1 ? "bg-[#16a34a] text-white" :
                       "bg-gray-200 text-gray-400"
                     }`}>
                       {step > i + 1 ? <CheckCircle size={14} /> : i + 1}
                     </div>
-                    <span className={`text-xs font-semibold hidden sm:block ${step === i + 1 ? "text-[#121e80]" : "text-gray-400"}`}>
+                    <span className={`text-xs font-semibold hidden sm:block ${step === i + 1 ? "text-[#16a34a]" : "text-gray-400"}`}>
                       {s}
                     </span>
                     {i < STEPS.length - 1 && (
@@ -244,17 +244,17 @@ export default function PreApprovalPage() {
                     <Field label="Full name" icon={User} error={errors.name}>
                       <input value={form.name} onChange={(e) => set("name", e.target.value)}
                         placeholder="e.g. Sarah Johnson"
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#121e80] transition-colors" />
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors" />
                     </Field>
                     <Field label="Email address" icon={Mail} error={errors.email}>
                       <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#121e80] transition-colors" />
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors" />
                     </Field>
                     <Field label="Phone number (optional)" icon={Phone}>
                       <input type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)}
                         placeholder="04XX XXX XXX"
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#121e80] transition-colors" />
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors" />
                     </Field>
                   </>
                 )}
@@ -268,7 +268,7 @@ export default function PreApprovalPage() {
                           <button key={et.value} type="button" onClick={() => set("employment_type", et.value)}
                             className={`py-2.5 rounded-xl text-sm font-semibold border transition-all ${
                               form.employment_type === et.value
-                                ? "bg-[#121e80] text-white border-[#121e80]"
+                                ? "bg-[#16a34a] text-white border-[#16a34a]"
                                 : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                             }`}>
                             {et.label}
@@ -288,7 +288,7 @@ export default function PreApprovalPage() {
 
                     {/* LVR indicator */}
                     {form.loan_amount && form.deposit_amount && (
-                      <div className="bg-blue-50 rounded-xl p-4">
+                      <div className="bg-green-50 rounded-xl p-4">
                         {(() => {
                           const loan = parseInt(form.loan_amount);
                           const dep  = parseInt(form.deposit_amount);
@@ -323,13 +323,13 @@ export default function PreApprovalPage() {
                           <button key={lp.value} type="button" onClick={() => set("loan_purpose", lp.value)}
                             className={`w-full flex items-start gap-3 p-4 rounded-xl border text-left transition-all ${
                               form.loan_purpose === lp.value
-                                ? "bg-[#121e80]/5 border-[#121e80]"
+                                ? "bg-[#16a34a]/5 border-[#16a34a]"
                                 : "bg-white border-gray-200 hover:border-gray-400"
                             }`}>
                             <div className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${
-                              form.loan_purpose === lp.value ? "border-[#121e80]" : "border-gray-300"
+                              form.loan_purpose === lp.value ? "border-[#16a34a]" : "border-gray-300"
                             }`}>
-                              {form.loan_purpose === lp.value && <div className="w-2 h-2 rounded-full bg-[#121e80]" />}
+                              {form.loan_purpose === lp.value && <div className="w-2 h-2 rounded-full bg-[#16a34a]" />}
                             </div>
                             <div>
                               <p className="text-sm font-bold text-gray-900">{lp.label}</p>
@@ -346,7 +346,7 @@ export default function PreApprovalPage() {
                           <button key={pt} type="button" onClick={() => set("property_type", pt)}
                             className={`py-2 rounded-xl text-xs font-bold border transition-all ${
                               form.property_type === pt
-                                ? "bg-[#121e80] text-white border-[#121e80]"
+                                ? "bg-[#16a34a] text-white border-[#16a34a]"
                                 : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                             }`}>
                             {pt}
@@ -361,7 +361,7 @@ export default function PreApprovalPage() {
                           <button key={s} type="button" onClick={() => set("property_state", s)}
                             className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${
                               form.property_state === s
-                                ? "bg-[#121e80] text-white border-[#121e80]"
+                                ? "bg-[#16a34a] text-white border-[#16a34a]"
                                 : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                             }`}>
                             {s}
@@ -378,7 +378,7 @@ export default function PreApprovalPage() {
                     <Field label="Additional notes (optional)">
                       <textarea value={form.message} onChange={(e) => set("message", e.target.value)}
                         rows={3} placeholder="Any extra information you'd like to share..."
-                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#121e80] transition-colors resize-none" />
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors resize-none" />
                     </Field>
                   </>
                 )}
@@ -394,12 +394,12 @@ export default function PreApprovalPage() {
                 )}
                 {step < 3 ? (
                   <button onClick={next}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#121e80] hover:bg-[#0d1660] text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">
                     Continue <ArrowRight size={14} />
                   </button>
                 ) : (
                   <button onClick={handleSubmit} disabled={submitting}
-                    className="flex-1 flex items-center justify-center gap-2 bg-[#121e80] hover:bg-[#0d1660] text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-60">
+                    className="flex-1 flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm disabled:opacity-60">
                     {submitting ? "Submitting…" : "Submit Application"}
                     {!submitting && <CheckCircle size={14} />}
                   </button>

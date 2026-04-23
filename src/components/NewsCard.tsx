@@ -17,9 +17,9 @@ export default function NewsCard({ article, large }: { article: NewsArticleApi; 
       </div>
       <div className="mt-2">
         {article.tag && (
-          <span className="text-xs font-bold text-[#121e80] uppercase tracking-wide">{article.tag}</span>
+          <span className="text-xs font-bold text-[#16a34a] uppercase tracking-wide">{article.tag}</span>
         )}
-        <p className={`font-semibold text-gray-900 group-hover:text-[#121e80] transition-colors leading-snug mt-0.5 ${large ? "text-base" : "text-sm"}`}>
+        <p className={`font-semibold text-gray-900 group-hover:text-[#16a34a] transition-colors leading-snug mt-0.5 ${large ? "text-base" : "text-sm"}`}>
           {article.title}
         </p>
         <p className="text-xs text-gray-500 mt-1">{date} · {article.read_time}</p>

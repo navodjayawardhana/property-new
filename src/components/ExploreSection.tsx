@@ -12,15 +12,15 @@ const allCards = [
     desc: "See how much your property's worth in real-time and get alerts as it changes.",
     cta: "Check property values",
     gradient: "from-blue-50 to-blue-100",
-    accent: "#121e80",
+    accent: "#16a34a",
     icon: (
       <svg viewBox="0 0 80 80" className="w-20 h-20" fill="none">
         <circle cx="40" cy="40" r="36" fill="#fee2e2" />
-        <path d="M22 44 L40 26 L58 44" stroke="#121e80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="28" y="44" width="24" height="20" rx="2" fill="#121e80" />
+        <path d="M22 44 L40 26 L58 44" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="28" y="44" width="24" height="20" rx="2" fill="#16a34a" />
         <rect x="35" y="52" width="10" height="12" rx="1" fill="white" />
-        <circle cx="58" cy="28" r="10" fill="white" stroke="#121e80" strokeWidth="2" />
-        <path d="M54 28 L57 31 L63 25" stroke="#121e80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="58" cy="28" r="10" fill="white" stroke="#16a34a" strokeWidth="2" />
+        <path d="M54 28 L57 31 L63 25" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },

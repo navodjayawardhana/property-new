@@ -88,16 +88,16 @@ function NewHomesContent() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#121e80] py-12 px-4">
+      <div className="bg-[#16a34a] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
               <Home size={18} className="text-white" />
             </div>
-            <p className="text-blue-300 text-xs font-bold uppercase tracking-widest">Brand new</p>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Brand new</p>
           </div>
           <h1 className="text-white font-black text-3xl md:text-4xl mb-2">New Homes</h1>
-          <p className="text-blue-200 text-sm">Browse brand-new properties — never been lived in.</p>
+          <p className="text-green-200 text-sm">Browse brand-new properties — never been lived in.</p>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ function NewHomesContent() {
                       onClick={() => setParam("listing_type", val ?? null)}
                       className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         active
-                          ? "bg-[#121e80] text-white shadow-sm"
+                          ? "bg-[#16a34a] text-white shadow-sm"
                           : "text-gray-500 hover:text-gray-800"
                       }`}>
                       {lt}
@@ -132,7 +132,7 @@ function NewHomesContent() {
                 {loading ? "..." : <><span className="font-bold text-gray-900">{total}</span> new propert{total !== 1 ? "ies" : "y"}</>}
               </span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#121e80] text-gray-600 bg-white">
+                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] text-gray-600 bg-white">
                 {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
               </select>
             </div>
@@ -149,8 +149,8 @@ function NewHomesContent() {
                     onClick={() => setParam("property_type", type === "Any" ? null : type)}
                     className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
                       active
-                        ? "bg-[#121e80] text-white border-[#121e80]"
-                        : "text-gray-600 border-gray-200 bg-white hover:border-[#121e80] hover:text-[#121e80]"
+                        ? "bg-[#16a34a] text-white border-[#16a34a]"
+                        : "text-gray-600 border-gray-200 bg-white hover:border-[#16a34a] hover:text-[#16a34a]"
                     }`}>
                     {type}
                   </button>
@@ -164,7 +164,7 @@ function NewHomesContent() {
         {activeFilters.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {activeFilters.map(({ key, label }) => (
-              <span key={key} className="flex items-center gap-1 bg-blue-50 border border-[#121e80]/20 text-[#121e80] text-xs font-semibold px-2.5 py-1 rounded-full">
+              <span key={key} className="flex items-center gap-1 bg-green-50 border border-[#16a34a]/20 text-[#16a34a] text-xs font-semibold px-2.5 py-1 rounded-full">
                 {label}
                 <button onClick={() => clearParam(key)} className="hover:text-red-500 transition-colors ml-0.5">
                   <X size={11} />
@@ -181,13 +181,13 @@ function NewHomesContent() {
             </div>
           ) : sorted.length === 0 ? (
             <div className="text-center py-20">
-              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Home size={28} className="text-[#121e80]" />
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Home size={28} className="text-[#16a34a]" />
               </div>
               <p className="text-gray-500 font-medium mb-1">No new homes found</p>
               <p className="text-gray-400 text-sm">Try clearing your filters</p>
               <button onClick={() => router.push("/new-homes")}
-                className="mt-4 text-sm text-[#121e80] font-semibold hover:underline">
+                className="mt-4 text-sm text-[#16a34a] font-semibold hover:underline">
                 Clear all filters
               </button>
             </div>

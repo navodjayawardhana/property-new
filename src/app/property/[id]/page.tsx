@@ -63,7 +63,7 @@ export default function PropertyDetailPage() {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <Loader2 className="animate-spin w-8 h-8 text-[#121e80]" />
+          <Loader2 className="animate-spin w-8 h-8 text-[#16a34a]" />
         </div>
         <Footer />
       </div>
@@ -76,7 +76,7 @@ export default function PropertyDetailPage() {
         <Navbar />
         <div className="flex-1 flex items-center justify-center flex-col gap-4">
           <p className="text-gray-500 text-lg">Property not found.</p>
-          <button onClick={() => router.back()} className="text-[#121e80] font-semibold hover:underline">Go back</button>
+          <button onClick={() => router.back()} className="text-[#16a34a] font-semibold hover:underline">Go back</button>
         </div>
         <Footer />
       </div>
@@ -131,7 +131,7 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#121e80] transition-colors";
+  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -170,7 +170,7 @@ export default function PropertyDetailPage() {
           <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
             {images.map((img, i) => (
               <button key={i} onClick={() => setImgIndex(i)}
-                className={`w-20 h-14 shrink-0 rounded overflow-hidden border-2 transition-colors ${i === imgIndex ? "border-[#121e80]" : "border-transparent"}`}>
+                className={`w-20 h-14 shrink-0 rounded overflow-hidden border-2 transition-colors ${i === imgIndex ? "border-[#16a34a]" : "border-transparent"}`}>
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
             ))}
@@ -182,7 +182,7 @@ export default function PropertyDetailPage() {
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <p className="text-[#121e80] font-black text-3xl">{formatPrice(property)}</p>
+                <p className="text-[#16a34a] font-black text-3xl">{formatPrice(property)}</p>
                 <h1 className="text-gray-900 font-bold text-xl mt-1">{property.address}</h1>
                 <p className="flex items-center gap-1 text-gray-500 text-sm mt-0.5">
                   <MapPin size={13} /> {property.suburb} {property.state} {property.postcode}
@@ -252,7 +252,7 @@ export default function PropertyDetailPage() {
                   {owner?.avatar ? (
                     <img src={owner.avatar} alt={owner.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-[#121e80] flex items-center justify-center text-white font-bold">
+                    <div className="w-full h-full bg-[#16a34a] flex items-center justify-center text-white font-bold">
                       {(owner?.name ?? property.agent_name).charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -267,7 +267,7 @@ export default function PropertyDetailPage() {
               <div className="flex gap-2 mb-4">
                 {ownerPhone ? (
                   <a href={`tel:${ownerPhone}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">
                     <Phone size={13} /> Call
                   </a>
                 ) : (
@@ -279,7 +279,7 @@ export default function PropertyDetailPage() {
 
                 {ownerEmail ? (
                   <a href={`mailto:${ownerEmail}?subject=${encodeURIComponent(`Inquiry: ${property.address}`)}&body=${encodeURIComponent(`Hi ${property.agent_name},\n\nI am interested in the property at ${property.address}, ${property.suburb} ${property.state} ${property.postcode}.\n\nPlease contact me at your earliest convenience.\n\nThank you.`)}`}
-                    className="flex-1 flex items-center justify-center gap-1.5 border border-[#121e80] text-[#121e80] hover:bg-[#121e80]/5 text-sm font-semibold py-2.5 rounded-lg transition-colors">
+                    className="flex-1 flex items-center justify-center gap-1.5 border border-[#16a34a] text-[#16a34a] hover:bg-[#16a34a]/5 text-sm font-semibold py-2.5 rounded-lg transition-colors">
                     <Mail size={13} /> Email
                   </a>
                 ) : (
@@ -297,7 +297,7 @@ export default function PropertyDetailPage() {
                   <p className="font-bold text-gray-900 text-sm">Enquiry sent!</p>
                   <p className="text-gray-500 text-xs mt-1">{property.agent_name} will be in touch soon.</p>
                   <p className="text-gray-400 text-xs mt-0.5">A notification has been sent to the agent.</p>
-                  <button onClick={() => setEnquirySent(false)} className="mt-3 text-xs text-[#121e80] font-semibold hover:underline">
+                  <button onClick={() => setEnquirySent(false)} className="mt-3 text-xs text-[#16a34a] font-semibold hover:underline">
                     Send another
                   </button>
                 </div>
@@ -335,7 +335,7 @@ export default function PropertyDetailPage() {
                   </div>
 
                   <button type="submit" disabled={sending}
-                    className="w-full mt-3 bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-2.5 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                    className="w-full mt-3 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-2.5 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
                     {sending ? <Loader2 size={14} className="animate-spin" /> : null}
                     {sending ? "Sending…" : "Send enquiry"}
                   </button>

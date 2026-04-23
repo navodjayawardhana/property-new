@@ -239,7 +239,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
             <div className="flex px-5 pt-1 border-b border-gray-200">
               {(["Buy","Rent","Sold","Address","Agents"] as SearchTab[]).map((t) => (
                 <button key={t} onClick={() => setTab(t)}
-                  className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${tab === t ? "border-[#121e80] text-[#121e80]" : "border-transparent text-gray-500 hover:text-gray-800"}`}>
+                  className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${tab === t ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-800"}`}>
                   {t}
                 </button>
               ))}
@@ -277,16 +277,16 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               <div className="w-px h-5 bg-gray-200 shrink-0" />
               {tab !== "Agents" && (
                 <button onClick={() => setShowModal(true)}
-                  className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded border transition-colors shrink-0 ${activeFilterCount > 0 ? "bg-blue-50 border-[#121e80] text-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-500"}`}>
+                  className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded border transition-colors shrink-0 ${activeFilterCount > 0 ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-300 text-gray-600 hover:border-gray-500"}`}>
                   <SlidersHorizontal size={14} />
                   Filters
                   {activeFilterCount > 0 && (
-                    <span className="bg-[#121e80] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{activeFilterCount}</span>
+                    <span className="bg-[#16a34a] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">{activeFilterCount}</span>
                   )}
                 </button>
               )}
               <button onClick={handleSearch}
-                className="bg-[#121e80] hover:bg-[#0d1660] active:scale-95 text-white text-sm font-bold px-5 py-1.5 rounded transition-all shrink-0">
+                className="bg-[#16a34a] hover:bg-[#15803d] active:scale-95 text-white text-sm font-bold px-5 py-1.5 rounded transition-all shrink-0">
                 Search
               </button>
             </div>
@@ -338,7 +338,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     <label className="text-xs text-gray-500 mb-1 block">Minimum</label>
                     <div className="relative">
                       <select value={minPrice} onChange={(e) => setMinPrice(e.target.value)}
-                        className="w-full appearance-none text-sm border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-[#121e80] bg-white text-gray-700 cursor-pointer">
+                        className="w-full appearance-none text-sm border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-[#16a34a] bg-white text-gray-700 cursor-pointer">
                         {priceRanges.map((p) => <option key={p}>{p}</option>)}
                       </select>
                       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -348,7 +348,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     <label className="text-xs text-gray-500 mb-1 block">Maximum</label>
                     <div className="relative">
                       <select value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)}
-                        className="w-full appearance-none text-sm border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-[#121e80] bg-white text-gray-700 cursor-pointer">
+                        className="w-full appearance-none text-sm border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:border-[#16a34a] bg-white text-gray-700 cursor-pointer">
                         {priceRanges.map((p) => <option key={p}>{p}</option>)}
                       </select>
                       <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -363,7 +363,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 <div className="flex gap-2 flex-wrap">
                   {bedroomOptions.map((b) => (
                     <button key={b} onClick={() => setMinBeds(b)}
-                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBeds === b ? "bg-[#121e80] text-white border-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBeds === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
                       {b}
                     </button>
                   ))}
@@ -376,7 +376,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 <div className="flex gap-2 flex-wrap">
                   {bedroomOptions.map((b) => (
                     <button key={b} onClick={() => setMinBaths(b)}
-                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBaths === b ? "bg-[#121e80] text-white border-[#121e80]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                      className={`flex-1 min-w-[52px] text-sm py-2.5 rounded-lg border font-medium transition-colors ${minBaths === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-300 text-gray-600 hover:border-gray-400 bg-white"}`}>
                       {b}
                     </button>
                   ))}
@@ -389,8 +389,8 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 <div className="grid grid-cols-2 gap-2">
                   {propertyTypes.map((type) => (
                     <button key={type} onClick={() => toggleType(type)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-blue-50 border-[#121e80] text-[#121e80]" : "border-gray-200 text-gray-700 hover:border-gray-400 bg-white"}`}>
-                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#121e80] border-[#121e80]" : "border-gray-300"}`}>
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-200 text-gray-700 hover:border-gray-400 bg-white"}`}>
+                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300"}`}>
                         {selectedTypes.includes(type) && (
                           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                             <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -409,7 +409,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 Clear all
               </button>
               <button onClick={() => { setShowModal(false); handleSearch(); }}
-                className="bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-bold px-8 py-2.5 rounded-lg transition-colors">
+                className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-8 py-2.5 rounded-lg transition-colors">
                 {activeFilterCount > 0 ? `Show results (${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""})` : "Show results"}
               </button>
             </div>

@@ -42,7 +42,7 @@ export default function NewsPage() {
             <Menu size={22} />
           </button>
           <Link href="/" className="flex items-center gap-2 mx-auto lg:mx-0">
-            <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center shadow-sm overflow-hidden">
+            <div className="w-9 h-9 bg-[#16a34a] rounded-full flex items-center justify-center shadow-sm overflow-hidden">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
               </svg>
@@ -62,7 +62,7 @@ export default function NewsPage() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeCategory === cat
-                    ? "border-[#121e80] text-gray-900"
+                    ? "border-[#16a34a] text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
@@ -140,9 +140,9 @@ export default function NewsPage() {
                 </div>
                 <div className="mt-3">
                   {featured.tag && (
-                    <span className="text-xs font-bold text-[#121e80] uppercase tracking-wide">{featured.tag}</span>
+                    <span className="text-xs font-bold text-[#16a34a] uppercase tracking-wide">{featured.tag}</span>
                   )}
-                  <h2 className="text-xl font-bold text-gray-900 group-hover:text-[#121e80] transition-colors mt-1 leading-snug">
+                  <h2 className="text-xl font-bold text-gray-900 group-hover:text-[#16a34a] transition-colors mt-1 leading-snug">
                     {featured.title}
                   </h2>
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{featured.excerpt}</p>
@@ -160,9 +160,9 @@ export default function NewsPage() {
                     />
                     <div className="flex-1 min-w-0">
                       {article.tag && (
-                        <span className="text-xs font-bold text-[#121e80] uppercase">{article.tag}</span>
+                        <span className="text-xs font-bold text-[#16a34a] uppercase">{article.tag}</span>
                       )}
-                      <p className="text-sm font-semibold text-gray-900 group-hover:text-[#121e80] transition-colors leading-snug line-clamp-3 mt-0.5">
+                      <p className="text-sm font-semibold text-gray-900 group-hover:text-[#16a34a] transition-colors leading-snug line-clamp-3 mt-0.5">
                         {article.title}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">{formatDate(article.published_at)}</p>

@@ -50,7 +50,7 @@ export default function PropertyCard({ property }: { property: Property }) {
               </span>
             )}
             {isNew && (
-              <span className="bg-[#121e80] text-white text-xs font-bold px-2.5 py-1 rounded-lg">NEW</span>
+              <span className="bg-[#16a34a] text-white text-xs font-bold px-2.5 py-1 rounded-lg">NEW</span>
             )}
             {!isSold && !isNew && property.days_listed > 0 && property.days_listed <= 14 && (
               <span className="bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
@@ -84,7 +84,7 @@ export default function PropertyCard({ property }: { property: Property }) {
 
         {/* Info */}
         <div className="p-4">
-          <p className="text-[#121e80] font-black text-xl leading-tight">{formatPrice(property)}</p>
+          <p className="text-[#16a34a] font-black text-xl leading-tight">{formatPrice(property)}</p>
           <p className="text-gray-900 font-bold text-sm mt-1 leading-snug line-clamp-1">{property.address}</p>
           <p className="text-gray-400 text-xs mt-0.5">
             {property.suburb} {property.state} {property.postcode}

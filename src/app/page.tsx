@@ -46,13 +46,13 @@ export default function HomePage() {
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: <Home size={18} className="text-[#121e80]" />, value: "120,000+", label: "For sale" },
-            { icon: <Key size={18} className="text-[#121e80]" />, value: "55,000+", label: "For rent" },
-            { icon: <TrendingUp size={18} className="text-[#121e80]" />, value: "310,000+", label: "Sold this year" },
-            { icon: <Award size={18} className="text-[#121e80]" />, value: "32 days", label: "Avg. time on market" },
+            { icon: <Home size={18} className="text-[#16a34a]" />, value: "120,000+", label: "For sale" },
+            { icon: <Key size={18} className="text-[#16a34a]" />, value: "55,000+", label: "For rent" },
+            { icon: <TrendingUp size={18} className="text-[#16a34a]" />, value: "310,000+", label: "Sold this year" },
+            { icon: <Award size={18} className="text-[#16a34a]" />, value: "32 days", label: "Avg. time on market" },
           ].map((s) => (
             <div key={s.label} className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
                 {s.icon}
               </div>
               <div>
@@ -70,10 +70,10 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 py-10 w-full">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="text-xs font-bold text-[#121e80] uppercase tracking-widest mb-1">Featured listings</p>
+            <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Featured listings</p>
             <h2 className="text-2xl font-black text-gray-900">Properties for sale</h2>
           </div>
-          <Link href="/buy" className="text-sm font-semibold text-[#121e80] hover:underline flex items-center gap-1">
+          <Link href="/buy" className="text-sm font-semibold text-[#16a34a] hover:underline flex items-center gap-1">
             View all <ChevronRight size={14} />
           </Link>
         </div>
@@ -89,7 +89,7 @@ export default function HomePage() {
 
       {/* Promo banner */}
       <div className="max-w-7xl mx-auto px-4 w-full pb-6">
-        <div className="relative rounded-2xl overflow-hidden bg-[#0f172a] px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="relative rounded-2xl overflow-hidden bg-[#052e16] px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="absolute inset-0 opacity-10 bg-cover bg-center"
             style={{ backgroundImage: "url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)" }} />
           <div className="relative">
@@ -97,7 +97,7 @@ export default function HomePage() {
             <h3 className="text-white font-black text-xl">Explore your home loan options</h3>
             <p className="text-gray-400 text-sm mt-1">Compare rates from 30+ lenders in minutes.</p>
           </div>
-          <button className="relative bg-[#121e80] hover:bg-[#0d1660] text-white font-bold px-6 py-3 rounded-xl transition-colors shrink-0 text-sm">
+          <button className="relative bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-3 rounded-xl transition-colors shrink-0 text-sm">
             Compare loans
           </button>
         </div>
@@ -107,10 +107,10 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 pb-10 w-full">
         <div className="flex items-end justify-between mb-6">
           <div>
-            <p className="text-xs font-bold text-[#121e80] uppercase tracking-widest mb-1">Rentals</p>
+            <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Rentals</p>
             <h2 className="text-2xl font-black text-gray-900">Properties for rent</h2>
           </div>
-          <Link href="/rent" className="text-sm font-semibold text-[#121e80] hover:underline flex items-center gap-1">
+          <Link href="/rent" className="text-sm font-semibold text-[#16a34a] hover:underline flex items-center gap-1">
             View all <ChevronRight size={14} />
           </Link>
         </div>
@@ -129,10 +129,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 py-10 w-full">
           <div className="flex items-end justify-between mb-6">
             <div>
-              <p className="text-xs font-bold text-[#121e80] uppercase tracking-widest mb-1">Stay informed</p>
+              <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Stay informed</p>
               <h2 className="text-2xl font-black text-gray-900">Latest property news</h2>
             </div>
-            <Link href="/news" className="text-sm font-semibold text-[#121e80] hover:underline flex items-center gap-1">
+            <Link href="/news" className="text-sm font-semibold text-[#16a34a] hover:underline flex items-center gap-1">
               All news <ChevronRight size={14} />
             </Link>
           </div>
@@ -147,11 +147,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-[#121e80] uppercase tracking-widest mb-1">Connect</p>
+              <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Connect</p>
               <h2 className="text-2xl font-black text-gray-900">Find a real estate agent</h2>
             </div>
             <Link href="/agents"
-              className="flex items-center gap-1.5 text-sm border border-gray-300 rounded-full px-4 py-2 text-gray-700 hover:border-[#121e80] hover:text-[#121e80] transition-colors font-medium bg-white">
+              className="flex items-center gap-1.5 text-sm border border-gray-300 rounded-full px-4 py-2 text-gray-700 hover:border-[#16a34a] hover:text-[#16a34a] transition-colors font-medium bg-white">
               View all agents <ChevronRight size={14} />
             </Link>
           </div>
@@ -171,16 +171,16 @@ export default function HomePage() {
           ) : featuredAgents.length === 0 ? (
             <div className="text-center py-8 text-gray-400 text-sm">
               No agents registered yet.{" "}
-              <Link href="/join" className="text-[#121e80] font-semibold hover:underline">Join as an agent</Link>
+              <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Join as an agent</Link>
             </div>
           ) : (
             <div className="overflow-x-auto scrollbar-hide py-2">
               <div className="flex items-stretch gap-3">
                 {featuredAgents.map((agent) => (
                   <Link key={agent.id} href="/agents"
-                    className="shrink-0 flex flex-col items-center gap-3 w-40 border border-gray-200 rounded-xl px-4 py-4 cursor-pointer group hover:border-[#121e80] hover:shadow-md transition-all bg-white">
+                    className="shrink-0 flex flex-col items-center gap-3 w-40 border border-gray-200 rounded-xl px-4 py-4 cursor-pointer group hover:border-[#16a34a] hover:shadow-md transition-all bg-white">
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center group-hover:ring-2 group-hover:ring-[#121e80] group-hover:ring-offset-2 transition-all">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center group-hover:ring-2 group-hover:ring-[#16a34a] group-hover:ring-offset-2 transition-all">
                         {agent.avatar ? (
                           <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
                         ) : (
@@ -191,7 +191,7 @@ export default function HomePage() {
                     </div>
                     <div className="text-center">
                       <p className="text-sm font-semibold text-gray-900 leading-snug">{agent.name}</p>
-                      <p className="text-xs text-[#121e80] font-medium mt-0.5">Real Estate Agent</p>
+                      <p className="text-xs text-[#16a34a] font-medium mt-0.5">Real Estate Agent</p>
                       {(agent.suburb || agent.state) && (
                         <p className="text-xs text-gray-400 mt-0.5">
                           {[agent.suburb, agent.state].filter(Boolean).join(", ")}
@@ -202,7 +202,7 @@ export default function HomePage() {
                 ))}
                 <div className="shrink-0 flex items-center justify-center w-12">
                   <Link href="/agents"
-                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-[#121e80] hover:text-[#121e80] transition-colors bg-white shadow-sm">
+                    className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-[#16a34a] hover:text-[#16a34a] transition-colors bg-white shadow-sm">
                     <ChevronRight size={18} />
                   </Link>
                 </div>

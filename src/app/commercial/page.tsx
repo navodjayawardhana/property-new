@@ -86,7 +86,7 @@ function CommercialContent() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#0f172a] py-12 px-4">
+      <div className="bg-[#052e16] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
@@ -115,7 +115,7 @@ function CommercialContent() {
                       onClick={() => setParam("listing_type", val ?? null)}
                       className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         active
-                          ? "bg-[#0f172a] text-white shadow-sm"
+                          ? "bg-[#052e16] text-white shadow-sm"
                           : "text-gray-500 hover:text-gray-800"
                       }`}>
                       {lt}
@@ -130,7 +130,7 @@ function CommercialContent() {
                 {loading ? "..." : <><span className="font-bold text-gray-900">{total}</span> propert{total !== 1 ? "ies" : "y"}</>}
               </span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#121e80] text-gray-600 bg-white">
+                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] text-gray-600 bg-white">
                 {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
               </select>
             </div>
@@ -147,8 +147,8 @@ function CommercialContent() {
                     onClick={() => setParam("property_type", type === "Any" ? null : type)}
                     className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
                       active
-                        ? "bg-[#121e80] text-white border-[#121e80]"
-                        : "text-gray-600 border-gray-200 bg-white hover:border-[#121e80] hover:text-[#121e80]"
+                        ? "bg-[#16a34a] text-white border-[#16a34a]"
+                        : "text-gray-600 border-gray-200 bg-white hover:border-[#16a34a] hover:text-[#16a34a]"
                     }`}>
                     {type}
                   </button>
@@ -185,7 +185,7 @@ function CommercialContent() {
               <p className="text-gray-500 font-medium mb-1">No commercial properties found</p>
               <p className="text-gray-400 text-sm">Try clearing your filters</p>
               <button onClick={() => router.push("/commercial")}
-                className="mt-4 text-sm text-[#121e80] font-semibold hover:underline">
+                className="mt-4 text-sm text-[#16a34a] font-semibold hover:underline">
                 Clear all filters
               </button>
             </div>

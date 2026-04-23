@@ -34,7 +34,7 @@ function ActiveFilters({ searchParams, onClear }: {
   return (
     <div className="flex flex-wrap gap-2 mt-3">
       {labels.map(({ key, label }) => (
-        <span key={key} className="flex items-center gap-1 bg-blue-50 border border-[#121e80]/20 text-[#121e80] text-xs font-semibold px-2.5 py-1 rounded-full">
+        <span key={key} className="flex items-center gap-1 bg-green-50 border border-[#16a34a]/20 text-[#16a34a] text-xs font-semibold px-2.5 py-1 rounded-full">
           {label}
           <button onClick={() => onClear(key)} className="hover:text-red-500 transition-colors ml-0.5"><X size={11} /></button>
         </span>
@@ -139,7 +139,7 @@ function BuyContent() {
           ) : sorted.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-gray-400 text-base mb-2">No properties found.</p>
-              <button onClick={() => router.push("/buy")} className="text-sm text-[#121e80] font-semibold hover:underline">
+              <button onClick={() => router.push("/buy")} className="text-sm text-[#16a34a] font-semibold hover:underline">
                 Clear all filters
               </button>
             </div>
@@ -152,7 +152,7 @@ function BuyContent() {
 
         <div className="bg-gray-50 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-12 border border-gray-200">
           <div>
-            <p className="text-xs font-semibold text-[#121e80] mb-1">Greenbrick.net</p>
+            <p className="text-xs font-semibold text-[#16a34a] mb-1">Greenbrick.net</p>
             <h3 className="text-base font-bold text-gray-900">Explore your home loan options</h3>
           </div>
           <button className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold px-5 py-2.5 rounded transition-colors shrink-0">

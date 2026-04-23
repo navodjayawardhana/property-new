@@ -12,7 +12,7 @@ const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
 function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "xs" | "sm" | "lg" }) {
   const dim = size === "lg" ? "w-20 h-20 text-2xl" : size === "sm" ? "w-14 h-14 text-lg" : "w-10 h-10 text-sm";
   return (
-    <div className={`${dim} rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center shrink-0`}>
+    <div className={`${dim} rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center shrink-0`}>
       {agent.avatar ? (
         <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
       ) : (
@@ -67,11 +67,11 @@ export default function AgentsPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="bg-[#121e80] py-12 px-4">
+      <div className="bg-[#16a34a] py-12 px-4">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-2">Connect</p>
+          <p className="text-green-300 text-xs font-bold uppercase tracking-widest mb-2">Connect</p>
           <h1 className="text-white font-black text-3xl md:text-4xl mb-3">Find a Real Estate Agent</h1>
-          <p className="text-blue-200 text-sm mb-8">Connect with experienced agents across Australia to buy, sell, or rent your property.</p>
+          <p className="text-green-200 text-sm mb-8">Connect with experienced agents across Australia to buy, sell, or rent your property.</p>
 
           {/* Search bar */}
           <form onSubmit={handleSearch} className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-xl max-w-xl mx-auto">
@@ -86,7 +86,7 @@ export default function AgentsPage() {
               />
             </div>
             <button type="submit"
-              className="bg-[#121e80] hover:bg-[#0d1660] text-white font-bold text-sm px-5 py-2 rounded-xl transition-colors">
+              className="bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm px-5 py-2 rounded-xl transition-colors">
               Search
             </button>
           </form>
@@ -104,7 +104,7 @@ export default function AgentsPage() {
             <select
               value={stateFilter}
               onChange={(e) => handleStateChange(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#121e80] bg-white"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] bg-white"
             >
               <option value="">All states</option>
               {AU_STATES.map((s) => (
@@ -138,7 +138,7 @@ export default function AgentsPage() {
             <p className="text-gray-500 font-medium">No agents found</p>
             <p className="text-gray-400 text-sm mt-1">Try adjusting your search or filter</p>
             <button onClick={() => { setSearch(""); setStateFilter(""); fetchAgents(1, "", ""); }}
-              className="mt-4 text-sm text-[#121e80] font-semibold hover:underline">
+              className="mt-4 text-sm text-[#16a34a] font-semibold hover:underline">
               Clear filters
             </button>
           </div>
@@ -146,15 +146,15 @@ export default function AgentsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {agents.map((agent) => (
               <Link key={agent.id} href={`/agents/${agent.id}`}
-                className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-[#121e80] hover:shadow-md transition-all group flex flex-col">
+                className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-[#16a34a] hover:shadow-md transition-all group flex flex-col">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative shrink-0">
                     <AgentAvatar agent={agent} size="sm" />
                     <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-gray-900 text-sm leading-tight truncate group-hover:text-[#121e80] transition-colors">{agent.name}</p>
-                    <p className="text-xs text-[#121e80] font-semibold">Real Estate Agent</p>
+                    <p className="font-bold text-gray-900 text-sm leading-tight truncate group-hover:text-[#16a34a] transition-colors">{agent.name}</p>
+                    <p className="text-xs text-[#16a34a] font-semibold">Real Estate Agent</p>
                     {(agent.suburb || agent.state) && (
                       <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
                         <MapPin size={9} className="shrink-0" />
@@ -177,7 +177,7 @@ export default function AgentsPage() {
                   )}
                 </div>
 
-                <div className="mt-auto flex items-center justify-between text-xs font-bold text-[#121e80] group-hover:text-[#0d1660]">
+                <div className="mt-auto flex items-center justify-between text-xs font-bold text-[#16a34a] group-hover:text-[#15803d]">
                   <span>View profile</span>
                   <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
                 </div>
@@ -192,7 +192,7 @@ export default function AgentsPage() {
             <button
               onClick={() => fetchAgents(currentPage - 1)}
               disabled={currentPage === 1}
-              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#121e80] hover:text-[#121e80] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] hover:text-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronLeft size={16} />
             </button>
             {Array.from({ length: lastPage }, (_, i) => i + 1)
@@ -208,7 +208,7 @@ export default function AgentsPage() {
                 ) : (
                   <button key={p}
                     onClick={() => fetchAgents(p as number)}
-                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${currentPage === p ? "bg-[#121e80] text-white" : "border border-gray-200 text-gray-700 hover:border-[#121e80] hover:text-[#121e80]"}`}>
+                    className={`w-9 h-9 rounded-lg text-sm font-semibold transition-colors ${currentPage === p ? "bg-[#16a34a] text-white" : "border border-gray-200 text-gray-700 hover:border-[#16a34a] hover:text-[#16a34a]"}`}>
                     {p}
                   </button>
                 )
@@ -216,7 +216,7 @@ export default function AgentsPage() {
             <button
               onClick={() => fetchAgents(currentPage + 1)}
               disabled={currentPage === lastPage}
-              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#121e80] hover:text-[#121e80] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              className="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] hover:text-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronRight size={16} />
             </button>
           </div>

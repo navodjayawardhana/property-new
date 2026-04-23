@@ -16,7 +16,7 @@ function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "sm" | "lg" 
     size === "lg" ? "w-20 h-20 text-2xl" :
                    "w-12 h-12 text-base";
   return (
-    <div className={`${dim} rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center shrink-0`}>
+    <div className={`${dim} rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center shrink-0`}>
       {agent.avatar ? (
         <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
       ) : (
@@ -64,7 +64,7 @@ export default function AgentProfilePage() {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-10 h-10 border-4 border-[#121e80] border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-[#16a34a] border-t-transparent rounded-full animate-spin" />
         </div>
         <Footer />
       </div>
@@ -80,7 +80,7 @@ export default function AgentProfilePage() {
       <div className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
         {/* Back */}
         <Link href="/agents"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#121e80] transition-colors mb-6">
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#16a34a] transition-colors mb-6">
           <ArrowLeft size={14} /> Back to agents
         </Link>
 
@@ -94,7 +94,7 @@ export default function AgentProfilePage() {
 
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-black text-gray-900 leading-tight">{agent.name}</h1>
-              <p className="text-[#121e80] font-semibold text-sm mt-0.5">Real Estate Agent</p>
+              <p className="text-[#16a34a] font-semibold text-sm mt-0.5">Real Estate Agent</p>
               {(agent.suburb || agent.state) && (
                 <p className="text-gray-500 text-sm flex items-center gap-1 mt-1">
                   <MapPin size={13} className="shrink-0" />
@@ -104,7 +104,7 @@ export default function AgentProfilePage() {
 
               <div className="flex flex-wrap gap-3 mt-4">
                 <a href={`mailto:${agent.email}`}
-                  className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
+                  className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors">
                   <Mail size={14} /> Email agent
                 </a>
                 {agent.phone && (
@@ -135,7 +135,7 @@ export default function AgentProfilePage() {
           {/* Properties — 2/3 width */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Building2 size={16} className="text-[#121e80]" />
+              <Building2 size={16} className="text-[#16a34a]" />
               <h2 className="text-lg font-black text-gray-900">
                 {agent.name.split(" ")[0]}&apos;s Listings
               </h2>
@@ -164,7 +164,7 @@ export default function AgentProfilePage() {
           {/* Nearby agents — 1/3 width */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Users size={16} className="text-[#121e80]" />
+              <Users size={16} className="text-[#16a34a]" />
               <h2 className="text-lg font-black text-gray-900">
                 Agents in {agent.suburb || agent.state || "the area"}
               </h2>
@@ -179,14 +179,14 @@ export default function AgentProfilePage() {
               <div className="space-y-3">
                 {nearbyAgents.map((a) => (
                   <Link key={a.id} href={`/agents/${a.id}`}
-                    className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 p-4 hover:border-[#121e80] hover:shadow-sm transition-all group">
+                    className="flex items-center gap-3 bg-white rounded-xl border border-gray-100 p-4 hover:border-[#16a34a] hover:shadow-sm transition-all group">
                     <div className="relative shrink-0">
                       <AgentAvatar agent={a} size="sm" />
                       <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#121e80] transition-colors">{a.name}</p>
-                      <p className="text-xs text-[#121e80] font-medium">Real Estate Agent</p>
+                      <p className="text-sm font-bold text-gray-900 truncate group-hover:text-[#16a34a] transition-colors">{a.name}</p>
+                      <p className="text-xs text-[#16a34a] font-medium">Real Estate Agent</p>
                       {(a.suburb || a.state) && (
                         <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
                           <MapPin size={9} className="shrink-0" />
@@ -194,7 +194,7 @@ export default function AgentProfilePage() {
                         </p>
                       )}
                     </div>
-                    <Mail size={14} className="text-gray-300 group-hover:text-[#121e80] shrink-0 transition-colors" />
+                    <Mail size={14} className="text-gray-300 group-hover:text-[#16a34a] shrink-0 transition-colors" />
                   </Link>
                 ))}
               </div>

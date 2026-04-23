@@ -97,7 +97,7 @@ export default function SellerDashboard() {
             <h1 className="text-2xl font-black text-gray-900 mt-0.5">Welcome, {user.name.split(' ')[0]}</h1>
           </div>
           <Link href="/dashboard/properties/new"
-            className="flex items-center gap-2 bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors">
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors">
             <Plus size={16} /> New Listing
           </Link>
         </div>
@@ -105,7 +105,7 @@ export default function SellerDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Listings', value: items.length, icon: Home, color: 'text-[#121e80]', bg: 'bg-[#121e80]/10' },
+            { label: 'Total Listings', value: items.length, icon: Home, color: 'text-[#16a34a]', bg: 'bg-[#16a34a]/10' },
             { label: 'Active', value: active, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100' },
             { label: 'Sold', value: sold, icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-100' },
             { label: 'New Inquiries', value: pendingCount, icon: MessageSquare, color: 'text-orange-500', bg: 'bg-orange-100' },
@@ -123,12 +123,12 @@ export default function SellerDashboard() {
         {/* Tabs */}
         <div className="flex gap-1 border-b border-gray-200 mb-6">
           <button onClick={() => setTab('listings')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'listings' ? 'border-[#121e80] text-[#121e80]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'listings' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <Home size={14} /> My Listings
             {items.length > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{items.length}</span>}
           </button>
           <button onClick={() => setTab('inquiries')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'inquiries' ? 'border-[#121e80] text-[#121e80]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'inquiries' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <MessageSquare size={14} /> Received Inquiries
             {pendingCount > 0 && <span className="bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingCount}</span>}
           </button>
@@ -146,7 +146,7 @@ export default function SellerDashboard() {
               <p className="text-gray-500 font-medium">No listings yet</p>
               <p className="text-gray-400 text-sm mt-1">Create your first property listing to get started</p>
               <Link href="/dashboard/properties/new"
-                className="inline-flex items-center gap-2 mt-5 bg-[#121e80] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#0d1660] transition-colors">
+                className="inline-flex items-center gap-2 mt-5 bg-[#16a34a] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
                 <Plus size={14} /> Create listing
               </Link>
             </div>
@@ -170,7 +170,7 @@ export default function SellerDashboard() {
                         <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{p.address}, {p.suburb}</p>
                       </td>
                       <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{p.property_type}</td>
-                      <td className="px-4 py-3 font-semibold text-[#121e80] hidden sm:table-cell">{formatPrice(p)}</td>
+                      <td className="px-4 py-3 font-semibold text-[#16a34a] hidden sm:table-cell">{formatPrice(p)}</td>
                       <td className="px-4 py-3">
                         <span className={`text-xs font-semibold px-2 py-1 rounded-full capitalize ${STATUS_BADGE[p.status] ?? 'bg-gray-100 text-gray-500'}`}>
                           {p.status}
@@ -183,7 +183,7 @@ export default function SellerDashboard() {
                             <ExternalLink size={14} />
                           </Link>
                           <Link href={`/dashboard/properties/${p.id}/edit`}
-                            className="p-1.5 text-gray-400 hover:text-[#121e80] hover:bg-[#121e80]/10 rounded-lg transition-colors" title="Edit">
+                            className="p-1.5 text-gray-400 hover:text-[#16a34a] hover:bg-[#16a34a]/10 rounded-lg transition-colors" title="Edit">
                             <Edit2 size={14} />
                           </Link>
                           <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
@@ -222,7 +222,7 @@ export default function SellerDashboard() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-gray-500">{received.length} {received.length === 1 ? 'inquiry' : 'inquiries'} received</p>
                 <button onClick={() => { setInqLoaded(false); loadInquiries(); }}
-                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#121e80] transition-colors font-medium">
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#16a34a] transition-colors font-medium">
                   <RefreshCw size={12} /> Refresh
                 </button>
               </div>
@@ -258,7 +258,7 @@ export default function SellerDashboard() {
                         <div className="flex items-center gap-1 mb-2">
                           <Home size={11} className="text-gray-400 shrink-0" />
                           <Link href={`/property/${inq.property.id}`}
-                            className="text-xs text-[#121e80] font-medium hover:underline truncate">
+                            className="text-xs text-[#16a34a] font-medium hover:underline truncate">
                             {inq.property.address}, {inq.property.suburb} — {inq.property.title}
                           </Link>
                         </div>
@@ -270,7 +270,7 @@ export default function SellerDashboard() {
                       {/* Contact actions */}
                       <div className="flex gap-2 mt-3">
                         <a href={`mailto:${inq.email}?subject=Re: ${inq.property ? `Inquiry about ${inq.property.address}` : 'Your Property Inquiry'}`}
-                          className="flex items-center gap-1.5 text-xs font-semibold bg-[#121e80] text-white px-3 py-1.5 rounded-lg hover:bg-[#0d1660] transition-colors">
+                          className="flex items-center gap-1.5 text-xs font-semibold bg-[#16a34a] text-white px-3 py-1.5 rounded-lg hover:bg-[#15803d] transition-colors">
                           <Mail size={11} /> Reply by email
                         </a>
                         {inq.phone && (

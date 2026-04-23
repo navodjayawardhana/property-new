@@ -125,7 +125,7 @@ const LOAN_TYPES = [
     icon: TrendingUp,
     title: "Variable Rate",
     rate: "From 5.99% p.a.",
-    colorIcon: "bg-blue-50 text-[#121e80]",
+    colorIcon: "bg-green-50 text-[#16a34a]",
     desc: "Rate moves with the market. Repayments can fall if rates drop — great flexibility.",
     pros: ["Flexible extra repayments", "Offset account", "Redraw facility"],
   },
@@ -176,12 +176,12 @@ function SliderInput({
     <div>
       <div className="flex justify-between items-baseline mb-2">
         <label className="text-sm font-semibold text-gray-700">{label}</label>
-        <span className="text-sm font-black text-[#121e80]">{format(value)}</span>
+        <span className="text-sm font-black text-[#16a34a]">{format(value)}</span>
       </div>
       <input
         type="range" min={min} max={max} step={step} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1.5 rounded-full accent-[#121e80] cursor-pointer"
+        className="w-full h-1.5 rounded-full accent-[#16a34a] cursor-pointer"
       />
       <div className="flex justify-between text-xs text-gray-400 mt-1">
         <span>{format(min)}</span><span>{format(max)}</span>
@@ -232,20 +232,20 @@ export default function HomeLoansPage() {
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#0d1660] via-[#121e80] to-[#1a2fa0] py-16 px-4">
+      <div className="bg-gradient-to-br from-[#15803d] via-[#16a34a] to-[#166534] py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-blue-200 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5">
+          <div className="inline-flex items-center gap-2 bg-white/10 text-green-200 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5">
             <Home size={12} /> Home Loans
           </div>
           <h1 className="text-white font-black text-4xl md:text-5xl mb-4 leading-tight">
             Find the right home loan<br className="hidden sm:block" /> for you
           </h1>
-          <p className="text-blue-200 text-base mb-8 max-w-xl mx-auto">
+          <p className="text-green-200 text-base mb-8 max-w-xl mx-auto">
             Calculate your repayments, understand your borrowing power, and connect with a specialist — all in one place.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/home-loans/pre-approval"
-              className="bg-white text-[#121e80] font-black px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm flex items-center gap-2">
+              className="bg-white text-[#16a34a] font-black px-6 py-3 rounded-xl hover:bg-green-50 transition-colors text-sm flex items-center gap-2">
               Get pre-approved <ArrowRight size={14} />
             </Link>
             <a href="#calculators"
@@ -266,7 +266,7 @@ export default function HomeLoansPage() {
             { label: "Approval in",          value: "24–48 hrs"  },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-xl font-black text-[#121e80]">{s.value}</p>
+              <p className="text-xl font-black text-[#16a34a]">{s.value}</p>
               <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
             </div>
           ))}
@@ -285,7 +285,7 @@ export default function HomeLoansPage() {
           {(["repayment", "borrowing", "stamp"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`flex-1 text-xs sm:text-sm font-bold py-2.5 rounded-xl transition-all ${
-                tab === t ? "bg-white text-[#121e80] shadow-sm" : "text-gray-500 hover:text-gray-700"
+                tab === t ? "bg-white text-[#16a34a] shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}>
               {t === "repayment" ? "Repayments" : t === "borrowing" ? "Borrow Power" : "Stamp Duty"}
             </button>
@@ -307,10 +307,10 @@ export default function HomeLoansPage() {
                 <SliderInput label="Loan term" value={term} min={5} max={30} step={1}
                   format={(v) => `${v} yrs`} onChange={setTerm} />
               </div>
-              <div className="bg-[#121e80] p-8 flex flex-col justify-center gap-5">
-                <p className="text-blue-300 text-xs font-bold uppercase tracking-widest">Your estimate</p>
+              <div className="bg-[#16a34a] p-8 flex flex-col justify-center gap-5">
+                <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Your estimate</p>
                 <div>
-                  <p className="text-blue-200 text-sm mb-1">Monthly repayment</p>
+                  <p className="text-green-200 text-sm mb-1">Monthly repayment</p>
                   <p className="text-white font-black text-4xl">{AUD(monthly)}</p>
                 </div>
                 <div className="border-t border-white/10 pt-4 space-y-2.5">
@@ -321,12 +321,12 @@ export default function HomeLoansPage() {
                     { label: "Total amount paid",  val: AUD(totalPaid)        },
                   ].map((r) => (
                     <div key={r.label} className="flex justify-between text-sm">
-                      <span className="text-blue-200">{r.label}</span>
+                      <span className="text-green-200">{r.label}</span>
                       <span className="text-white font-bold">{r.val}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-blue-300/50 text-xs">* Indicative only. Principal & interest loan.</p>
+                <p className="text-green-300/50 text-xs">* Indicative only. Principal & interest loan.</p>
               </div>
             </div>
           )}
@@ -345,12 +345,12 @@ export default function HomeLoansPage() {
                 <SliderInput label="Loan term" value={bpTerm} min={5} max={30} step={1}
                   format={(v) => `${v} yrs`} onChange={setBpTerm} />
               </div>
-              <div className="bg-[#121e80] p-8 flex flex-col justify-center gap-5">
-                <p className="text-blue-300 text-xs font-bold uppercase tracking-widest">Estimated borrowing power</p>
+              <div className="bg-[#16a34a] p-8 flex flex-col justify-center gap-5">
+                <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Estimated borrowing power</p>
                 {borrowPower > 0 ? (
                   <>
                     <div>
-                      <p className="text-blue-200 text-sm mb-1">You could borrow up to</p>
+                      <p className="text-green-200 text-sm mb-1">You could borrow up to</p>
                       <p className="text-white font-black text-4xl">{AUD(borrowPower)}</p>
                     </div>
                     <div className="border-t border-white/10 pt-4 space-y-2.5">
@@ -360,7 +360,7 @@ export default function HomeLoansPage() {
                         { label: "Monthly expenses",      val: AUD(expenses) },
                       ].map((r) => (
                         <div key={r.label} className="flex justify-between text-sm">
-                          <span className="text-blue-200">{r.label}</span>
+                          <span className="text-green-200">{r.label}</span>
                           <span className="text-white font-bold">{r.val}</span>
                         </div>
                       ))}
@@ -369,10 +369,10 @@ export default function HomeLoansPage() {
                 ) : (
                   <div>
                     <p className="text-white font-black text-lg mb-2">Expenses too high</p>
-                    <p className="text-blue-200 text-sm">Reduce monthly expenses or increase your income to see estimated borrowing power.</p>
+                    <p className="text-green-200 text-sm">Reduce monthly expenses or increase your income to see estimated borrowing power.</p>
                   </div>
                 )}
-                <p className="text-blue-300/50 text-xs">* Based on 30% of gross income rule. Indicative only — lenders apply their own criteria.</p>
+                <p className="text-green-300/50 text-xs">* Based on 30% of gross income rule. Indicative only — lenders apply their own criteria.</p>
               </div>
             </div>
           )}
@@ -392,7 +392,7 @@ export default function HomeLoansPage() {
                       <button key={s} onClick={() => setSdState(s)}
                         className={`py-2.5 rounded-xl text-xs font-bold transition-all ${
                           sdState === s
-                            ? "bg-[#121e80] text-white shadow-sm"
+                            ? "bg-[#16a34a] text-white shadow-sm"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}>
                         {s}
@@ -405,17 +405,17 @@ export default function HomeLoansPage() {
                   <button
                     type="button"
                     onClick={() => setFirstHome(!firstHome)}
-                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${firstHome ? "bg-[#121e80]" : "bg-gray-200"}`}>
+                    className={`w-11 h-6 rounded-full transition-colors relative shrink-0 ${firstHome ? "bg-[#16a34a]" : "bg-gray-200"}`}>
                     <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${firstHome ? "translate-x-6" : "translate-x-1"}`} />
                   </button>
                   <span className="text-sm font-semibold text-gray-700">First home buyer</span>
                 </label>
               </div>
 
-              <div className="bg-[#121e80] p-8 flex flex-col justify-center gap-5">
-                <p className="text-blue-300 text-xs font-bold uppercase tracking-widest">Stamp duty estimate</p>
+              <div className="bg-[#16a34a] p-8 flex flex-col justify-center gap-5">
+                <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Stamp duty estimate</p>
                 <div>
-                  <p className="text-blue-200 text-sm mb-1">Stamp duty payable</p>
+                  <p className="text-green-200 text-sm mb-1">Stamp duty payable</p>
                   <p className="text-white font-black text-4xl">{AUD(duty)}</p>
                 </div>
                 <div className="border-t border-white/10 pt-4 space-y-2.5">
@@ -425,7 +425,7 @@ export default function HomeLoansPage() {
                     { label: "Effective duty rate", val: `${propVal > 0 ? ((duty / propVal) * 100).toFixed(2) : "0.00"}%` },
                   ].map((r) => (
                     <div key={r.label} className="flex justify-between text-sm">
-                      <span className="text-blue-200">{r.label}</span>
+                      <span className="text-green-200">{r.label}</span>
                       <span className="text-white font-bold">{r.val}</span>
                     </div>
                   ))}
@@ -442,7 +442,7 @@ export default function HomeLoansPage() {
                     </div>
                   )}
                 </div>
-                <p className="text-blue-300/50 text-xs">* Indicative only. Does not include conveyancing, legal, or other fees.</p>
+                <p className="text-green-300/50 text-xs">* Indicative only. Does not include conveyancing, legal, or other fees.</p>
               </div>
             </div>
           )}
@@ -464,7 +464,7 @@ export default function HomeLoansPage() {
                   <Icon size={18} />
                 </div>
                 <h3 className="font-black text-gray-900 mb-0.5">{lt.title}</h3>
-                <p className="text-xs font-bold text-[#121e80] mb-3">{lt.rate}</p>
+                <p className="text-xs font-bold text-[#16a34a] mb-3">{lt.rate}</p>
                 <p className="text-xs text-gray-500 mb-4 leading-relaxed flex-1">{lt.desc}</p>
                 <ul className="space-y-1.5">
                   {lt.pros.map((p) => (
@@ -492,10 +492,10 @@ export default function HomeLoansPage() {
               return (
                 <div key={step.title} className="text-center">
                   <div className="relative inline-flex mb-4">
-                    <div className="w-14 h-14 bg-[#121e80]/10 rounded-2xl flex items-center justify-center">
-                      <Icon size={22} className="text-[#121e80]" />
+                    <div className="w-14 h-14 bg-[#16a34a]/10 rounded-2xl flex items-center justify-center">
+                      <Icon size={22} className="text-[#16a34a]" />
                     </div>
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#121e80] text-white text-xs font-black rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#16a34a] text-white text-xs font-black rounded-full flex items-center justify-center">
                       {step.n}
                     </span>
                   </div>
@@ -510,20 +510,20 @@ export default function HomeLoansPage() {
 
       {/* ── First home buyer banner ───────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 py-12 w-full">
-        <div className="bg-gradient-to-r from-[#121e80] to-[#1a2fa0] rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6">
+        <div className="bg-gradient-to-r from-[#16a34a] to-[#166534] rounded-2xl p-8 flex flex-col md:flex-row items-center gap-6">
           <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
             <Star size={28} className="text-yellow-300" />
           </div>
           <div className="flex-1 text-center md:text-left">
             <h3 className="text-white font-black text-xl mb-2">First Home Buyer?</h3>
-            <p className="text-blue-200 text-sm leading-relaxed">
+            <p className="text-green-200 text-sm leading-relaxed">
               You may be eligible for stamp duty exemptions, the First Home Owner Grant (FHOG),
               and the First Home Guarantee — letting you buy with just a 5% deposit. Use our
               Stamp Duty calculator above with "First home buyer" toggled on to see your potential savings.
             </p>
           </div>
           <Link href="/home-loans/pre-approval"
-            className="bg-white text-[#121e80] font-black text-sm px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors shrink-0 whitespace-nowrap flex items-center gap-2">
+            className="bg-white text-[#16a34a] font-black text-sm px-6 py-3 rounded-xl hover:bg-green-50 transition-colors shrink-0 whitespace-nowrap flex items-center gap-2">
             Apply now <ArrowRight size={14} />
           </Link>
         </div>
@@ -540,13 +540,13 @@ export default function HomeLoansPage() {
             const Icon = c.icon;
             return (
               <Link key={c.title} href={c.href}
-                className="bg-white rounded-2xl border border-gray-100 p-6 hover:border-[#121e80] hover:shadow-md transition-all group">
-                <div className="w-10 h-10 bg-[#121e80]/10 rounded-xl flex items-center justify-center mb-4">
-                  <Icon size={18} className="text-[#121e80]" />
+                className="bg-white rounded-2xl border border-gray-100 p-6 hover:border-[#16a34a] hover:shadow-md transition-all group">
+                <div className="w-10 h-10 bg-[#16a34a]/10 rounded-xl flex items-center justify-center mb-4">
+                  <Icon size={18} className="text-[#16a34a]" />
                 </div>
                 <h3 className="font-black text-gray-900 mb-1">{c.title}</h3>
                 <p className="text-xs text-gray-500 mb-4 leading-relaxed">{c.desc}</p>
-                <div className="flex items-center gap-1 text-xs font-bold text-[#121e80] group-hover:gap-2 transition-all">
+                <div className="flex items-center gap-1 text-xs font-bold text-[#16a34a] group-hover:gap-2 transition-all">
                   {c.cta} <ChevronRight size={13} />
                 </div>
               </Link>

@@ -69,7 +69,7 @@ export default function Footer() {
                 onClick={() => setActiveTab(tab)}
                 className={`px-5 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === tab
-                    ? "border-[#121e80] text-gray-900"
+                    ? "border-[#16a34a] text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
@@ -148,8 +148,8 @@ export default function Footer() {
           {/* Logos */}
           <div className="flex flex-wrap items-center gap-5 mb-4">
             {[
-              { name: "REA Group", color: "#121e80" },
-              { name: "Greenbrick.net", color: "#121e80" },
+              { name: "REA Group", color: "#16a34a" },
+              { name: "Greenbrick.net", color: "#16a34a" },
               { name: "realcommercial.com.au", color: "#0066cc" },
               { name: "PropTrack", color: "#222" },
               { name: "Flatmates", color: "#e55c00" },

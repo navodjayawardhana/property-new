@@ -77,10 +77,10 @@ export default function Navbar() {
                   active
                     ? transparent
                       ? "text-white bg-white/20 font-bold"
-                      : "text-[#121e80] bg-blue-50 font-bold"
+                      : "text-[#16a34a] bg-green-50 font-bold"
                     : transparent
                       ? "text-white/90 hover:text-white hover:bg-white/10"
-                      : "text-gray-700 hover:text-[#121e80] hover:bg-gray-50"
+                      : "text-gray-700 hover:text-[#16a34a] hover:bg-gray-50"
                 }`}>
                 {link.label}
               </Link>
@@ -182,15 +182,15 @@ export default function Navbar() {
             <>
               <Link href="/signin"
                 className={`text-sm font-medium transition-colors ${
-                  transparent ? "text-white hover:text-white/80" : "text-gray-700 hover:text-[#121e80]"
+                  transparent ? "text-white hover:text-white/80" : "text-gray-700 hover:text-[#16a34a]"
                 }`}>
                 Sign in
               </Link>
               <Link href="/join"
                 className={`text-sm font-bold px-5 py-2 rounded-full transition-colors ${
                   transparent
-                    ? "bg-white text-[#121e80] hover:bg-white/90"
-                    : "bg-[#121e80] text-white hover:bg-[#0d1660]"
+                    ? "bg-white text-[#16a34a] hover:bg-white/90"
+                    : "bg-[#16a34a] text-white hover:bg-[#15803d]"
                 }`}>
                 Join
               </Link>
@@ -214,7 +214,7 @@ export default function Navbar() {
             return (
               <Link key={link.label} href={link.href}
                 className={`block py-2.5 text-sm border-b border-gray-100 last:border-0 transition-colors ${
-                  active ? "text-[#121e80] font-bold" : "text-gray-700"
+                  active ? "text-[#16a34a] font-bold" : "text-gray-700"
                 }`}
                 onClick={() => setOpen(false)}>
                 {link.label}
@@ -229,7 +229,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link href="/signin" className="text-sm font-medium text-gray-700">Sign in</Link>
-                <Link href="/join" className="bg-[#121e80] text-white text-sm font-bold px-4 py-1.5 rounded-full">Join</Link>
+                <Link href="/join" className="bg-[#16a34a] text-white text-sm font-bold px-4 py-1.5 rounded-full">Join</Link>
               </>
             )}
           </div>

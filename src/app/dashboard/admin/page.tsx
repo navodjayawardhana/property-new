@@ -63,7 +63,7 @@ function Badge({ label, color }: { label: string; color: string }) {
 function Avatar({ name, avatar, size = "sm" }: { name: string; avatar?: string | null; size?: "sm" | "xs" }) {
   const dim = size === "sm" ? "w-8 h-8 text-sm" : "w-6 h-6 text-xs";
   return (
-    <div className={`${dim} rounded-full overflow-hidden bg-[#121e80] flex items-center justify-center shrink-0`}>
+    <div className={`${dim} rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center shrink-0`}>
       {avatar ? <img src={avatar} alt={name} className="w-full h-full object-cover" /> :
         <span className="text-white font-bold">{name.charAt(0).toUpperCase()}</span>}
     </div>
@@ -75,7 +75,7 @@ function Pagination({ current, last, onChange }: { current: number; last: number
   return (
     <div className="flex items-center justify-center gap-1.5 mt-5">
       <button onClick={() => onChange(current - 1)} disabled={current === 1}
-        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#121e80] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
         <ChevronLeft size={14} />
       </button>
       {Array.from({ length: last }, (_, i) => i + 1)
@@ -87,10 +87,10 @@ function Pagination({ current, last, onChange }: { current: number; last: number
         .map((p, i) => p === "…"
           ? <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
           : <button key={p} onClick={() => onChange(p as number)}
-              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${current === p ? "bg-[#121e80] text-white" : "border border-gray-200 text-gray-700 hover:border-[#121e80]"}`}>{p}</button>
+              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${current === p ? "bg-[#16a34a] text-white" : "border border-gray-200 text-gray-700 hover:border-[#16a34a]"}`}>{p}</button>
         )}
       <button onClick={() => onChange(current + 1)} disabled={current === last}
-        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#121e80] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
         <ChevronRight size={14} />
       </button>
     </div>
@@ -217,13 +217,13 @@ function OverviewTab({ stats }: { stats: AdminStats }) {
       <div className="bg-white rounded-2xl border border-gray-100 p-5">
         <h3 className="text-sm font-bold text-gray-900 mb-4">Quick actions</h3>
         <div className="flex flex-wrap gap-3">
-          <Link href="/buy" target="_blank" className="flex items-center gap-2 text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:border-[#121e80] hover:text-[#121e80] transition-colors font-medium">
+          <Link href="/buy" target="_blank" className="flex items-center gap-2 text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors font-medium">
             <Eye size={14} /> View site
           </Link>
-          <Link href="/agents" target="_blank" className="flex items-center gap-2 text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:border-[#121e80] hover:text-[#121e80] transition-colors font-medium">
+          <Link href="/agents" target="_blank" className="flex items-center gap-2 text-sm border border-gray-200 text-gray-700 px-4 py-2 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors font-medium">
             <Users size={14} /> View agents
           </Link>
-          <Link href="/dashboard/properties/new" className="flex items-center gap-2 text-sm bg-[#121e80] text-white px-4 py-2 rounded-xl hover:bg-[#0d1660] transition-colors font-medium">
+          <Link href="/dashboard/properties/new" className="flex items-center gap-2 text-sm bg-[#16a34a] text-white px-4 py-2 rounded-xl hover:bg-[#15803d] transition-colors font-medium">
             <Home size={14} /> Add property
           </Link>
         </div>
@@ -503,7 +503,7 @@ function PropertiesTab({ token }: { token: string }) {
                           </div>
                           <div className="min-w-0">
                             <Link href={`/property/${p.id}`} target="_blank"
-                              className="font-semibold text-gray-900 text-sm hover:text-[#121e80] transition-colors line-clamp-1">{p.title}</Link>
+                              className="font-semibold text-gray-900 text-sm hover:text-[#16a34a] transition-colors line-clamp-1">{p.title}</Link>
                             <p className="text-xs text-gray-400">{p.suburb}, {p.state}</p>
                           </div>
                         </div>
@@ -540,7 +540,7 @@ function PropertiesTab({ token }: { token: string }) {
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Link href={`/property/${p.id}`} target="_blank"
-                            className="text-gray-400 hover:text-[#121e80] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                            className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                             <Eye size={14} />
                           </Link>
                           <button onClick={() => setConfirm({ id: p.id, title: p.title })}
@@ -662,14 +662,14 @@ function InquiriesTab({ token }: { token: string }) {
                     </div>
                     <p className="text-xs text-gray-400">{inq.email}{inq.phone ? ` · ${inq.phone}` : ""}</p>
                     {inq.property && (
-                      <p className="text-xs text-[#121e80] font-medium mt-0.5 truncate">
+                      <p className="text-xs text-[#16a34a] font-medium mt-0.5 truncate">
                         Re: {inq.property.title}
                       </p>
                     )}
                     <p className={`text-sm text-gray-600 mt-1 ${expanded === inq.id ? "" : "line-clamp-2"}`}>{inq.message}</p>
                     {inq.message.length > 100 && (
                       <button onClick={() => setExpanded(expanded === inq.id ? null : inq.id)}
-                        className="text-xs text-[#121e80] font-medium mt-0.5 hover:underline">
+                        className="text-xs text-[#16a34a] font-medium mt-0.5 hover:underline">
                         {expanded === inq.id ? "Show less" : "Show more"}
                       </button>
                     )}
@@ -683,7 +683,7 @@ function InquiriesTab({ token }: { token: string }) {
                     </select>
                     <span className="text-xs text-gray-400 hidden lg:block">{fmtDate(inq.created_at)}</span>
                     <a href={`mailto:${inq.email}`}
-                      className="text-[#121e80] hover:text-[#0d1660] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                      className="text-[#16a34a] hover:text-[#15803d] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                       <TrendingUp size={14} />
                     </a>
                     <button onClick={() => setConfirm({ id: inq.id, name: inq.name })}
@@ -803,7 +803,7 @@ function NewsTab({ token }: { token: string }) {
         <button onClick={() => load(page)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
           <RefreshCw size={13} /> Refresh
         </button>
-        <button onClick={openCreate} className="flex items-center gap-2 bg-[#121e80] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#0d1660] transition-colors">
+        <button onClick={openCreate} className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#15803d] transition-colors">
           <Plus size={14} /> New Article
         </button>
       </div>
@@ -857,11 +857,11 @@ function NewsTab({ token }: { token: string }) {
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Link href={`/news`} target="_blank"
-                          className="text-gray-400 hover:text-[#121e80] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                          className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                           <Eye size={14} />
                         </Link>
                         <button onClick={() => openEdit(a)}
-                          className="text-gray-400 hover:text-[#121e80] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                          className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                           <Edit2 size={14} />
                         </button>
                         <button onClick={() => setConfirm({ id: a.id, title: a.title })}
@@ -892,18 +892,18 @@ function NewsTab({ token }: { token: string }) {
               <div>
                 <label className="text-xs font-semibold text-gray-700 block mb-1">Title *</label>
                 <input value={form.title ?? ""} onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a]" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-700 block mb-1">Excerpt *</label>
                 <textarea value={form.excerpt ?? ""} onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
-                  rows={3} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80] resize-none" />
+                  rows={3} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a] resize-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">Category</label>
                   <select value={form.category ?? "News"} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]">
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a]">
                     {NEWS_CATS.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
@@ -911,12 +911,12 @@ function NewsTab({ token }: { token: string }) {
                   <label className="text-xs font-semibold text-gray-700 block mb-1">Tag (optional)</label>
                   <input value={form.tag ?? ""} onChange={(e) => setForm({ ...form, tag: e.target.value })}
                     placeholder="e.g. INTEREST RATES"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a]" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-700 block mb-1">Article Image *</label>
-                <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#121e80] transition-colors bg-gray-50 overflow-hidden">
+                <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#16a34a] transition-colors bg-gray-50 overflow-hidden">
                   {imagePreview ? (
                     <img src={imagePreview} alt="" className="w-full h-36 object-cover" />
                   ) : (
@@ -940,7 +940,7 @@ function NewsTab({ token }: { token: string }) {
                   <label className="text-xs font-semibold text-gray-700 block mb-1">Read time</label>
                   <input value={form.read_time ?? ""} onChange={(e) => setForm({ ...form, read_time: e.target.value })}
                     placeholder="3 min read"
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#121e80]" />
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a]" />
                 </div>
                 <div className="flex items-end pb-1">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -955,7 +955,7 @@ function NewsTab({ token }: { token: string }) {
             <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
               <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 text-sm font-semibold py-2 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
               <button onClick={handleSave} disabled={saving}
-                className="flex-1 bg-[#121e80] hover:bg-[#0d1660] text-white text-sm font-bold py-2 rounded-xl transition-colors disabled:opacity-60">
+                className="flex-1 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold py-2 rounded-xl transition-colors disabled:opacity-60">
                 {saving ? "Saving…" : modal === "create" ? "Create Article" : "Save Changes"}
               </button>
             </div>
@@ -1101,7 +1101,7 @@ function LoanEnquiriesTab({ token }: { token: string }) {
                         <p className={`text-sm text-gray-500 mt-2 ${expanded === enq.id ? "" : "line-clamp-2"}`}>{enq.message}</p>
                         {enq.message.length > 100 && (
                           <button onClick={() => setExpanded(expanded === enq.id ? null : enq.id)}
-                            className="text-xs text-[#121e80] font-medium mt-0.5 hover:underline">
+                            className="text-xs text-[#16a34a] font-medium mt-0.5 hover:underline">
                             {expanded === enq.id ? "Show less" : "Show more"}
                           </button>
                         )}
@@ -1119,7 +1119,7 @@ function LoanEnquiriesTab({ token }: { token: string }) {
                     </select>
                     <span className="text-xs text-gray-400 hidden lg:block">{fmtDate(enq.created_at)}</span>
                     <a href={`mailto:${enq.email}`}
-                      className="text-[#121e80] hover:text-[#0d1660] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                      className="text-[#16a34a] hover:text-[#15803d] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                       <TrendingUp size={14} />
                     </a>
                     <button onClick={() => setConfirm({ id: enq.id, name: enq.name })}
@@ -1203,7 +1203,7 @@ export default function AdminPage() {
         <div className="flex gap-1 mb-6 bg-white border border-gray-100 rounded-2xl p-1.5 w-fit">
           {NAV.map((n) => (
             <button key={n.id} onClick={() => setTab(n.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${tab === n.id ? "bg-[#121e80] text-white shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${tab === n.id ? "bg-[#16a34a] text-white shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`}>
               {n.icon}{n.label}
             </button>
           ))}

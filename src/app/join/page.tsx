@@ -140,7 +140,7 @@ export default function JoinPage() {
     >
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-[#121e80] rounded-full flex items-center justify-center">
+          <div className="w-9 h-9 bg-[#16a34a] rounded-full flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
           </div>
           <span className="text-white font-semibold text-sm">Greenbrick.net</span>
@@ -152,7 +152,7 @@ export default function JoinPage() {
           <div className="space-y-3 mt-8">
             {["Save and track your favourite properties", "Get instant alerts on new listings", "Connect with top agents and brokers", "Access exclusive market insights"].map((item) => (
               <div key={item} className="flex items-center gap-3">
-                <div className="w-5 h-5 bg-[#121e80] rounded-full flex items-center justify-center shrink-0">
+                <div className="w-5 h-5 bg-[#16a34a] rounded-full flex items-center justify-center shrink-0">
                   <Check size={11} className="text-white" />
                 </div>
                 <span className="text-white/80 text-sm">{item}</span>
@@ -172,7 +172,7 @@ export default function JoinPage() {
         <div className="flex-1 flex items-center justify-center px-6 py-12">
           <div className="w-full max-w-md">
             <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-              <div className="w-8 h-8 bg-[#121e80] rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
               </div>
               <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
@@ -207,13 +207,13 @@ export default function JoinPage() {
                     value={d}
                     onChange={(e) => handleDigitChange(i, e.target.value)}
                     onKeyDown={(e) => handleDigitKeyDown(i, e)}
-                    className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all"
+                    className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all"
                   />
                 ))}
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                 {loading ? (
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
                     <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
@@ -231,14 +231,14 @@ export default function JoinPage() {
                 <p className="text-xs text-gray-400">
                   Didn&apos;t receive it?{" "}
                   <button type="button" disabled={resendLoading} onClick={handleResend}
-                    className="text-[#121e80] font-semibold hover:underline disabled:opacity-50">
+                    className="text-[#16a34a] font-semibold hover:underline disabled:opacity-50">
                     {resendLoading ? "Sending…" : "Resend code"}
                   </button>
                 </p>
               )}
               <p className="text-xs text-gray-400">
                 Already verified?{" "}
-                <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in</Link>
+                <Link href="/signin" className="text-[#16a34a] font-semibold hover:underline">Sign in</Link>
               </p>
             </div>
           </div>
@@ -255,7 +255,7 @@ export default function JoinPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#121e80] rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
             </div>
             <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
@@ -264,13 +264,13 @@ export default function JoinPage() {
           <div className="flex items-center gap-2 mb-8">
             {[1, 2].map((s) => (
               <div key={s} className="flex items-center gap-2">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step >= s ? "bg-[#121e80] text-white" : "bg-gray-200 text-gray-500"}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step >= s ? "bg-[#16a34a] text-white" : "bg-gray-200 text-gray-500"}`}>
                   {step > s ? <Check size={13} /> : s}
                 </div>
                 <span className={`text-xs font-medium ${step >= s ? "text-gray-900" : "text-gray-400"}`}>
                   {s === 1 ? "Account type" : "Your details"}
                 </span>
-                {s < 2 && <div className={`w-8 h-0.5 ${step > s ? "bg-[#121e80]" : "bg-gray-200"}`} />}
+                {s < 2 && <div className={`w-8 h-0.5 ${step > s ? "bg-[#16a34a]" : "bg-gray-200"}`} />}
               </div>
             ))}
           </div>
@@ -280,25 +280,25 @@ export default function JoinPage() {
           </h1>
           <p className="text-gray-500 text-sm mb-7">
             {step === 1 ? "Choose how you'll use Greenbrick.net" : "Almost there — fill in your info below"}{" "}
-            <Link href="/signin" className="text-[#121e80] font-semibold hover:underline">Sign in instead</Link>
+            <Link href="/signin" className="text-[#16a34a] font-semibold hover:underline">Sign in instead</Link>
           </p>
 
           {step === 1 && (
             <div className="space-y-3">
               {accountTypes.map((t) => (
                 <button key={t.id} onClick={() => setAccountType(t.id)}
-                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border-2 transition-all text-left ${accountType === t.id ? "border-[#121e80] bg-blue-50" : "border-gray-200 hover:border-gray-300 bg-white"}`}>
+                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border-2 transition-all text-left ${accountType === t.id ? "border-[#16a34a] bg-blue-50" : "border-gray-200 hover:border-gray-300 bg-white"}`}>
                   <div>
-                    <p className={`text-sm font-bold ${accountType === t.id ? "text-[#121e80]" : "text-gray-900"}`}>{t.label}</p>
+                    <p className={`text-sm font-bold ${accountType === t.id ? "text-[#16a34a]" : "text-gray-900"}`}>{t.label}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{t.desc}</p>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${accountType === t.id ? "border-[#121e80] bg-[#121e80]" : "border-gray-300"}`}>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${accountType === t.id ? "border-[#16a34a] bg-[#16a34a]" : "border-gray-300"}`}>
                     {accountType === t.id && <Check size={11} className="text-white" />}
                   </div>
                 </button>
               ))}
               <button onClick={handleNext}
-                className="w-full bg-[#121e80] hover:bg-[#0d1660] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-4">
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm mt-4">
                 Continue <ArrowRight size={16} />
               </button>
             </div>
@@ -322,7 +322,7 @@ export default function JoinPage() {
                     <input type={field.type} value={form[field.key as keyof typeof form]}
                       onChange={(e) => update(field.key, e.target.value)}
                       placeholder={field.placeholder}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   </div>
                 </div>
               ))}
@@ -334,7 +334,7 @@ export default function JoinPage() {
                   <input type={showPassword ? "text" : "password"} value={form.password}
                     onChange={(e) => update("password", e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -348,20 +348,20 @@ export default function JoinPage() {
                   <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)}
                     placeholder="Re-enter your password"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#121e80] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                 </div>
               </div>
 
               <label className="flex items-start gap-3 cursor-pointer">
                 <div onClick={() => setAgree(!agree)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${agree ? "bg-[#121e80] border-[#121e80]" : "border-gray-300 hover:border-gray-500"}`}>
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${agree ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300 hover:border-gray-500"}`}>
                   {agree && <Check size={11} className="text-white" />}
                 </div>
                 <span className="text-xs text-gray-500 leading-relaxed">
                   I agree to the{" "}
-                  <Link href="/" className="text-[#121e80] hover:underline font-medium">Terms of Use</Link>
+                  <Link href="/" className="text-[#16a34a] hover:underline font-medium">Terms of Use</Link>
                   {" "}and{" "}
-                  <Link href="/" className="text-[#121e80] hover:underline font-medium">Privacy Policy</Link>
+                  <Link href="/" className="text-[#16a34a] hover:underline font-medium">Privacy Policy</Link>
                 </span>
               </label>
 
@@ -371,7 +371,7 @@ export default function JoinPage() {
                   Back
                 </button>
                 <button onClick={handleNext} disabled={loading}
-                  className="flex-1 bg-[#121e80] hover:bg-[#0d1660] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                  className="flex-1 bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
                   {loading
                     ? <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" /></svg>
                     : <>Create account <ArrowRight size={16} /></>}

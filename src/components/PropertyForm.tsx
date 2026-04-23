@@ -168,7 +168,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     }
   }
 
-  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#121e80] transition-colors bg-white";
+  const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1";
 
   return (
@@ -208,8 +208,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
                 onClick={() => set('condition', c)}
                 className={`flex-1 py-2 rounded-lg border text-sm font-semibold capitalize transition-colors ${
                   form.condition === c
-                    ? 'bg-[#121e80] text-white border-[#121e80]'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#121e80] hover:text-[#121e80]'
+                    ? 'bg-[#16a34a] text-white border-[#16a34a]'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a]'
                 }`}>
                 {c === 'new' ? 'New' : 'Used'}
               </button>
@@ -238,8 +238,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
                   }}
                   className={`flex-1 py-2 rounded-lg border text-sm font-semibold capitalize transition-colors ${
                     active
-                      ? 'bg-[#121e80] text-white border-[#121e80]'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#121e80] hover:text-[#121e80]'
+                      ? 'bg-[#16a34a] text-white border-[#16a34a]'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-[#16a34a] hover:text-[#16a34a]'
                   }`}>
                   {c.charAt(0).toUpperCase() + c.slice(1)}
                 </button>
@@ -324,7 +324,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         </div>
 
         <div className="flex items-center gap-3 pt-5">
-          <input type="checkbox" id="is_featured" checked={form.is_featured} onChange={(e) => set('is_featured', e.target.checked)} className="w-4 h-4 accent-[#121e80]" />
+          <input type="checkbox" id="is_featured" checked={form.is_featured} onChange={(e) => set('is_featured', e.target.checked)} className="w-4 h-4 accent-[#16a34a]" />
           <label htmlFor="is_featured" className="text-sm font-medium text-gray-700">Feature on homepage</label>
         </div>
 
@@ -345,7 +345,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
                 <X size={10} />
               </button>
               {img.is_primary && (
-                <span className="absolute bottom-1 left-1 text-[9px] bg-[#121e80] text-white px-1 rounded">Primary</span>
+                <span className="absolute bottom-1 left-1 text-[9px] bg-[#16a34a] text-white px-1 rounded">Primary</span>
               )}
             </div>
           ))}
@@ -360,7 +360,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           ))}
         </div>
         <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex items-center gap-2 text-sm text-[#121e80] border border-[#121e80] border-dashed px-4 py-2 rounded-lg hover:bg-[#121e80]/5 transition-colors">
+          className="flex items-center gap-2 text-sm text-[#16a34a] border border-[#16a34a] border-dashed px-4 py-2 rounded-lg hover:bg-[#16a34a]/5 transition-colors">
           <Upload size={14} /> Add photos
         </button>
         <input ref={fileRef} type="file" multiple accept="image/jpeg,image/png,image/jpg,image/webp" className="hidden"
@@ -368,7 +368,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
       </div>
 
       <button type="submit" disabled={submitting}
-        className="w-full bg-[#121e80] hover:bg-[#0d1660] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+        className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
         {submitting && <Loader2 size={16} className="animate-spin" />}
         {mode === 'create' ? 'Create Listing' : 'Save Changes'}
       </button>

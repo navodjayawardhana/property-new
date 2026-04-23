@@ -53,7 +53,7 @@ export default function EditPropertyPage() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 py-8 w-full flex-1">
-        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#121e80] transition-colors mb-6">
+        <Link href={backHref} className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#16a34a] transition-colors mb-6">
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
 
@@ -73,7 +73,7 @@ export default function EditPropertyPage() {
             <AlertCircle size={40} className="text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500 font-medium">Listing not found</p>
             <p className="text-gray-400 text-sm mt-1">This listing doesn't exist or you don't have permission to edit it.</p>
-            <Link href={backHref} className="inline-block mt-5 text-sm font-semibold text-[#121e80] hover:underline">
+            <Link href={backHref} className="inline-block mt-5 text-sm font-semibold text-[#16a34a] hover:underline">
               Back to dashboard
             </Link>
           </div>
