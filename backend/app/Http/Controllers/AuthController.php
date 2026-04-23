@@ -28,6 +28,9 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'phone'    => 'nullable|string|max:20',
             'role'     => 'nullable|in:buyer,seller,agent',
+            'country'  => 'nullable|string|max:100',
+            'state'    => 'nullable|string|max:100',
+            'suburb'   => 'nullable|string|max:100',
         ]);
 
         $user = User::create([
@@ -36,6 +39,9 @@ class AuthController extends Controller
             'password' => $validated['password'],
             'phone'    => $validated['phone'] ?? null,
             'role'     => $validated['role'] ?? 'buyer',
+            'country'  => $validated['country'] ?? null,
+            'state'    => $validated['state'] ?? null,
+            'suburb'   => $validated['suburb'] ?? null,
         ]);
 
         // Send email verification OTP
@@ -188,9 +194,9 @@ class AuthController extends Controller
             'email'    => 'sometimes|email|unique:users,email,' . $user->id,
             'phone'    => 'nullable|string|max:20',
             'suburb'   => 'nullable|string|max:100',
-            'state'    => 'nullable|string|max:10',
+            'state'    => 'nullable|string|max:100',
             'postcode' => 'nullable|string|max:10',
-            'country'  => 'nullable|string|max:60',
+            'country'  => 'nullable|string|max:100',
         ]);
 
         $user->update($validated);

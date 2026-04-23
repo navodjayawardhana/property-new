@@ -71,6 +71,9 @@ export const auth = {
     password_confirmation: string;
     phone?: string;
     role?: string;
+    country?: string;
+    state?: string;
+    suburb?: string;
   }) => request<RegisterResponse>('/register', { method: 'POST', body: data }),
 
   login: (data: { email: string; password: string }) =>

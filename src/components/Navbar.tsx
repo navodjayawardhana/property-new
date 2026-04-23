@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase } from "lucide-react";
+import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { User } from "@/lib/api";
 
@@ -29,11 +29,19 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const [open, setOpen]         = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen]               = useState(false);
+  const [menuOpen, setMenuOpen]       = useState(false);
+  const [scrolled, setScrolled]       = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const { user, logout } = useAuth();
   const pathname = usePathname();
+
+  const profileIncomplete =
+    !!user &&
+    user.role !== 'admin' &&
+    !bannerDismissed &&
+    pathname !== '/profile' &&
+    (!user.phone || !user.country || !user.suburb);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -205,6 +213,26 @@ export default function Navbar() {
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+
+      {/* Profile completion banner */}
+      {profileIncomplete && (
+        <div className="bg-amber-50 border-t border-amber-200 px-4 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle size={14} className="text-amber-600 shrink-0" />
+            <p className="text-xs text-amber-800 font-medium truncate">
+              Your profile is incomplete — add your phone number and location to get the most out of Greenbrick.net.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/profile" className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
+              Complete profile →
+            </Link>
+            <button onClick={() => setBannerDismissed(true)} className="text-amber-500 hover:text-amber-700 transition-colors">
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile menu — always solid white */}
       {open && (

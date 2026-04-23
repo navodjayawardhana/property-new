@@ -6,7 +6,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { profile as profileApi, type User } from "@/lib/api";
-import { Camera, Trash2, Loader2, Check, Eye, EyeOff, Shield, Phone, Mail, UserIcon, MapPin } from "lucide-react";
+import { COUNTRY_CODES, parsePhone } from "@/lib/countries";
+import { Camera, Trash2, Loader2, Check, Eye, EyeOff, Shield, Phone, Mail, UserIcon, MapPin, ChevronDown } from "lucide-react";
 
 const ROLE_LABELS: Record<string, { label: string; color: string }> = {
   buyer:  { label: 'Buyer',  color: 'bg-blue-100 text-blue-700' },
@@ -23,11 +24,12 @@ export default function ProfilePage() {
   // Profile form
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phoneDialCode, setPhoneDialCode] = useState('+61');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [suburb, setSuburb] = useState('');
   const [userState, setUserState] = useState('');
   const [postcode, setPostcode] = useState('');
-  const [country, setCountry] = useState('Australia');
+  const [country, setCountry] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
@@ -51,11 +53,15 @@ export default function ProfilePage() {
     if (user) {
       setName(user.name);
       setEmail(user.email ?? '');
-      setPhone(user.phone ?? '');
+      if (user.phone) {
+        const { dialCode, number } = parsePhone(user.phone);
+        setPhoneDialCode(dialCode);
+        setPhoneNumber(number);
+      }
       setSuburb(user.suburb ?? '');
       setUserState(user.state ?? '');
       setPostcode(user.postcode ?? '');
-      setCountry(user.country ?? 'Australia');
+      setCountry(user.country ?? '');
     }
   }, [user]);
 
@@ -96,10 +102,12 @@ export default function ProfilePage() {
     if (!token) return;
     setSavingProfile(true);
     setProfileMsg(null);
+    const rawNumber = phoneNumber.trim().replace(/^0+/, '');
+    const finalPhone = rawNumber ? `${phoneDialCode}${rawNumber}` : null;
     try {
       const updated = await profileApi.update({
         name, email,
-        phone: phone || null,
+        phone: finalPhone,
         suburb: suburb || null,
         state: userState || null,
         postcode: postcode || null,
@@ -200,39 +208,70 @@ export default function ProfilePage() {
               <label className={lbl}><span className="flex items-center gap-1.5"><Mail size={11} /> Email Address</span></label>
               <input required type="email" className={inp} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
             </div>
+
+            {/* Phone with country code */}
             <div>
               <label className={lbl}><span className="flex items-center gap-1.5"><Phone size={11} /> Phone Number</span></label>
-              <input type="tel" className={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+61 4XX XXX XXX" />
+              <div className="flex gap-2">
+                <div className="relative shrink-0">
+                  <select
+                    value={phoneDialCode}
+                    onChange={(e) => setPhoneDialCode(e.target.value)}
+                    className="h-full pl-3 pr-7 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
+                    style={{ minWidth: "90px" }}
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
+                <input
+                  type="tel"
+                  className={inp}
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="400 000 000"
+                />
+              </div>
             </div>
 
             <div className="border-t border-gray-100 pt-4">
               <p className="text-xs font-semibold text-gray-500 flex items-center gap-1.5 mb-3"><MapPin size={11} /> Location</p>
               <div className="grid grid-cols-2 gap-3">
+
+                {/* Country — all countries dropdown */}
                 <div className="col-span-2">
-                  <label className={lbl}>Suburb</label>
-                  <input className={inp} value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Richmond" />
+                  <label className={lbl}>Country</label>
+                  <div className="relative">
+                    <select
+                      className={inp + " appearance-none pr-8 cursor-pointer"}
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                    >
+                      <option value="">Select country</option>
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
+
+                {/* State / Region — free text */}
                 <div>
-                  <label className={lbl}>State</label>
-                  <select className={inp} value={userState} onChange={(e) => setUserState(e.target.value)}>
-                    <option value="">Select state</option>
-                    <option value="VIC">VIC</option>
-                    <option value="NSW">NSW</option>
-                    <option value="QLD">QLD</option>
-                    <option value="WA">WA</option>
-                    <option value="SA">SA</option>
-                    <option value="TAS">TAS</option>
-                    <option value="ACT">ACT</option>
-                    <option value="NT">NT</option>
-                  </select>
+                  <label className={lbl}>State / Region</label>
+                  <input className={inp} value={userState} onChange={(e) => setUserState(e.target.value)} placeholder="e.g. New South Wales" />
                 </div>
+
                 <div>
                   <label className={lbl}>Postcode</label>
                   <input className={inp} value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="e.g. 3121" maxLength={10} />
                 </div>
+
                 <div className="col-span-2">
-                  <label className={lbl}>Country</label>
-                  <input className={inp} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Australia" />
+                  <label className={lbl}>Suburb / City</label>
+                  <input className={inp} value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Richmond" />
                 </div>
               </div>
             </div>

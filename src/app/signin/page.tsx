@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck,
-  Home, TrendingUp, Briefcase, ShieldAlert, Phone,
+  Home, TrendingUp, Briefcase, ShieldAlert, Phone, ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { auth } from "@/lib/api";
+import { COUNTRY_CODES } from "@/lib/countries";
 
 type Role = "buyer" | "seller" | "agent" | "admin";
 type LoginMethod = "email" | "phone";
@@ -34,9 +35,10 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Phone login
-  const [phone, setPhone]             = useState("");
-  const [maskedPhone, setMaskedPhone] = useState("");
-  const [phoneForOtp, setPhoneForOtp] = useState("");
+  const [phoneDialCode, setPhoneDialCode] = useState("");
+  const [phoneNumber, setPhoneNumber]     = useState("");
+  const [maskedPhone, setMaskedPhone]     = useState("");
+  const [phoneForOtp, setPhoneForOtp]     = useState("");
 
   // Screen routing
   const [screen, setScreen]           = useState<Screen>("login");
@@ -59,6 +61,17 @@ export default function SignInPage() {
     const id = setInterval(() => setCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(id);
   }, [screen, countdownKey]);
+
+  // Auto-detect country dial code from IP
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((r) => r.json())
+      .then((data) => {
+        const found = COUNTRY_CODES.find((c) => c.code === data.country_code);
+        if (found) setPhoneDialCode(found.dial);
+      })
+      .catch(() => {});
+  }, []);
 
   // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -142,12 +155,13 @@ export default function SignInPage() {
 
   const handleSendPhoneOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone) { setError("Please enter your phone number."); return; }
+    if (!phoneNumber.trim()) { setError("Please enter your phone number."); return; }
+    const fullPhone = `${phoneDialCode}${phoneNumber.trim().replace(/^0+/, "")}`;
     setError(""); setLoading(true);
     try {
-      const res = await auth.sendPhoneOtp(phone, role);
+      const res = await auth.sendPhoneOtp(fullPhone, role);
       setMaskedPhone(res.masked_phone);
-      setPhoneForOtp(phone);
+      setPhoneForOtp(fullPhone);
       if (res.dev_otp) {
         setDigits(res.dev_otp.split(""));
       } else {
@@ -444,10 +458,26 @@ export default function SignInPage() {
             <form onSubmit={handleSendPhoneOtp} className="space-y-4">
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone number</label>
-                <div className="relative">
-                  <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07X XXX XXXX"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                <div className="flex gap-2">
+                  <div className="relative shrink-0">
+                    <select
+                      value={phoneDialCode}
+                      onChange={(e) => setPhoneDialCode(e.target.value)}
+                      className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
+                      style={{ minWidth: "90px" }}
+                    >
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                  <div className="relative flex-1">
+                    <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="71 234 5678"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                  </div>
                 </div>
               </div>
               <button type="submit" disabled={loading}

@@ -31,6 +31,9 @@ type RegisterData = {
   password_confirmation: string;
   phone?: string;
   role?: string;
+  country?: string;
+  state?: string;
+  suburb?: string;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);

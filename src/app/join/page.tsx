@@ -1,17 +1,16 @@
 "use client";
 
-"use client";
-
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, MapPin, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { COUNTRY_CODES } from "@/lib/countries";
 
 const accountTypes = [
-  { id: "buyer",  label: "Buyer / Renter",     desc: "Search and save properties" },
-  { id: "seller", label: "Seller / Landlord",   desc: "List and manage properties" },
-  { id: "agent",  label: "Agent / Broker",      desc: "Manage client listings" },
+  { id: "buyer",  label: "Buyer / Renter",   desc: "Search and save properties" },
+  { id: "seller", label: "Seller / Landlord", desc: "List and manage properties" },
+  { id: "agent",  label: "Agent / Broker",    desc: "Manage client listings" },
 ];
 
 export default function JoinPage() {
@@ -20,7 +19,8 @@ export default function JoinPage() {
 
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "", country: "", state: "", city: "" });
+  const [countryCode, setCountryCode] = useState("+61");
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,13 +29,28 @@ export default function JoinPage() {
   const [countdownKey, setCountdownKey] = useState(0);
   const [error, setError] = useState("");
 
-  // Step 3: email verification
   const [verifyEmail_, setVerifyEmail_] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Start/restart 60-second countdown when entering step 3 or after resend
+  // Auto-detect country, state, city from IP
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((r) => r.json())
+      .then((data) => {
+        const found = COUNTRY_CODES.find((c) => c.code === data.country_code);
+        if (found) setCountryCode(found.dial);
+        setForm((p) => ({
+          ...p,
+          country: found?.name ?? data.country_name ?? "",
+          state: data.region ?? "",
+          city: data.city ?? "",
+        }));
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (step !== 3) return;
     setCountdown(60);
@@ -74,6 +89,9 @@ export default function JoinPage() {
     if (form.password !== form.confirm) { setError("Passwords do not match."); return; }
     if (!agree) { setError("Please accept the terms to continue."); return; }
 
+    const rawPhone = form.phone.trim().replace(/^0+/, "");
+    const phone = rawPhone ? `${countryCode}${rawPhone}` : undefined;
+
     setError("");
     setLoading(true);
     try {
@@ -82,8 +100,11 @@ export default function JoinPage() {
         email: form.email,
         password: form.password,
         password_confirmation: form.confirm,
-        phone: form.phone || undefined,
+        phone,
         role: accountType,
+        country: form.country || undefined,
+        state: form.state || undefined,
+        suburb: form.city || undefined,
       });
       setVerifyEmail_(email);
       setMaskedEmail(maskedEmail);
@@ -107,7 +128,7 @@ export default function JoinPage() {
     setDigits(["", "", "", "", "", ""]);
     try {
       await resendVerification(verifyEmail_);
-      setCountdownKey((k) => k + 1); // restarts the useEffect countdown
+      setCountdownKey((k) => k + 1);
     } catch {
       setError("Failed to resend. Please try again.");
     } finally {
@@ -164,7 +185,7 @@ export default function JoinPage() {
     </div>
   );
 
-  // ── Step 3: Email verification OTP ────────────────────────────────────────────
+  // ── Step 3: Email verification OTP ───────────────────────────────────────────
   if (step === 3) {
     return (
       <div className="min-h-screen bg-gray-50 flex">
@@ -195,38 +216,27 @@ export default function JoinPage() {
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
               )}
-
               <div className="flex gap-3 justify-center" onPaste={handleDigitPaste}>
                 {digits.map((d, i) => (
-                  <input
-                    key={i}
+                  <input key={i}
                     ref={(el) => { digitRefs.current[i] = el; }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={d}
+                    type="text" inputMode="numeric" maxLength={1} value={d}
                     onChange={(e) => handleDigitChange(i, e.target.value)}
                     onKeyDown={(e) => handleDigitKeyDown(i, e)}
-                    className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all"
-                  />
+                    className="w-12 h-14 text-center text-xl font-bold border border-gray-200 rounded-xl outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all" />
                 ))}
               </div>
-
               <button type="submit" disabled={loading}
                 className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
-                {loading ? (
-                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" />
-                  </svg>
-                ) : (<>Verify &amp; activate account <ArrowRight size={16} /></>)}
+                {loading
+                  ? <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" /></svg>
+                  : <>Verify &amp; activate account <ArrowRight size={16} /></>}
               </button>
             </form>
 
             <div className="text-center mt-6 space-y-2">
               {countdown > 0 ? (
-                <p className="text-xs text-gray-400">
-                  Resend available in <span className="font-semibold text-gray-600">{countdown}s</span>
-                </p>
+                <p className="text-xs text-gray-400">Resend available in <span className="font-semibold text-gray-600">{countdown}s</span></p>
               ) : (
                 <p className="text-xs text-gray-400">
                   Didn&apos;t receive it?{" "}
@@ -247,7 +257,7 @@ export default function JoinPage() {
     );
   }
 
-  // ── Steps 1 & 2 ───────────────────────────────────────────────────────────────
+  // ── Steps 1 & 2 ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {leftPanel}
@@ -310,23 +320,95 @@ export default function JoinPage() {
                 <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
               )}
 
-              {[
-                { key: "name",  label: "Full name",        placeholder: "Jane Smith",        icon: <User size={15} className="text-gray-400" />,  type: "text" },
-                { key: "email", label: "Email address",    placeholder: "you@example.com",   icon: <Mail size={15} className="text-gray-400" />,  type: "email" },
-                { key: "phone", label: "Phone (optional)", placeholder: "+61 400 000 000",   icon: <Phone size={15} className="text-gray-400" />, type: "tel" },
-              ].map((field) => (
-                <div key={field.key}>
-                  <label className="text-xs font-semibold text-gray-600 mb-1.5 block">{field.label}</label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2">{field.icon}</span>
-                    <input type={field.type} value={form[field.key as keyof typeof form]}
-                      onChange={(e) => update(field.key, e.target.value)}
-                      placeholder={field.placeholder}
+              {/* Full name */}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Full name</label>
+                <div className="relative">
+                  <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="text" value={form.name} onChange={(e) => update("name", e.target.value)}
+                    placeholder="Jane Smith"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
+                <div className="relative">
+                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
+                    placeholder="you@example.com"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
+              </div>
+
+              {/* Phone with country code */}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone (optional)</label>
+                <div className="flex gap-2">
+                  <div className="relative shrink-0">
+                    <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}
+                      className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
+                      style={{ minWidth: "90px" }}>
+                      {COUNTRY_CODES.map((c) => (
+                        <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  </div>
+                  <div className="relative flex-1">
+                    <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)}
+                      placeholder="400 000 000"
                       className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
                   </div>
                 </div>
-              ))}
+              </div>
 
+              {/* Country */}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Country</label>
+                <div className="relative">
+                  <Globe size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <select value={form.country}
+                    onChange={(e) => {
+                      const selected = COUNTRY_CODES.find((c) => c.name === e.target.value);
+                      update("country", e.target.value);
+                      if (selected) setCountryCode(selected.dial);
+                    }}
+                    className="w-full pl-10 pr-8 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer">
+                    <option value="">Select country</option>
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* State & City */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 mb-1.5 block">State / Region</label>
+                  <div className="relative">
+                    <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={form.state} onChange={(e) => update("state", e.target.value)}
+                      placeholder="New South Wales"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 mb-1.5 block">City / Suburb</label>
+                  <div className="relative">
+                    <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" value={form.city} onChange={(e) => update("city", e.target.value)}
+                      placeholder="Sydney"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Password */}
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Password</label>
                 <div className="relative">
@@ -342,6 +424,7 @@ export default function JoinPage() {
                 </div>
               </div>
 
+              {/* Confirm password */}
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Confirm password</label>
                 <div className="relative">
