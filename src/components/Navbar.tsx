@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase, AlertCircle } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase, AlertCircle, Plus, Lock } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { User } from "@/lib/api";
 
@@ -33,8 +33,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen]       = useState(false);
   const [scrolled, setScrolled]       = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [buyerAlert, setBuyerAlert]   = useState(false);
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const router   = useRouter();
+
+  function handlePostAd() {
+    if (!user) { router.push('/signin'); return; }
+    if (user.role === 'buyer') { setBuyerAlert(true); return; }
+    router.push('/dashboard/properties/new');
+  }
 
   const profileIncomplete =
     !!user &&
@@ -54,6 +62,7 @@ export default function Navbar() {
   const transparent = isHomepage && !scrolled && !open;
 
   return (
+    <>
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         transparent
@@ -95,6 +104,17 @@ export default function Navbar() {
             );
           })}
         </nav>
+
+        {/* Post Ad button — desktop */}
+        <button
+          onClick={handlePostAd}
+          className={`hidden lg:flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full transition-colors shrink-0 ${
+            transparent
+              ? "bg-white text-[#16a34a] hover:bg-white/90"
+              : "bg-[#16a34a] text-white hover:bg-[#15803d]"
+          }`}>
+          <Plus size={15} /> Post Ad
+        </button>
 
         {/* Desktop auth */}
         <div className="hidden lg:flex items-center gap-3 shrink-0">
@@ -249,7 +269,12 @@ export default function Navbar() {
               </Link>
             );
           })}
-          <div className="flex gap-3 mt-3">
+          <div className="flex gap-3 mt-3 flex-wrap">
+            <button
+              onClick={() => { setOpen(false); handlePostAd(); }}
+              className="flex items-center gap-1.5 bg-[#16a34a] text-white text-sm font-bold px-4 py-1.5 rounded-full">
+              <Plus size={13} /> Post Ad
+            </button>
             {user ? (
               <button onClick={() => logout()} className="text-sm font-medium text-red-600">
                 Sign out
@@ -257,12 +282,44 @@ export default function Navbar() {
             ) : (
               <>
                 <Link href="/signin" className="text-sm font-medium text-gray-700">Sign in</Link>
-                <Link href="/join" className="bg-[#16a34a] text-white text-sm font-bold px-4 py-1.5 rounded-full">Join</Link>
+                <Link href="/join" className="bg-gray-100 text-gray-700 text-sm font-bold px-4 py-1.5 rounded-full">Join</Link>
               </>
             )}
           </div>
         </div>
       )}
     </header>
+
+    {/* Buyer alert modal */}
+    {buyerAlert && (
+      <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setBuyerAlert(false)} />
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+          <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock size={24} className="text-orange-500" />
+          </div>
+          <h3 className="text-lg font-black text-gray-900 mb-2">Buyer Account</h3>
+          <p className="text-sm text-gray-500 leading-relaxed mb-5">
+            Your account is registered as a <span className="font-semibold text-gray-700">Buyer</span>. Only Sellers, Agents, and Admins can post property listings.
+            <br /><br />
+            To post an ad, please create a new account as a <span className="font-semibold text-gray-700">Seller</span> or <span className="font-semibold text-gray-700">Agent</span>.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setBuyerAlert(false)}
+              className="flex-1 border border-gray-200 text-gray-600 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+              Close
+            </button>
+            <Link
+              href="/join"
+              onClick={() => setBuyerAlert(false)}
+              className="flex-1 bg-[#16a34a] text-white text-sm font-bold py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
+              Create Seller Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
