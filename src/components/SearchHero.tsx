@@ -33,7 +33,7 @@ const SLIDES: SlideItem[] = [
     type: "image",
     src: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80",
     label: "Find Your Dream Home",
-    sub: "Search over 120,000 properties for sale across Australia",
+    sub: "Search thousands of properties for sale across Sri Lanka",
   },
   {
     type: "video",

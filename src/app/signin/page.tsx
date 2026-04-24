@@ -231,7 +231,7 @@ export default function SignInPage() {
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">Find your next<br />dream home.</h2>
-          <p className="text-white/70 text-base">Australia&apos;s #1 property platform with over 120,000 listings updated daily.</p>
+          <p className="text-white/70 text-base">Sri Lanka&apos;s #1 property platform with thousands of listings updated daily.</p>
           <div className="flex gap-8 mt-8">
             {[{ v: "120K+", l: "For sale" }, { v: "55K+", l: "For rent" }, { v: "2M+", l: "Members" }].map((s) => (
               <div key={s.l}>

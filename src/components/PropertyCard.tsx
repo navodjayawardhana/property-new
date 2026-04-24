@@ -45,7 +45,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             {isSold && (
               <span className="bg-gray-900/90 backdrop-blur-sm text-white text-xs font-bold px-2.5 py-1 rounded-lg">
                 SOLD {property.sold_date
-                  ? new Date(property.sold_date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })
+                  ? new Date(property.sold_date).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" })
                   : ""}
               </span>
             )}

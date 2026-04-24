@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { properties as propertiesApi, type Property, type PropertyImage } from "@/lib/api";
+import { COUNTRY_CODES } from "@/lib/countries";
 import { X, Upload, Loader2 } from "lucide-react";
 
 type FormState = {
@@ -14,6 +15,7 @@ type FormState = {
   suburb: string;
   state: string;
   postcode: string;
+  country: string;
   beds: string;
   baths: string;
   cars: string;
@@ -21,8 +23,6 @@ type FormState = {
   price: string;
   price_per_week: string;
   description: string;
-  agent_name: string;
-  agency_name: string;
   status: 'active' | 'inactive' | 'sold';
   is_featured: boolean;
 };
@@ -46,6 +46,7 @@ const defaultForm: FormState = {
   suburb: '',
   state: '',
   postcode: '',
+  country: 'Sri Lanka',
   beds: '3',
   baths: '2',
   cars: '1',
@@ -53,13 +54,17 @@ const defaultForm: FormState = {
   price: '',
   price_per_week: '',
   description: '',
-  agent_name: '',
-  agency_name: '',
   status: 'active',
   is_featured: false,
 };
 
-const STATES = ['VIC', 'NSW', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
+const STATES = [
+  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale',
+  'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 'Jaffna',
+  'Kilinochchi', 'Mannar', 'Mullaitivu', 'Vavuniya', 'Trincomalee',
+  'Batticaloa', 'Ampara', 'Kurunegala', 'Puttalam', 'Anuradhapura',
+  'Polonnaruwa', 'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle',
+];
 const TYPES = ['House', 'Apartment', 'Townhouse', 'Land', 'Unit', 'Villa', 'Acreage'];
 
 export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, onSuccess }: Props) {
@@ -116,6 +121,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         fd.append('suburb', form.suburb);
         fd.append('state', form.state);
         fd.append('postcode', form.postcode);
+        fd.append('country', form.country);
         fd.append('beds', form.beds);
         fd.append('baths', form.baths);
         fd.append('cars', form.cars);
@@ -123,8 +129,6 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         fd.append('price', form.price);
         if (form.price_per_week) fd.append('price_per_week', form.price_per_week);
         fd.append('description', form.description);
-        fd.append('agent_name', form.agent_name);
-        fd.append('agency_name', form.agency_name);
         fd.append('status', form.status);
         fd.append('is_featured', form.is_featured ? '1' : '0');
         newFiles.forEach((file) => fd.append('images[]', file));
@@ -140,6 +144,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           suburb: form.suburb,
           state: form.state,
           postcode: form.postcode,
+          country: form.country,
           beds: parseInt(form.beds) || 0,
           baths: parseInt(form.baths) || 0,
           cars: parseInt(form.cars) || 0,
@@ -147,8 +152,6 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           price: parseInt(form.price) || 0,
           price_per_week: form.price_per_week ? parseInt(form.price_per_week) : null,
           description: form.description,
-          agent_name: form.agent_name,
-          agency_name: form.agency_name,
           status: form.status,
           is_featured: form.is_featured,
         }, token);
@@ -255,32 +258,42 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         </div>
 
         <div>
-          <label className={lbl}>Suburb *</label>
-          <input required className={inp} value={form.suburb} onChange={(e) => set('suburb', e.target.value)} placeholder="e.g. Brighton" />
+          <label className={lbl}>City *</label>
+          <input required className={inp} value={form.suburb} onChange={(e) => set('suburb', e.target.value)} placeholder="e.g. Colombo" />
         </div>
 
         <div>
-          <label className={lbl}>State *</label>
+          <label className={lbl}>District *</label>
           <select required className={inp} value={form.state} onChange={(e) => set('state', e.target.value)}>
-            <option value="">Select state</option>
+            <option value="">Select district</option>
             {STATES.map((s) => <option key={s}>{s}</option>)}
           </select>
         </div>
 
         <div>
-          <label className={lbl}>Postcode *</label>
-          <input required className={inp} value={form.postcode} onChange={(e) => set('postcode', e.target.value)} placeholder="e.g. 3186" maxLength={10} />
+          <label className={lbl}>Postcode</label>
+          <input className={inp} value={form.postcode} onChange={(e) => set('postcode', e.target.value)} placeholder="e.g. 10100" maxLength={10} />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className={lbl}>Country *</label>
+          <select required className={inp} value={form.country} onChange={(e) => set('country', e.target.value)}>
+            <option value="">Select country</option>
+            {COUNTRY_CODES.map((c) => (
+              <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+            ))}
+          </select>
         </div>
 
         <div>
-          <label className={lbl}>Price ($) *</label>
-          <input required type="number" min={0} className={inp} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="e.g. 850000" />
+          <label className={lbl}>Price (LKR) *</label>
+          <input required type="number" min={0} className={inp} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="e.g. 15000000" />
         </div>
 
         {form.listing_type === 'rent' && (
           <div className="md:col-span-2">
-            <label className={lbl}>Price per week ($)</label>
-            <input type="number" min={0} className={inp} value={form.price_per_week} onChange={(e) => set('price_per_week', e.target.value)} placeholder="e.g. 600" />
+            <label className={lbl}>Price per month (LKR)</label>
+            <input type="number" min={0} className={inp} value={form.price_per_week} onChange={(e) => set('price_per_week', e.target.value)} placeholder="e.g. 50000" />
           </div>
         )}
 
@@ -302,16 +315,6 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         <div>
           <label className={lbl}>Land Size</label>
           <input className={inp} value={form.land_size} onChange={(e) => set('land_size', e.target.value)} placeholder="e.g. 500 sqm" />
-        </div>
-
-        <div>
-          <label className={lbl}>Agent Name *</label>
-          <input required className={inp} value={form.agent_name} onChange={(e) => set('agent_name', e.target.value)} placeholder="e.g. John Smith" />
-        </div>
-
-        <div>
-          <label className={lbl}>Agency Name *</label>
-          <input required className={inp} value={form.agency_name} onChange={(e) => set('agency_name', e.target.value)} placeholder="e.g. Greenbrick Realty" />
         </div>
 
         <div>

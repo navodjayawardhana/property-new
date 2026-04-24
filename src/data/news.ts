@@ -12,7 +12,7 @@ export type NewsArticle = {
 export const newsArticles: NewsArticle[] = [
   {
     id: "1",
-    title: "The $300k church offering an unconventional path into the property market",
+    title: "The LKR 30M church offering an unconventional path into the property market",
     excerpt: "A converted church in regional Victoria is giving first-home buyers a unique entry point into the market.",
     category: "Buying & Building",
     date: "Apr 16, 2026",
@@ -31,7 +31,7 @@ export const newsArticles: NewsArticle[] = [
   },
   {
     id: "3",
-    title: "Australia's new horizon offers hope for buying back",
+    title: "Sri Lanka's new horizon offers hope for buying back",
     excerpt: "New data shows first-home buyer activity is recovering in key markets across the eastern seaboard.",
     category: "News",
     date: "Apr 14, 2026",
@@ -40,7 +40,7 @@ export const newsArticles: NewsArticle[] = [
   },
   {
     id: "4",
-    title: "$20k–$2k a month: Fisherman's cottage selling tidy income se...",
+    title: "Rs 200k–Rs 20k a month: Fisherman's cottage selling tidy income se...",
     excerpt: "A quirky coastal fisherman's cottage is generating significant rental income for its current owners.",
     category: "Lifestyle",
     date: "Apr 13, 2026",
@@ -59,7 +59,7 @@ export const newsArticles: NewsArticle[] = [
   {
     id: "6",
     title: "RBA says monetary policy 'can't solve everything'",
-    excerpt: "The RBA governor warned that interest rate cuts alone cannot fix Australia's housing affordability crisis.",
+    excerpt: "The CBSL governor warned that interest rate cuts alone cannot fix Sri Lanka's housing affordability crisis.",
     category: "Finance",
     date: "Apr 11, 2026",
     readTime: "4 min read",
@@ -69,7 +69,7 @@ export const newsArticles: NewsArticle[] = [
   {
     id: "7",
     title: "Why more SA buyers are ditching established homes",
-    excerpt: "South Australian buyers are increasingly turning to new builds as established home prices soar.",
+    excerpt: "Sri Lankan buyers are increasingly turning to new builds as established home prices soar.",
     category: "Buying & Building",
     date: "Apr 10, 2026",
     readTime: "4 min read",

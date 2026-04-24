@@ -116,8 +116,9 @@ class PropertyController extends Controller
             'price_per_week' => 'nullable|integer|min:0',
             'address'        => 'required|string|max:255',
             'suburb'         => 'required|string|max:100',
-            'state'          => 'required|string|max:10',
-            'postcode'       => 'required|string|max:10',
+            'state'          => 'required|string|max:100',
+            'postcode'       => 'nullable|string|max:10',
+            'country'        => 'nullable|string|max:100',
             'beds'           => 'required|integer|min:0|max:20',
             'baths'          => 'required|integer|min:0|max:20',
             'cars'           => 'required|integer|min:0|max:20',
@@ -127,8 +128,6 @@ class PropertyController extends Controller
             'category'       => 'required|in:domestic,commercial,both',
             'listing_type'   => 'required|in:buy,rent,sold',
             'description'    => 'required|string',
-            'agent_name'     => 'required|string|max:100',
-            'agency_name'    => 'required|string|max:100',
             'sold_date'      => 'nullable|date',
             'days_listed'    => 'nullable|integer|min:0',
             'is_featured'    => 'boolean',
@@ -136,6 +135,9 @@ class PropertyController extends Controller
             'images'         => 'nullable|array',
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
+
+        $validated['agent_name']  = $request->user()->name;
+        $validated['agency_name'] = $request->user()->name;
 
         $property = $request->user()->properties()->create($validated);
 
@@ -166,8 +168,9 @@ class PropertyController extends Controller
             'price_per_week' => 'nullable|integer|min:0',
             'address'        => 'sometimes|string|max:255',
             'suburb'         => 'sometimes|string|max:100',
-            'state'          => 'sometimes|string|max:10',
-            'postcode'       => 'sometimes|string|max:10',
+            'state'          => 'sometimes|string|max:100',
+            'postcode'       => 'nullable|string|max:10',
+            'country'        => 'nullable|string|max:100',
             'beds'           => 'sometimes|integer|min:0|max:20',
             'baths'          => 'sometimes|integer|min:0|max:20',
             'cars'           => 'sometimes|integer|min:0|max:20',
@@ -177,13 +180,14 @@ class PropertyController extends Controller
             'category'       => 'sometimes|in:domestic,commercial,both',
             'listing_type'   => 'sometimes|in:buy,rent,sold',
             'description'    => 'sometimes|string',
-            'agent_name'     => 'sometimes|string|max:100',
-            'agency_name'    => 'sometimes|string|max:100',
             'sold_date'      => 'nullable|date',
             'days_listed'    => 'nullable|integer|min:0',
             'is_featured'    => 'boolean',
             'status'         => 'in:active,inactive,sold',
         ]);
+
+        $validated['agent_name']  = $request->user()->name;
+        $validated['agency_name'] = $request->user()->name;
 
         $property->update($validated);
         $property->load('images');

@@ -27,7 +27,7 @@
       <p>If you did not request this, you can safely ignore this email.</p>
     </div>
     <div class="footer">
-      <p>Greenbrick.net &mdash; Australia's #1 Property Platform</p>
+      <p>Greenbrick.net &mdash; Sri Lanka's #1 Property Platform</p>
     </div>
   </div>
 </body>

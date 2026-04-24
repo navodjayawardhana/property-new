@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('suburb')->nullable()->after('avatar');
             $table->string('state', 10)->nullable()->after('suburb');
             $table->string('postcode', 10)->nullable()->after('state');
-            $table->string('country', 60)->nullable()->default('Australia')->after('postcode');
+            $table->string('country', 60)->nullable()->default('Sri Lanka')->after('postcode');
         });
     }
 

@@ -97,6 +97,7 @@ export default function HomePage() {
             <h3 className="text-white font-black text-xl">Explore your home loan options</h3>
             <p className="text-gray-400 text-sm mt-1">Compare rates from 30+ lenders in minutes.</p>
           </div>
+          
           <button className="relative bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-3 rounded-xl transition-colors shrink-0 text-sm">
             Compare loans
           </button>

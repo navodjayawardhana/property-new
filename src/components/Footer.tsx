@@ -302,7 +302,7 @@ export default function Footer() {
                 href="/"
                 className="text-gray-900 hover:underline hover:text-gray-600"
               >
-                Australia{" "}
+                Australia
               </Link>
               {" | "}
               <Link

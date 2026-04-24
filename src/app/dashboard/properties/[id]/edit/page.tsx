@@ -98,8 +98,6 @@ export default function EditPropertyPage() {
                 price: String(property.price),
                 price_per_week: property.price_per_week ? String(property.price_per_week) : '',
                 description: property.description,
-                agent_name: property.agent_name,
-                agency_name: property.agency_name,
                 status: property.status,
                 is_featured: property.is_featured,
               }}

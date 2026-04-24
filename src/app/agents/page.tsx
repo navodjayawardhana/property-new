@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { agentsApi, type Agent } from "@/lib/api";
 import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight, User as UserIcon, ArrowRight } from "lucide-react";
 
-const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
+const AU_STATES = ["Western", "Central", "Southern", "Northern", "Eastern", "Sabaragamuwa", "North Western", "North Central", "Uva"];
 
 function AgentAvatar({ agent, size = "lg" }: { agent: Agent; size?: "xs" | "sm" | "lg" }) {
   const dim = size === "lg" ? "w-20 h-20 text-2xl" : size === "sm" ? "w-14 h-14 text-lg" : "w-10 h-10 text-sm";
@@ -71,7 +71,7 @@ export default function AgentsPage() {
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-green-300 text-xs font-bold uppercase tracking-widest mb-2">Connect</p>
           <h1 className="text-white font-black text-3xl md:text-4xl mb-3">Find a Real Estate Agent</h1>
-          <p className="text-green-200 text-sm mb-8">Connect with experienced agents across Australia to buy, sell, or rent your property.</p>
+          <p className="text-green-200 text-sm mb-8">Connect with experienced agents across Sri Lanka to buy, sell, or rent your property.</p>
 
           {/* Search bar */}
           <form onSubmit={handleSearch} className="flex gap-2 bg-white rounded-2xl p-1.5 shadow-xl max-w-xl mx-auto">

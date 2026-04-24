@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Greenbrick.net – Australia's No.1 Property Site",
-  description: "Search property for sale, rent and sold in Australia.",
+  title: "Greenbrick.net – Sri Lanka's No.1 Property Site",
+  description: "Search property for sale, rent and sold in Sri Lanka.",
 };
 
 export default function RootLayout({

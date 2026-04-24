@@ -95,7 +95,7 @@ function CommercialContent() {
             <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Commercial &amp; Mixed</p>
           </div>
           <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Commercial Properties</h1>
-          <p className="text-slate-400 text-sm">Commercial and mixed-use properties across Australia.</p>
+          <p className="text-slate-400 text-sm">Commercial and mixed-use properties across Sri Lanka.</p>
         </div>
       </div>
 

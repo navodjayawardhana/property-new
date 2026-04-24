@@ -224,7 +224,7 @@ export default function AgentDashboard() {
                                   {inq.status}
                                 </span>
                                 <span className="text-xs text-gray-400 capitalize">{inq.inquiry_type}</span>
-                                <span className="text-xs text-gray-400 ml-auto">{new Date(inq.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
+                                <span className="text-xs text-gray-400 ml-auto">{new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short' })}</span>
                               </div>
                               <p className="text-gray-600 text-xs mb-2">{inq.message}</p>
                               <div className="flex gap-2">
@@ -295,7 +295,7 @@ export default function AgentDashboard() {
                         </span>
                         <span className="text-xs text-gray-400 capitalize bg-gray-100 px-2 py-0.5 rounded-full">{inq.inquiry_type}</span>
                         <span className="text-xs text-gray-400 ml-auto">
-                          {new Date(inq.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </div>
                       {inq.property && (

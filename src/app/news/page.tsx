@@ -12,7 +12,7 @@ const SUB_CATEGORIES = ["Interest Rates", "Finance", "Industry", "Sustainable Ho
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function NewsPage() {

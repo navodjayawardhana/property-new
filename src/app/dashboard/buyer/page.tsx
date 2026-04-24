@@ -242,7 +242,7 @@ export default function BuyerDashboard() {
 
                     <div className="flex items-center justify-between mt-2">
                       <p className="text-xs text-gray-400">
-                        Sent {new Date(inq.created_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+                        Sent {new Date(inq.created_at).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                       <Link href={`/property/${inq.property_id}`}
                         className="flex items-center gap-1 text-xs font-semibold text-[#16a34a] hover:underline">

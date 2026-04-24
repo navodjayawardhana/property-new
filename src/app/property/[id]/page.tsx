@@ -160,7 +160,7 @@ export default function PropertyDetailPage() {
           )}
           {property.listing_type === "sold" && (
             <div className="absolute top-4 left-4 bg-gray-900 text-white font-bold px-3 py-1.5 rounded text-sm">
-              SOLD {property.sold_date ? new Date(property.sold_date).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }) : ""}
+              SOLD {property.sold_date ? new Date(property.sold_date).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" }) : ""}
             </div>
           )}
         </div>

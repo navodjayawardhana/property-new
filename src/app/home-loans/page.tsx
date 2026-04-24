@@ -115,8 +115,8 @@ function calcMonthly(principal: number, annualRate: number, years: number): numb
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-const AUD = (n: number) =>
-  Math.round(n).toLocaleString("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
+const LKR = (n: number) =>
+  Math.round(n).toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
 
 // ── Data ───────────────────────────────────────────────────────────────────
 
@@ -159,10 +159,16 @@ const STEPS = [
   { icon: Calculator, n: 1, title: "Calculate",          desc: "Use our free calculators to understand repayments, borrowing power, and stamp duty." },
   { icon: Users,      n: 2, title: "Talk to a specialist", desc: "Connect with a local agent or mortgage broker to explore your options." },
   { icon: CheckCircle,n: 3, title: "Get pre-approved",   desc: "Get conditional approval so you know your exact budget before searching." },
-  { icon: Home,       n: 4, title: "Find your home",     desc: "Browse thousands of listings across Australia with full confidence." },
+  { icon: Home,       n: 4, title: "Find your home",     desc: "Browse thousands of listings across Sri Lanka with full confidence." },
 ];
 
-const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
+const AU_STATES = [
+  "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale",
+  "Nuwara Eliya", "Galle", "Matara", "Hambantota", "Jaffna",
+  "Kilinochchi", "Mannar", "Mullaitivu", "Vavuniya", "Trincomalee",
+  "Batticaloa", "Ampara", "Kurunegala", "Puttalam", "Anuradhapura",
+  "Polonnaruwa", "Badulla", "Monaragala", "Ratnapura", "Kegalle",
+];
 
 // ── SliderInput ────────────────────────────────────────────────────────────
 
@@ -301,7 +307,7 @@ export default function HomeLoansPage() {
               <div className="p-8 space-y-7">
                 <h3 className="font-black text-gray-900 text-lg">Repayment Calculator</h3>
                 <SliderInput label="Loan amount" value={loanAmt} min={50000} max={3000000} step={10000}
-                  format={AUD} onChange={setLoanAmt} />
+                  format={LKR} onChange={setLoanAmt} />
                 <SliderInput label="Interest rate (p.a.)" value={rate} min={1} max={15} step={0.1}
                   format={(v) => `${v.toFixed(1)}%`} onChange={setRate} />
                 <SliderInput label="Loan term" value={term} min={5} max={30} step={1}
@@ -311,14 +317,14 @@ export default function HomeLoansPage() {
                 <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Your estimate</p>
                 <div>
                   <p className="text-green-200 text-sm mb-1">Monthly repayment</p>
-                  <p className="text-white font-black text-4xl">{AUD(monthly)}</p>
+                  <p className="text-white font-black text-4xl">{LKR(monthly)}</p>
                 </div>
                 <div className="border-t border-white/10 pt-4 space-y-2.5">
                   {[
-                    { label: "Fortnightly",        val: AUD(monthly / 2)      },
-                    { label: "Weekly",             val: AUD(monthly / 4.33)   },
-                    { label: "Total interest",     val: AUD(totalInterest)    },
-                    { label: "Total amount paid",  val: AUD(totalPaid)        },
+                    { label: "Fortnightly",        val: LKR(monthly / 2)      },
+                    { label: "Weekly",             val: LKR(monthly / 4.33)   },
+                    { label: "Total interest",     val: LKR(totalInterest)    },
+                    { label: "Total amount paid",  val: LKR(totalPaid)        },
                   ].map((r) => (
                     <div key={r.label} className="flex justify-between text-sm">
                       <span className="text-green-200">{r.label}</span>
@@ -337,9 +343,9 @@ export default function HomeLoansPage() {
               <div className="p-8 space-y-7">
                 <h3 className="font-black text-gray-900 text-lg">Borrowing Power Calculator</h3>
                 <SliderInput label="Annual income (before tax)" value={income} min={20000} max={500000} step={5000}
-                  format={AUD} onChange={setIncome} />
+                  format={LKR} onChange={setIncome} />
                 <SliderInput label="Monthly living expenses" value={expenses} min={0} max={10000} step={100}
-                  format={AUD} onChange={setExpenses} />
+                  format={LKR} onChange={setExpenses} />
                 <SliderInput label="Interest rate (p.a.)" value={bpRate} min={1} max={15} step={0.1}
                   format={(v) => `${v.toFixed(1)}%`} onChange={setBpRate} />
                 <SliderInput label="Loan term" value={bpTerm} min={5} max={30} step={1}
@@ -351,13 +357,13 @@ export default function HomeLoansPage() {
                   <>
                     <div>
                       <p className="text-green-200 text-sm mb-1">You could borrow up to</p>
-                      <p className="text-white font-black text-4xl">{AUD(borrowPower)}</p>
+                      <p className="text-white font-black text-4xl">{LKR(borrowPower)}</p>
                     </div>
                     <div className="border-t border-white/10 pt-4 space-y-2.5">
                       {[
-                        { label: "Max monthly repayment", val: AUD((income / 12) * 0.3 - expenses) },
-                        { label: "Annual income",         val: `${AUD(income)} p.a.` },
-                        { label: "Monthly expenses",      val: AUD(expenses) },
+                        { label: "Max monthly repayment", val: LKR((income / 12) * 0.3 - expenses) },
+                        { label: "Annual income",         val: `${LKR(income)} p.a.` },
+                        { label: "Monthly expenses",      val: LKR(expenses) },
                       ].map((r) => (
                         <div key={r.label} className="flex justify-between text-sm">
                           <span className="text-green-200">{r.label}</span>
@@ -383,10 +389,10 @@ export default function HomeLoansPage() {
               <div className="p-8 space-y-7">
                 <h3 className="font-black text-gray-900 text-lg">Stamp Duty Calculator</h3>
                 <SliderInput label="Property value" value={propVal} min={50000} max={5000000} step={10000}
-                  format={AUD} onChange={setPropVal} />
+                  format={LKR} onChange={setPropVal} />
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">State / Territory</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">District</label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {AU_STATES.map((s) => (
                       <button key={s} onClick={() => setSdState(s)}
@@ -416,12 +422,12 @@ export default function HomeLoansPage() {
                 <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Stamp duty estimate</p>
                 <div>
                   <p className="text-green-200 text-sm mb-1">Stamp duty payable</p>
-                  <p className="text-white font-black text-4xl">{AUD(duty)}</p>
+                  <p className="text-white font-black text-4xl">{LKR(duty)}</p>
                 </div>
                 <div className="border-t border-white/10 pt-4 space-y-2.5">
                   {[
-                    { label: "Property value",    val: AUD(propVal)            },
-                    { label: "Total upfront cost", val: AUD(propVal + duty)    },
+                    { label: "Property value",    val: LKR(propVal)            },
+                    { label: "Total upfront cost", val: LKR(propVal + duty)    },
                     { label: "Effective duty rate", val: `${propVal > 0 ? ((duty / propVal) * 100).toFixed(2) : "0.00"}%` },
                   ].map((r) => (
                     <div key={r.label} className="flex justify-between text-sm">
@@ -534,7 +540,7 @@ export default function HomeLoansPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { icon: Users,      title: "Find an agent",     desc: "Connect with local agents who know your market.",             href: "/agents",     cta: "Browse agents"    },
-            { icon: Home,       title: "Browse properties", desc: "Search thousands of listings across Australia.",               href: "/buy", cta: "View properties"  },
+            { icon: Home,       title: "Browse properties", desc: "Search thousands of listings across Sri Lanka.",               href: "/buy", cta: "View properties"  },
             { icon: Clock,      title: "Get pre-approved",  desc: "Know your budget before you start property searching.",        href: "/home-loans/pre-approval", cta: "Apply now"   },
           ].map((c) => {
             const Icon = c.icon;

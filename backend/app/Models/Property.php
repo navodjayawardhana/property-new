@@ -20,6 +20,7 @@ class Property extends Model
         'suburb',
         'state',
         'postcode',
+        'country',
         'beds',
         'baths',
         'cars',

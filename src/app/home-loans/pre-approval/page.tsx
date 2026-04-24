@@ -53,9 +53,9 @@ const INIT: FormData = {
   property_state: "VIC", estimated_property_value: "", message: "",
 };
 
-const AUD = (v: string) => {
+const LKR = (v: string) => {
   const n = parseInt(v.replace(/\D/g, ""), 10);
-  return isNaN(n) ? "" : n.toLocaleString("en-AU");
+  return isNaN(n) ? "" : n.toLocaleString("en-LK");
 };
 
 function Field({ label, icon: Icon, error, children }: {
@@ -81,7 +81,7 @@ function MoneyInput({ value, onChange, placeholder }: {
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">$</span>
       <input
         type="text" inputMode="numeric"
-        value={value ? AUD(value) : ""}
+        value={value ? LKR(value) : ""}
         onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
         placeholder={placeholder}
         className="w-full border border-gray-200 rounded-xl pl-7 pr-4 py-3 text-sm outline-none focus:border-[#16a34a] transition-colors"

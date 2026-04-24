@@ -130,6 +130,7 @@ export type Property = {
   suburb: string;
   state: string;
   postcode: string;
+  country: string | null;
   beds: number;
   baths: number;
   cars: number;

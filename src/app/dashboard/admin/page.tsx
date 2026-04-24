@@ -31,8 +31,8 @@ import {
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 function fmt(n: number) { return n.toLocaleString(); }
-function fmtPrice(n: number) { return `$${n.toLocaleString()}`; }
-function fmtDate(s: string) { return new Date(s).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }); }
+function fmtPrice(n: number) { return `LKR${n.toLocaleString()}`; }
+function fmtDate(s: string) { return new Date(s).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" }); }
 
 const ROLE_COLORS: Record<string, string> = {
   buyer: "bg-blue-100 text-blue-700",
@@ -1038,7 +1038,7 @@ function LoanEnquiriesTab({ token }: { token: string }) {
     } catch (e: unknown) { alert((e as Error).message); }
   }
 
-  const AUD = (n: number) => n.toLocaleString("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
+  const LKR = (n: number) => n.toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
 
   return (
     <div className="space-y-4">
@@ -1089,9 +1089,9 @@ function LoanEnquiriesTab({ token }: { token: string }) {
 
                     {/* Loan details row */}
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-600">
-                      <span><span className="text-gray-400">Income:</span> <span className="font-semibold">{AUD(enq.annual_income)} p.a.</span></span>
-                      <span><span className="text-gray-400">Loan:</span> <span className="font-semibold">{AUD(enq.loan_amount)}</span></span>
-                      <span><span className="text-gray-400">Deposit:</span> <span className="font-semibold">{AUD(enq.deposit_amount)}</span></span>
+                      <span><span className="text-gray-400">Income:</span> <span className="font-semibold">{LKR(enq.annual_income)} p.a.</span></span>
+                      <span><span className="text-gray-400">Loan:</span> <span className="font-semibold">{LKR(enq.loan_amount)}</span></span>
+                      <span><span className="text-gray-400">Deposit:</span> <span className="font-semibold">{LKR(enq.deposit_amount)}</span></span>
                       <span><span className="text-gray-400">Employment:</span> <span className="font-semibold">{EMPLOYMENT_LABELS[enq.employment_type] ?? enq.employment_type}</span></span>
                       <span><span className="text-gray-400">Property:</span> <span className="font-semibold">{enq.property_type}, {enq.property_state}</span></span>
                     </div>

@@ -11,7 +11,7 @@ class NewsSeeder extends Seeder
     {
         $articles = [
             [
-                'title'        => "The \$300k church offering an unconventional path into the property market",
+                'title'        => "The LKR 30M church offering an unconventional path into the property market",
                 'excerpt'      => "A converted church in regional Victoria is giving first-home buyers a unique entry point into the market.",
                 'category'     => 'Buying & Building',
                 'tag'          => null,
@@ -31,7 +31,7 @@ class NewsSeeder extends Seeder
                 'published_at' => now()->subDays(6),
             ],
             [
-                'title'        => "Australia's new horizon offers hope for buying back",
+                'title'        => "Sri Lanka's new horizon offers hope for buying back",
                 'excerpt'      => "New data shows first-home buyer activity is recovering in key markets across the eastern seaboard.",
                 'category'     => 'News',
                 'tag'          => null,
@@ -41,7 +41,7 @@ class NewsSeeder extends Seeder
                 'published_at' => now()->subDays(7),
             ],
             [
-                'title'        => "\$20k–\$2k a month: Fisherman's cottage selling tidy income",
+                'title'        => "Rs 200k–Rs 20k a month: Fisherman's cottage selling tidy income",
                 'excerpt'      => "A quirky coastal fisherman's cottage is generating significant rental income for its current owners.",
                 'category'     => 'Lifestyle',
                 'tag'          => null,
@@ -61,8 +61,8 @@ class NewsSeeder extends Seeder
                 'published_at' => now()->subDays(9),
             ],
             [
-                'title'        => "RBA says monetary policy 'can't solve everything'",
-                'excerpt'      => "The RBA governor warned that interest rate cuts alone cannot fix Australia's housing affordability crisis.",
+                'title'        => "CBSL says monetary policy 'can't solve everything'",
+                'excerpt'      => "The CBSL governor warned that interest rate cuts alone cannot fix Sri Lanka's housing affordability crisis.",
                 'category'     => 'Finance',
                 'tag'          => 'NEWS',
                 'image_url'    => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80',
@@ -71,8 +71,8 @@ class NewsSeeder extends Seeder
                 'published_at' => now()->subDays(10),
             ],
             [
-                'title'        => "Why more SA buyers are ditching established homes",
-                'excerpt'      => "South Australian buyers are increasingly turning to new builds as established home prices soar.",
+                'title'        => "Why more Sri Lankan buyers are ditching established homes",
+                'excerpt'      => "Sri Lankan buyers are increasingly turning to new builds as established home prices soar.",
                 'category'     => 'Buying & Building',
                 'tag'          => 'NEXT',
                 'image_url'    => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80',

@@ -249,7 +249,7 @@ export default function SellerDashboard() {
                         </span>
                         <span className="text-xs text-gray-400 capitalize bg-gray-100 px-2 py-0.5 rounded-full">{inq.inquiry_type}</span>
                         <span className="text-xs text-gray-400 ml-auto">
-                          {new Date(inq.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                       </div>
 

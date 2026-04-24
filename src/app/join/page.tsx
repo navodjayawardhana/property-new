@@ -168,7 +168,7 @@ export default function JoinPage() {
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">
-            Join Australia&apos;s<br />largest property<br />community.
+            Join Sri Lanka&apos;s<br />largest property<br />community.
           </h2>
           <div className="space-y-3 mt-8">
             {["Save and track your favourite properties", "Get instant alerts on new listings", "Connect with top agents and brokers", "Access exclusive market insights"].map((item) => (
