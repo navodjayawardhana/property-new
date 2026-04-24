@@ -88,6 +88,12 @@ export const auth = {
   resendVerification: (email: string) =>
     request<{ message: string }>('/resend-verification', { method: 'POST', body: { email } }),
 
+  forgotPassword: (email: string) =>
+    request<{ message: string; masked_email: string }>('/forgot-password', { method: 'POST', body: { email } }),
+
+  resetPassword: (data: { email: string; otp: string; password: string; password_confirmation: string }) =>
+    request<{ message: string }>('/reset-password', { method: 'POST', body: data }),
+
   sendPhoneOtp: (phone: string, role?: string) =>
     request<{ requires_otp: true; masked_phone: string; dev_otp?: string }>('/phone-login', { method: 'POST', body: { phone, role } }),
 

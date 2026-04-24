@@ -373,6 +373,57 @@ class AuthController extends Controller
         return response()->json(['message' => 'Verification code resent.']);
     }
 
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        // Silent success — avoids email enumeration
+        if (! $user || ! $user->email) {
+            return response()->json(['message' => 'If that email is registered, a reset code has been sent.']);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(15)]);
+
+        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+        $masked = substr($user->email, 0, 2)
+            . str_repeat('*', max(1, strpos($user->email, '@') - 2))
+            . substr($user->email, strpos($user->email, '@'));
+
+        return response()->json([
+            'message'      => 'Reset code sent.',
+            'masked_email' => $masked,
+        ]);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email'                 => 'required|email',
+            'otp'                   => 'required|string|size:6',
+            'password'              => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user || $user->otp !== $request->otp || now()->isAfter($user->otp_expires_at)) {
+            throw ValidationException::withMessages([
+                'otp' => ['Invalid or expired code. Please try again.'],
+            ]);
+        }
+
+        $user->update([
+            'password'       => $request->password,
+            'otp'            => null,
+            'otp_expires_at' => null,
+        ]);
+
+        return response()->json(['message' => 'Password reset successfully. You can now sign in.']);
+    }
+
     private function phoneVariants(string $phone): array
     {
         $normalized = $this->normalizePhone($phone);         // 94XXXXXXXXX

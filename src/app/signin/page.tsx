@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck,
-  Home, TrendingUp, Briefcase, ShieldAlert, Phone, ChevronDown,
+  Home, TrendingUp, Briefcase, ShieldAlert, Phone, ChevronDown, KeyRound, CheckCircle2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { auth } from "@/lib/api";
@@ -20,7 +20,7 @@ function toGbCountry(isoCode: string): string {
 
 type Role = "buyer" | "seller" | "agent" | "admin";
 type LoginMethod = "email" | "phone";
-type Screen = "login" | "otp" | "verify" | "phone-otp";
+type Screen = "login" | "otp" | "verify" | "phone-otp" | "forgot" | "reset";
 
 const ROLES: { key: Role; label: string; icon: React.ReactNode; desc: string }[] = [
   { key: "buyer",  label: "Buyer",  icon: <Home size={15} />,        desc: "Find a property" },
@@ -55,15 +55,23 @@ export default function SignInPage() {
   const [digits, setDigits]           = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Forgot / reset password
+  const [forgotEmail, setForgotEmail]         = useState("");
+  const [forgotMasked, setForgotMasked]       = useState("");
+  const [resetPassword, setResetPassword]     = useState("");
+  const [resetConfirm, setResetConfirm]       = useState("");
+  const [showResetPw, setShowResetPw]         = useState(false);
+  const [resetDone, setResetDone]             = useState(false);
+
   const [loading, setLoading]         = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [countdown, setCountdown]     = useState(60);
   const [countdownKey, setCountdownKey] = useState(0);
   const [error, setError]             = useState("");
 
-  // Countdown for verify / phone-otp screens
+  // Countdown for verify / phone-otp / reset screens
   useEffect(() => {
-    if (screen !== "verify" && screen !== "phone-otp") return;
+    if (screen !== "verify" && screen !== "phone-otp" && screen !== "reset") return;
     setCountdown(60);
     const id = setInterval(() => setCountdown((c) => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(id);
@@ -208,6 +216,53 @@ export default function SignInPage() {
     setResendLoading(true); setError(""); setDigits(["", "", "", "", "", ""]);
     try { await auth.sendPhoneOtp(phoneForOtp); setCountdownKey((k) => k + 1); }
     catch { setError("Failed to resend. Please try again."); }
+    finally { setResendLoading(false); }
+  };
+
+  // ── forgot / reset password ───────────────────────────────────────────────────
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) { setError("Please enter your email address."); return; }
+    setError(""); setLoading(true);
+    try {
+      const res = await auth.forgotPassword(forgotEmail.trim());
+      setForgotMasked(res.masked_email);
+      resetDigits();
+      setScreen("reset");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to send reset code.");
+    } finally { setLoading(false); }
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (resetPassword !== resetConfirm) { setError("Passwords do not match."); return; }
+    if (resetPassword.length < 8) { setError("Password must be at least 8 characters."); return; }
+    const otp = digits.join("");
+    if (otp.length < 6) { setError("Please enter the 6-digit code."); return; }
+    setError(""); setLoading(true);
+    try {
+      await auth.resetPassword({
+        email: forgotEmail.trim(),
+        otp,
+        password: resetPassword,
+        password_confirmation: resetConfirm,
+      });
+      setResetDone(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Reset failed. Check your code and try again.");
+      resetDigits();
+    } finally { setLoading(false); }
+  };
+
+  const handleResendReset = async () => {
+    setResendLoading(true); setError(""); setDigits(["", "", "", "", "", ""]);
+    try {
+      const res = await auth.forgotPassword(forgotEmail.trim());
+      setForgotMasked(res.masked_email);
+      setCountdownKey((k) => k + 1);
+    } catch { setError("Failed to resend. Please try again."); }
     finally { setResendLoading(false); }
   };
 
@@ -383,6 +438,121 @@ export default function SignInPage() {
     );
   }
 
+  // ── Forgot password screen ────────────────────────────────────────────────────
+  if (screen === "forgot") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">{logo}
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+                <KeyRound size={30} className="text-[#16a34a]" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Forgot password?</h1>
+            <p className="text-gray-500 text-sm mb-8 text-center">Enter your email and we'll send a 6-digit reset code.</p>
+            <form onSubmit={handleForgotSubmit} className="space-y-4">
+              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)}
+                    placeholder="you@example.com" autoFocus
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
+              </div>
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                {loading ? spinner : (<>Send reset code <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+            <p className="text-center text-xs text-gray-400 mt-5">
+              <button type="button" onClick={() => { setScreen("login"); setError(""); }}
+                className="text-[#16a34a] font-semibold hover:underline">← Back to sign in</button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Reset password screen ─────────────────────────────────────────────────────
+  if (screen === "reset") {
+    if (resetDone) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex">{leftPanel}
+          <div className="flex-1 flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-md text-center">{logo}
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={32} className="text-green-500" />
+              </div>
+              <h1 className="text-2xl font-black text-gray-900 mb-2">Password reset!</h1>
+              <p className="text-gray-500 text-sm mb-6">Your password has been updated. You can now sign in with your new password.</p>
+              <button onClick={() => { setScreen("login"); setError(""); setResetDone(false); setResetPassword(""); setResetConfirm(""); setDigits(["","","","","",""]); }}
+                className="bg-[#16a34a] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#15803d] transition-colors text-sm">
+                Sign in now
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">{logo}
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
+                <ShieldCheck size={30} className="text-[#16a34a]" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Reset password</h1>
+            <p className="text-gray-500 text-sm mb-2 text-center">
+              We sent a code to <span className="font-semibold text-gray-700">{forgotMasked}</span>.
+            </p>
+            <p className="text-gray-400 text-xs mb-6 text-center">Enter it below along with your new password.</p>
+            <form onSubmit={handleResetSubmit} className="space-y-4">
+              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {digitInputs}
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">New password</label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type={showResetPw ? "text" : "password"} value={resetPassword}
+                    onChange={(e) => setResetPassword(e.target.value)} placeholder="Min 8 characters"
+                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                  <button type="button" onClick={() => setShowResetPw(!showResetPw)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showResetPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Confirm new password</label>
+                <div className="relative">
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input type={showResetPw ? "text" : "password"} value={resetConfirm}
+                    onChange={(e) => setResetConfirm(e.target.value)} placeholder="Repeat new password"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                </div>
+              </div>
+              <button type="submit" disabled={loading}
+                className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                {loading ? spinner : (<>Reset password <ArrowRight size={16} /></>)}
+              </button>
+            </form>
+            {resendCountdown(handleResendReset)}
+            <p className="text-center text-xs text-gray-400 mt-3">
+              <button type="button" onClick={() => { setScreen("forgot"); setError(""); }}
+                className="text-[#16a34a] font-semibold hover:underline">← Change email</button>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ── Login form ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 flex">{leftPanel}
@@ -449,7 +619,7 @@ export default function SignInPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-semibold text-gray-600">Password</label>
-                  <Link href="/" className="text-xs text-[#16a34a] hover:underline font-medium">Forgot password?</Link>
+                  <button type="button" onClick={() => { setError(""); setForgotEmail(email); setScreen("forgot"); }} className="text-xs text-[#16a34a] hover:underline font-medium">Forgot password?</button>
                 </div>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
