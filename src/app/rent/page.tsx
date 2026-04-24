@@ -24,8 +24,8 @@ function ActiveFilters({ searchParams, onClear }: {
   if (searchParams.get("state")) labels.push({ key: "state", label: searchParams.get("state")! });
   if (searchParams.get("postcode")) labels.push({ key: "postcode", label: searchParams.get("postcode")! });
   if (searchParams.get("property_type")) labels.push({ key: "property_type", label: searchParams.get("property_type")! });
-  if (searchParams.get("min_price")) labels.push({ key: "min_price", label: `From $${Number(searchParams.get("min_price")).toLocaleString()}/wk` });
-  if (searchParams.get("max_price")) labels.push({ key: "max_price", label: `To $${Number(searchParams.get("max_price")).toLocaleString()}/wk` });
+  if (searchParams.get("min_price")) labels.push({ key: "min_price", label: `From Rs ${Number(searchParams.get("min_price")).toLocaleString()}/mo` });
+  if (searchParams.get("max_price")) labels.push({ key: "max_price", label: `To Rs ${Number(searchParams.get("max_price")).toLocaleString()}/mo` });
   if (searchParams.get("beds")) labels.push({ key: "beds", label: `${searchParams.get("beds")}+ beds` });
   if (searchParams.get("baths")) labels.push({ key: "baths", label: `${searchParams.get("baths")}+ baths` });
   if (labels.length === 0) return null;

@@ -329,8 +329,9 @@ class AuthController extends Controller
     public function verifyPhoneOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'phone' => 'required|string',
-            'otp'   => 'required|string|size:6',
+            'phone'   => 'required|string',
+            'otp'     => 'required|string|size:6',
+            'country' => 'nullable|string|max:100',
         ]);
 
         $user = User::where('role', '!=', 'admin')
@@ -343,7 +344,11 @@ class AuthController extends Controller
             ]);
         }
 
-        $user->update(['otp' => null, 'otp_expires_at' => null]);
+        $update = ['otp' => null, 'otp_expires_at' => null];
+        if ($request->filled('country')) {
+            $update['country'] = $request->country;
+        }
+        $user->update($update);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 

@@ -11,6 +11,13 @@ import { useAuth } from "@/lib/auth-context";
 import { auth } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
 
+function toGbCountry(isoCode: string): string {
+  if (isoCode === "AU") return "AU";
+  if (isoCode === "LK") return "LK";
+  if (isoCode === "AE") return "UAE";
+  return "LK";
+}
+
 type Role = "buyer" | "seller" | "agent" | "admin";
 type LoginMethod = "email" | "phone";
 type Screen = "login" | "otp" | "verify" | "phone-otp";
@@ -62,7 +69,7 @@ export default function SignInPage() {
     return () => clearInterval(id);
   }, [screen, countdownKey]);
 
-  // Auto-detect country dial code from IP
+  // Auto-detect dial code from IP
   useEffect(() => {
     fetch("https://ipapi.co/json/")
       .then((r) => r.json())
@@ -181,7 +188,15 @@ export default function SignInPage() {
     if (otp.length < 6) { setError("Please enter all 6 digits."); return; }
     setError(""); setLoading(true);
     try {
-      const res = await auth.verifyPhoneOtp({ phone: phoneForOtp, otp });
+      const countryEntry = COUNTRY_CODES.find((c) => c.dial === phoneDialCode);
+      const res = await auth.verifyPhoneOtp({
+        phone: phoneForOtp,
+        otp,
+        country: countryEntry?.name,
+      });
+      if (countryEntry) {
+        localStorage.setItem("gb_country", toGbCountry(countryEntry.code));
+      }
       await loginWithToken(res.token);
       router.push("/");
     } catch (err: unknown) {

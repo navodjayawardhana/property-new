@@ -13,15 +13,15 @@ const tabRoutes: Record<string, string> = {
   Buy: "/buy", Rent: "/rent", Sold: "/sold", Address: "/buy", Agents: "/agents",
 };
 
-const AU_STATES = ["VIC", "NSW", "QLD", "WA", "SA", "TAS", "ACT", "NT"];
-const priceRangesBuy  = ["Any","$200,000","$300,000","$400,000","$500,000","$600,000","$700,000","$800,000","$900,000","$1,000,000","$1,250,000","$1,500,000","$2,000,000","$3,000,000+"];
-const priceRangesRent = ["Any","$200/wk","$300/wk","$400/wk","$500/wk","$600/wk","$700/wk","$800/wk","$1,000/wk","$1,500/wk+"];
+const AU_STATES = ["Western", "Central", "Southern", "Northern", "Eastern", "Sabaragamuwa", "North Western", "North Central", "Uva"];
+const priceRangesBuy  = ["Any","Rs 2,000,000","Rs 5,000,000","Rs 10,000,000","Rs 15,000,000","Rs 20,000,000","Rs 30,000,000","Rs 50,000,000","Rs 75,000,000","Rs 100,000,000","Rs 150,000,000","Rs 200,000,000+"];
+const priceRangesRent = ["Any","Rs 15,000/mo","Rs 25,000/mo","Rs 40,000/mo","Rs 60,000/mo","Rs 80,000/mo","Rs 100,000/mo","Rs 150,000/mo","Rs 200,000/mo+"];
 const bedroomOptions  = ["Any","1+","2+","3+","4+","5+"];
 const propertyTypes   = ["House","Apartment / Unit","Townhouse","Villa","Land","Rural","Block of Units","Retirement Living"];
 const suggestions     = [
-  "Sydney NSW","Melbourne VIC","Brisbane QLD","Perth WA","Adelaide SA",
-  "Gold Coast QLD","Hobart TAS","Canberra ACT","Darwin NT","Newcastle NSW",
-  "Geelong VIC","Sunshine Coast QLD","Wollongong NSW","Cairns QLD","Toowoomba QLD",
+  "Colombo","Kandy","Galle","Negombo","Jaffna",
+  "Matara","Kurunegala","Anuradhapura","Trincomalee","Batticaloa",
+  "Ratnapura","Badulla","Hambantota","Polonnaruwa","Nuwara Eliya",
 ];
 
 type SlideItem =
@@ -312,9 +312,9 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
         </button>
 
         {/* Slide counter */}
-        <div className="absolute top-4 right-4 z-20 text-white/70 text-xs font-semibold bg-black/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
+        {/* <div className="absolute top-4 right-4 z-20 text-white/70 text-xs font-semibold bg-black/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
           {current + 1} / {SLIDES.length}
-        </div>
+        </div> */}
       </section>
 
       {/* ── Filter modal ────────────────────────────────────────────────────── */}

@@ -2,9 +2,9 @@ import type { Property } from "@/lib/api";
 
 export function formatPrice(property: Property): string {
   if (property.listing_type === "rent" && property.price_per_week) {
-    return `$${property.price_per_week.toLocaleString()} / week`;
+    return `Rs ${property.price_per_week.toLocaleString()} / week`;
   }
-  return `$${property.price.toLocaleString()}`;
+  return `Rs ${property.price.toLocaleString()}`;
 }
 
 export function getPrimaryImageUrl(property: Property): string {

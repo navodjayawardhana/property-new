@@ -80,8 +80,8 @@ function CommercialContent() {
   if (searchParams.get("postcode"))      activeFilters.push({ key: "postcode",      label: searchParams.get("postcode")! });
   if (searchParams.get("property_type")) activeFilters.push({ key: "property_type", label: searchParams.get("property_type")! });
   if (searchParams.get("listing_type"))  activeFilters.push({ key: "listing_type",  label: LISTING_TYPES.find((l) => listingMap[l] === searchParams.get("listing_type")) ?? "" });
-  if (searchParams.get("min_price"))     activeFilters.push({ key: "min_price",     label: `From $${Number(searchParams.get("min_price")).toLocaleString()}` });
-  if (searchParams.get("max_price"))     activeFilters.push({ key: "max_price",     label: `To $${Number(searchParams.get("max_price")).toLocaleString()}` });
+  if (searchParams.get("min_price"))     activeFilters.push({ key: "min_price",     label: `From Rs ${Number(searchParams.get("min_price")).toLocaleString()}` });
+  if (searchParams.get("max_price"))     activeFilters.push({ key: "max_price",     label: `To Rs ${Number(searchParams.get("max_price")).toLocaleString()}` });
 
   return (
     <>

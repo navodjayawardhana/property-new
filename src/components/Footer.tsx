@@ -172,7 +172,7 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-900 mb-5">
               {tabHeadings[activeTab]}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-y-3 gap-x-8">
               {links.map((link) => (
                 <Link
                   key={link}
@@ -194,7 +194,13 @@ export default function Footer() {
             {[
               {
                 label: "Facebook",
+                href: "https://web.facebook.com/greenbricksl/",
                 path: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
+              },
+              {
+                label: "Instagram",
+                href: "https://www.instagram.com/greenbricksl/",
+                path: "M7.75 2C4.574 2 2 4.574 2 7.75v8.5C2 19.426 4.574 22 7.75 22h8.5C19.426 22 22 19.426 22 16.25v-8.5C22 4.574 19.426 2 16.25 2h-8.5zm0 2h8.5C18.216 4 20 5.784 20 7.75v8.5C20 18.216 18.216 20 16.25 20h-8.5C5.784 20 4 18.216 4 16.25v-8.5C4 5.784 5.784 4 7.75 4zm9.25 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z",
               },
               {
                 label: "X",
@@ -234,9 +240,9 @@ export default function Footer() {
             {[
               "Advertise with us",
               "Contact us",
-              "Ignite",
+              // "Ignite",
               "Agent admin",
-              "Media sales",
+              // "Media sales",
               "Legal",
               "Privacy settings",
               "Privacy centre",
@@ -289,21 +295,21 @@ export default function Footer() {
                 href="/"
                 className="text-gray-900 hover:underline hover:text-gray-600"
               >
-                India
+                Sri Lanka
               </Link>
               {" | "}
               <Link
                 href="/"
                 className="text-gray-900 hover:underline hover:text-gray-600"
               >
-                United States
+                Australia{" "}
               </Link>
               {" | "}
               <Link
                 href="/"
                 className="text-gray-900 hover:underline hover:text-gray-600"
               >
-                International properties
+                United Arab Emirates{" "}
               </Link>
             </div>
             <div>

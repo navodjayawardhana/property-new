@@ -17,5 +17,5 @@ export function parsePhone(phone: string): { dialCode: string; number: string } 
   const match = sorted.find((c) => phone.startsWith(c.dial));
   return match
     ? { dialCode: match.dial, number: phone.slice(match.dial.length) }
-    : { dialCode: "+61", number: phone };
+    : { dialCode: "+94", number: phone };
 }

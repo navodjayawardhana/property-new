@@ -91,7 +91,7 @@ export const auth = {
   sendPhoneOtp: (phone: string, role?: string) =>
     request<{ requires_otp: true; masked_phone: string; dev_otp?: string }>('/phone-login', { method: 'POST', body: { phone, role } }),
 
-  verifyPhoneOtp: (data: { phone: string; otp: string }) =>
+  verifyPhoneOtp: (data: { phone: string; otp: string; country?: string }) =>
     request<AuthResponse>('/verify-phone-otp', { method: 'POST', body: data }),
 
   logout: (token: string) =>
