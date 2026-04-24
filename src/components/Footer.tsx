@@ -390,7 +390,7 @@ export default function Footer() {
               <p className="text-xs text-gray-400 mb-5">We'd love to hear from you. Send us a message and we'll respond shortly.</p>
 
               <div className="flex flex-col gap-3 mb-5 text-xs text-gray-500">
-                <div className="flex items-center gap-2"><Mail size={13} className="text-[#16a34a]" /> fathimanusfa09@gmail.com</div>
+                <div className="flex items-center gap-2"><Mail size={13} className="text-[#16a34a]" /> info@greenbrick.net</div>
                 <div className="flex items-center gap-2"><Phone size={13} className="text-[#16a34a]" /> +94 11 234 5678</div>
                 <div className="flex items-center gap-2"><MapPin size={13} className="text-[#16a34a]" /> Colombo 03, Sri Lanka</div>
               </div>
