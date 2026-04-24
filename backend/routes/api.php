@@ -19,6 +19,7 @@ Route::post('/phone-login', [AuthController::class, 'sendPhoneOtp']);
 Route::post('/verify-phone-otp', [AuthController::class, 'verifyPhoneOtp']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/contact', [AuthController::class, 'contact']);
 
 // Public property routes
 Route::get('/properties', [PropertyController::class, 'index']);

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Mail, Phone, MapPin, Send } from "lucide-react";
+import { X, Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { auth } from "@/lib/api";
 
 const footerTabs = [
   "Real estate",
@@ -150,15 +151,26 @@ export default function Footer() {
   const [contactOpen, setContactOpen] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [contactSent, setContactSent] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactError, setContactError] = useState("");
 
   function handleAdvertise() {
     window.scrollTo({ top: 0, behavior: "smooth" });
     window.dispatchEvent(new CustomEvent("highlightPostAd"));
   }
 
-  function handleContactSubmit(e: React.FormEvent) {
+  async function handleContactSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setContactSent(true);
+    setContactLoading(true);
+    setContactError("");
+    try {
+      await auth.contact(contactForm);
+      setContactSent(true);
+    } catch {
+      setContactError("Failed to send message. Please try again.");
+    } finally {
+      setContactLoading(false);
+    }
   }
 
   return (
@@ -378,12 +390,13 @@ export default function Footer() {
               <p className="text-xs text-gray-400 mb-5">We'd love to hear from you. Send us a message and we'll respond shortly.</p>
 
               <div className="flex flex-col gap-3 mb-5 text-xs text-gray-500">
-                <div className="flex items-center gap-2"><Mail size={13} className="text-[#16a34a]" /> info@greenbrick.net</div>
+                <div className="flex items-center gap-2"><Mail size={13} className="text-[#16a34a]" /> fathimanusfa09@gmail.com</div>
                 <div className="flex items-center gap-2"><Phone size={13} className="text-[#16a34a]" /> +94 11 234 5678</div>
                 <div className="flex items-center gap-2"><MapPin size={13} className="text-[#16a34a]" /> Colombo 03, Sri Lanka</div>
               </div>
 
               <form onSubmit={handleContactSubmit} className="space-y-3">
+                {contactError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 px-3 py-2 rounded-lg">{contactError}</p>}
                 <input required value={contactForm.name} onChange={(e) => setContactForm(p => ({ ...p, name: e.target.value }))}
                   placeholder="Your name"
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors" />
@@ -393,8 +406,9 @@ export default function Footer() {
                 <textarea required rows={4} value={contactForm.message} onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))}
                   placeholder="Your message"
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors resize-none" />
-                <button type="submit" className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-bold py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2">
-                  <Send size={14} /> Send message
+                <button type="submit" disabled={contactLoading} className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2">
+                  {contactLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                  {contactLoading ? "Sending…" : "Send message"}
                 </button>
               </form>
             </>

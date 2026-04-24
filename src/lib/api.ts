@@ -88,6 +88,9 @@ export const auth = {
   resendVerification: (email: string) =>
     request<{ message: string }>('/resend-verification', { method: 'POST', body: { email } }),
 
+  contact: (data: { name: string; email: string; message: string }) =>
+    request<{ message: string }>('/contact', { method: 'POST', body: data }),
+
   forgotPassword: (email: string) =>
     request<{ message: string; masked_email: string }>('/forgot-password', { method: 'POST', body: { email } }),
 

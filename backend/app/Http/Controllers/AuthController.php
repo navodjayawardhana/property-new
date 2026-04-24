@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessage;
 use App\Mail\OtpNotification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -362,6 +363,25 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
 
         return response()->json(['message' => 'Verification code resent.']);
+    }
+
+    public function contact(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name'    => 'required|string|max:100',
+            'email'   => 'required|email',
+            'message' => 'required|string|max:2000',
+        ]);
+
+        $to = config('mail.from.address');
+
+        Mail::to($to)->send(new ContactMessage(
+            $request->name,
+            $request->email,
+            $request->message,
+        ));
+
+        return response()->json(['message' => 'Your message has been sent.']);
     }
 
     public function forgotPassword(Request $request): JsonResponse
