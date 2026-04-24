@@ -136,19 +136,10 @@ class AuthController extends Controller
             ]);
         }
 
-        // Generate login OTP and send via email
-        $otp = (string) random_int(100000, 999999);
-        $user->update([
-            'otp'            => $otp,
-            'otp_expires_at' => now()->addMinutes(10),
-        ]);
-        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+        // Email already verified — log in directly, no OTP needed
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'requires_otp' => true,
-            'email'        => $user->email,
-            'masked_email' => $this->maskEmail($user->email),
-        ]);
+        return response()->json(['user' => $user->fresh(), 'token' => $token]);
     }
 
     public function verifyOtp(Request $request): JsonResponse

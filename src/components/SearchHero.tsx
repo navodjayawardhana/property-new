@@ -36,34 +36,34 @@ const SLIDES: SlideItem[] = [
     sub: "Search thousands of properties for sale across Sri Lanka",
   },
   {
-    type: "video",
-    src: "https://assets.mixkit.co/videos/preview/mixkit-modern-house-exterior-1573-large.mp4",
+    type: "image",
+    src: "https://images.unsplash.com/photo-1761679296778-7f245d39148d?w=1920&q=80&auto=format&fit=crop",
     label: "Modern Living",
-    sub: "Discover contemporary homes built for the way you live",
+    sub: "Luxury smart homes with cutting-edge design and technology",
   },
   {
     type: "image",
-    src: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1606333832385-2c97b1dd2f5d?w=1920&q=80",
     label: "Premium Estates",
-    sub: "Exclusive properties for discerning buyers",
-  },
-  {
-    type: "video",
-    src: "https://assets.mixkit.co/videos/preview/mixkit-swimming-pool-in-a-luxury-home-2068-large.mp4",
-    label: "Resort-Style Living",
-    sub: "Experience luxury every single day",
+    sub: "Grand estates nestled in jungle, mountain and ocean landscapes",
   },
   {
     type: "image",
-    src: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=1920&q=80",
+    label: "Resort-Style Living",
+    sub: "Overwater villas and tropical retreats — live like a Maldives getaway",
+  },
+  {
+    type: "image",
+    src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1920&q=80",
     label: "City Apartments",
     sub: "Urban living at its finest — right where you want to be",
   },
   {
     type: "image",
-    src: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1920&q=80",
     label: "Coastal Properties",
-    sub: "Wake up to ocean views and seaside serenity",
+    sub: "Beachfront homes where the ocean meets your doorstep",
   },
 ];
 
