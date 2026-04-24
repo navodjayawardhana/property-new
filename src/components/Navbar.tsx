@@ -34,6 +34,7 @@ export default function Navbar() {
   const [scrolled, setScrolled]       = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [buyerAlert, setBuyerAlert]   = useState(false);
+  const [highlightPostAd, setHighlightPostAd] = useState(false);
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const router   = useRouter();
@@ -56,6 +57,15 @@ export default function Navbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      setHighlightPostAd(true);
+      setTimeout(() => setHighlightPostAd(false), 3000);
+    };
+    window.addEventListener("highlightPostAd", handler);
+    return () => window.removeEventListener("highlightPostAd", handler);
   }, []);
 
   const isHomepage  = pathname === '/';
@@ -112,7 +122,7 @@ export default function Navbar() {
             transparent
               ? "bg-white text-[#16a34a] hover:bg-white/90"
               : "bg-[#16a34a] text-white hover:bg-[#15803d]"
-          }`}>
+          } ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a] animate-bounce" : ""}`}>
           <Plus size={15} /> Post Ad
         </button>
 

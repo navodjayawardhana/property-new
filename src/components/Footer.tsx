@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { X, Mail, Phone, MapPin, Send } from "lucide-react";
 
 const footerTabs = [
   "Real estate",
@@ -144,8 +146,23 @@ export default function Footer() {
   const [activeTab, setActiveTab] =
     useState<(typeof footerTabs)[number]>("Real estate");
   const links = tabLinks[activeTab];
+  const router = useRouter();
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
+  const [contactSent, setContactSent] = useState(false);
+
+  function handleAdvertise() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.dispatchEvent(new CustomEvent("highlightPostAd"));
+  }
+
+  function handleContactSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setContactSent(true);
+  }
 
   return (
+    <>
     <footer className="bg-white mt-12">
       {/* Tabbed link section */}
       <div className="border-t border-gray-200">
@@ -239,26 +256,14 @@ export default function Footer() {
             ))}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-            {[
-              "Advertise with us",
-              "Contact us",
-              // "Ignite",
-              "Agent admin",
-              // "Media sales",
-              "Legal",
-              "Privacy settings",
-              "Privacy centre",
-              "Site map",
-              "Careers",
-            ].map((item) => (
-              <Link
-                key={item}
-                href="/"
-                className="hover:text-gray-800 hover:underline whitespace-nowrap"
-              >
-                {item}
-              </Link>
-            ))}
+            <button onClick={handleAdvertise} className="hover:text-gray-800 hover:underline whitespace-nowrap">Advertise with us</button>
+            <button onClick={() => { setContactSent(false); setContactForm({ name: "", email: "", message: "" }); setContactOpen(true); }} className="hover:text-gray-800 hover:underline whitespace-nowrap">Contact us</button>
+            <Link href="/agents" className="hover:text-gray-800 hover:underline whitespace-nowrap">Agent admin</Link>
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Legal</Link>
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Privacy settings</Link>
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Privacy centre</Link>
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Site map</Link>
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Careers</Link>
           </div>
         </div>
       </div>
@@ -349,5 +354,54 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    {/* Contact us modal */}
+    {contactOpen && (
+      <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setContactOpen(false)} />
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+          <button onClick={() => setContactOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors">
+            <X size={18} />
+          </button>
+
+          {contactSent ? (
+            <div className="text-center py-6">
+              <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send size={24} className="text-[#16a34a]" />
+              </div>
+              <h3 className="text-lg font-black text-gray-900 mb-2">Message sent!</h3>
+              <p className="text-sm text-gray-500 mb-5">Thank you for reaching out. We'll get back to you within 24 hours.</p>
+              <button onClick={() => setContactOpen(false)} className="bg-[#16a34a] text-white font-bold px-6 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors text-sm">Close</button>
+            </div>
+          ) : (
+            <>
+              <h3 className="text-lg font-black text-gray-900 mb-1">Contact us</h3>
+              <p className="text-xs text-gray-400 mb-5">We'd love to hear from you. Send us a message and we'll respond shortly.</p>
+
+              <div className="flex flex-col gap-3 mb-5 text-xs text-gray-500">
+                <div className="flex items-center gap-2"><Mail size={13} className="text-[#16a34a]" /> info@greenbrick.net</div>
+                <div className="flex items-center gap-2"><Phone size={13} className="text-[#16a34a]" /> +94 11 234 5678</div>
+                <div className="flex items-center gap-2"><MapPin size={13} className="text-[#16a34a]" /> Colombo 03, Sri Lanka</div>
+              </div>
+
+              <form onSubmit={handleContactSubmit} className="space-y-3">
+                <input required value={contactForm.name} onChange={(e) => setContactForm(p => ({ ...p, name: e.target.value }))}
+                  placeholder="Your name"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors" />
+                <input required type="email" value={contactForm.email} onChange={(e) => setContactForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="Email address"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors" />
+                <textarea required rows={4} value={contactForm.message} onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))}
+                  placeholder="Your message"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors resize-none" />
+                <button type="submit" className="w-full bg-[#16a34a] hover:bg-[#15803d] text-white font-bold py-2.5 rounded-xl transition-colors text-sm flex items-center justify-center gap-2">
+                  <Send size={14} /> Send message
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
