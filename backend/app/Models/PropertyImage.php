@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Observers\PropertyImageObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyImage extends Model
 {
+    protected static function booted(): void
+    {
+        static::observe(PropertyImageObserver::class);
+    }
+
     protected $fillable = [
         'property_id',
         'image_path',
