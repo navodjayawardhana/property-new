@@ -3,39 +3,127 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const footerTabs = ["Real estate", "New homes", "Popular areas", "Popular searches"] as const;
+const footerTabs = [
+  "Real estate",
+  "New homes",
+  "Popular areas",
+  "Popular searches",
+] as const;
 
 const stateLinks = [
-  "Real estate NSW", "Real estate VIC", "Real estate QLD",
-  "Real estate WA", "Real estate SA", "Real estate TAS",
-  "Real estate ACT", "Real estate NT", "Real estate Sydney",
-  "Real estate Melbourne", "Real estate Brisbane", "Real estate Perth",
-  "Real estate Adelaide", "Real estate Hobart", "Real estate Canberra",
-  "Real estate Darwin",
+  "Real estate Colombo",
+  "Real estate Gampaha",
+  "Real estate Kalutara",
+  "Real estate Kandy",
+  "Real estate Matale",
+  "Real estate Nuwara Eliya",
+  "Real estate Galle",
+  "Real estate Matara",
+  "Real estate Hambantota",
+  "Real estate Jaffna",
+  "Real estate Kilinochchi",
+  "Real estate Mannar",
+  "Real estate Mullaitivu",
+  "Real estate Vavuniya",
+  "Real estate Trincomalee",
+  "Real estate Batticaloa",
+  "Real estate Ampara",
+  "Real estate Kurunegala",
+  "Real estate Puttalam",
+  "Real estate Anuradhapura",
+  "Real estate Polonnaruwa",
+  "Real estate Badulla",
+  "Real estate Monaragala",
+  "Real estate Ratnapura",
+  "Real estate Kegalle",
 ];
 
 const buyLinks = [
-  "Property for sale NSW", "Property for sale VIC", "Property for sale QLD",
-  "Property for sale WA", "Property for sale SA", "Property for sale TAS",
-  "Property for sale ACT", "Property for sale NT", "Property for sale Sydney",
-  "Property for sale Melbourne", "Property for sale Brisbane", "Property for sale Perth",
-  "Property for sale Adelaide", "Property for sale Hobart", "Property for sale Canberra",
-  "Property for sale Darwin",
+  "Property for sale Colombo",
+  "Property for sale Gampaha",
+  "Property for sale Kalutara",
+  "Property for sale Kandy",
+  "Property for sale Matale",
+  "Property for sale Nuwara Eliya",
+  "Property for sale Galle",
+  "Property for sale Matara",
+  "Property for sale Hambantota",
+  "Property for sale Jaffna",
+  "Property for sale Kilinochchi",
+  "Property for sale Mannar",
+  "Property for sale Mullaitivu",
+  "Property for sale Vavuniya",
+  "Property for sale Trincomalee",
+  "Property for sale Batticaloa",
+  "Property for sale Ampara",
+  "Property for sale Kurunegala",
+  "Property for sale Puttalam",
+  "Property for sale Anuradhapura",
+  "Property for sale Polonnaruwa",
+  "Property for sale Badulla",
+  "Property for sale Monaragala",
+  "Property for sale Ratnapura",
+  "Property for sale Kegalle",
 ];
 
 const popularAreas = [
-  "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide",
-  "Gold Coast", "Newcastle", "Canberra", "Wollongong", "Hobart",
-  "Geelong", "Townsville", "Cairns", "Toowoomba", "Ballarat",
-  "Bendigo",
+  "Colombo 1",
+  "Colombo 2",
+  "Colombo 3",
+  "Colombo 4",
+  "Colombo 5",
+  "Colombo 6",
+  "Colombo 7",
+  "Colombo 8",
+  "Colombo 9",
+  "Colombo 10",
+  "Colombo 11",
+  "Colombo 12",
+  "Colombo 13",
+  "Colombo 14",
+  "Colombo 15",
+  "Maharagama",
+  "Thalawathugoda",
+  "Mount Lavinia",
+  "Nugegoda",
+  "Kottawa",
+  "Piliyandala",
+  "Homagama",
+  "Ratnapura",
+  "Kurunegala",
+  "Kandy",
+  "Galle",
+  "Matara",
+  "Hikkaduwa",
+  "Kalutara",
+  "Bandarawela",
+  "Anuradhapura",
+  "Trincomalee",
+  "Negombo",
+  "Gampaha",
+  "Nuwara Eliya",
+  "Moratuwa",
+  "Dehiwala",
+  "Nawala",
 ];
 
 const popularSearches = [
-  "Houses for sale", "Apartments for sale", "Townhouses for sale",
-  "Land for sale", "Rural properties", "Houses for rent",
-  "Apartments for rent", "Townhouses for rent", "New houses", "New apartments",
-  "Off-the-plan", "House and land packages",
-  "Acreage for sale", "Farms for sale", "Waterfront properties", "Beachfront homes",
+  "Houses for sale",
+  "Apartments for sale",
+  "Townhouses for sale",
+  "Land for sale",
+  "Rural properties",
+  "Houses for rent",
+  "Apartments for rent",
+  "Townhouses for rent",
+  "New houses",
+  "New apartments",
+  "Off-the-plan",
+  "House and land packages",
+  "Acreage for sale",
+  "Farms for sale",
+  "Waterfront properties",
+  "Beachfront homes",
 ];
 
 const tabLinks: Record<string, string[]> = {
@@ -46,14 +134,15 @@ const tabLinks: Record<string, string[]> = {
 };
 
 const tabHeadings: Record<string, string> = {
-  "Real estate": "Real estate in Australia",
-  "New homes": "Properties for sale in Australia",
-  "Popular areas": "Popular areas in Australia",
+  "Real estate": "Real estate in Sri Lanka",
+  "New homes": "Properties for sale in Sri Lanka",
+  "Popular areas": "Popular areas in Sri Lanka",
   "Popular searches": "Popular searches",
 };
 
 export default function Footer() {
-  const [activeTab, setActiveTab] = useState<(typeof footerTabs)[number]>("Real estate");
+  const [activeTab, setActiveTab] =
+    useState<(typeof footerTabs)[number]>("Real estate");
   const links = tabLinks[activeTab];
 
   return (
@@ -80,7 +169,9 @@ export default function Footer() {
 
           {/* Links grid */}
           <div className="py-8">
-            <h3 className="text-sm font-semibold text-gray-900 mb-5">{tabHeadings[activeTab]}</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-5">
+              {tabHeadings[activeTab]}
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-8">
               {links.map((link) => (
                 <Link
@@ -128,15 +219,37 @@ export default function Footer() {
                 aria-label={label}
                 className="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:border-gray-900 hover:text-gray-900 hover:bg-gray-50 transition-colors"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d={path} />
                 </svg>
               </Link>
             ))}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-            {["Advertise with us","Contact us","Ignite","Agent admin","Media sales","Legal","Privacy settings","Privacy centre","Site map","Careers"].map((item) => (
-              <Link key={item} href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">{item}</Link>
+            {[
+              "Advertise with us",
+              "Contact us",
+              "Ignite",
+              "Agent admin",
+              "Media sales",
+              "Legal",
+              "Privacy settings",
+              "Privacy centre",
+              "Site map",
+              "Careers",
+            ].map((item) => (
+              <Link
+                key={item}
+                href="/"
+                className="hover:text-gray-800 hover:underline whitespace-nowrap"
+              >
+                {item}
+              </Link>
             ))}
           </div>
         </div>
@@ -169,28 +282,60 @@ export default function Footer() {
           {/* International + partner */}
           <div className="text-xs text-gray-500 space-y-1.5">
             <div>
-              <span className="font-semibold text-gray-700">International sites</span>
-              {" "}
-              <Link href="/" className="text-gray-900 hover:underline hover:text-gray-600">India</Link>
+              <span className="font-semibold text-gray-700">
+                International sites
+              </span>{" "}
+              <Link
+                href="/"
+                className="text-gray-900 hover:underline hover:text-gray-600"
+              >
+                India
+              </Link>
               {" | "}
-              <Link href="/" className="text-gray-900 hover:underline hover:text-gray-600">United States</Link>
+              <Link
+                href="/"
+                className="text-gray-900 hover:underline hover:text-gray-600"
+              >
+                United States
+              </Link>
               {" | "}
-              <Link href="/" className="text-gray-900 hover:underline hover:text-gray-600">International properties</Link>
+              <Link
+                href="/"
+                className="text-gray-900 hover:underline hover:text-gray-600"
+              >
+                International properties
+              </Link>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">Partner sites</span>
-              {" "}
-              {["news.com.au","foxsports.com.au","Mansion Global","askizzy.org.au","proptiger.com"].map((s, i, arr) => (
+              <span className="font-semibold text-gray-700">Partner sites</span>{" "}
+              {[
+                "news.com.au",
+                "foxsports.com.au",
+                "Mansion Global",
+                "askizzy.org.au",
+                "proptiger.com",
+              ].map((s, i, arr) => (
                 <span key={s}>
-                  <Link href="/" className="text-gray-900 hover:underline hover:text-gray-600">{s}</Link>
+                  <Link
+                    href="/"
+                    className="text-gray-900 hover:underline hover:text-gray-600"
+                  >
+                    {s}
+                  </Link>
                   {i < arr.length - 1 && " | "}
                 </span>
               ))}
             </div>
             <p className="text-gray-400 pt-1">
-              Greenbrick.net is owned and operated by ASX-listed REA Group Ltd (REA:ASX) © REA Group Ltd.
-              By accessing or using our platform, you agree to our{" "}
-              <Link href="/" className="text-gray-900 hover:underline hover:text-gray-600">Terms of Use.</Link>
+              Greenbrick.net is owned and operated by ASX-listed REA Group Ltd
+              (REA:ASX) © REA Group Ltd. By accessing or using our platform, you
+              agree to our{" "}
+              <Link
+                href="/"
+                className="text-gray-900 hover:underline hover:text-gray-600"
+              >
+                Terms of Use.
+              </Link>
             </p>
           </div>
         </div>
