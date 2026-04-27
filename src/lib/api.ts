@@ -51,10 +51,17 @@ export type User = {
   phone: string | null;
   role: 'buyer' | 'seller' | 'agent' | 'admin';
   avatar: string | null;
+  is_blocked: boolean;
   suburb: string | null;
   state: string | null;
   postcode: string | null;
   country: string | null;
+};
+
+export type AdminSettings = {
+  listing_fee: number;
+  processing_fee_pct: number;
+  commission_pct: number;
 };
 
 export type AuthResponse = { user: User; token: string };
@@ -415,6 +422,9 @@ export const admin = {
   deleteUser: (id: number, token: string) =>
     request<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE', token }),
 
+  toggleBlockUser: (id: number, token: string) =>
+    request<User>(`/admin/users/${id}/toggle-block`, { method: 'POST', token }),
+
   properties: (filters: { status?: string; listing_type?: string; search?: string; featured?: string; page?: number }, token: string) => {
     const qs = buildQs(filters);
     return request<PaginatedProperties>(`/admin/properties${qs ? '?' + qs : ''}`, { token });
@@ -450,6 +460,12 @@ export const admin = {
 
   deleteLoanEnquiry: (id: number, token: string) =>
     request<{ message: string }>(`/admin/loan-enquiries/${id}`, { method: 'DELETE', token }),
+
+  getSettings: (token: string) =>
+    request<AdminSettings>('/admin/settings', { token }),
+
+  updateSettings: (data: AdminSettings, token: string) =>
+    request<AdminSettings>('/admin/settings', { method: 'PUT', body: data, token }),
 };
 
 // ─── Favorites ───────────────────────────────────────────────────────────────

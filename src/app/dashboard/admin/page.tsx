@@ -10,6 +10,7 @@ import {
   admin as adminApi,
   newsApi,
   type AdminStats,
+  type AdminSettings,
   type PaginatedUsers,
   type PaginatedInquiries,
   type PaginatedProperties,
@@ -25,7 +26,7 @@ import {
   Users, Home, MessageSquare, Star, TrendingUp, Search, Trash2,
   ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
-  Newspaper, Plus, Edit2, DollarSign,
+  Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -243,6 +244,7 @@ function UsersTab({ token }: { token: string }) {
   const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
   const [editRole, setEditRole] = useState<{ id: number; role: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [blocking, setBlocking] = useState<number | null>(null);
 
   const load = useCallback(async (p = page, s = search, r = roleFilter) => {
     setLoading(true);
@@ -271,6 +273,15 @@ function UsersTab({ token }: { token: string }) {
       load(page);
     } catch (e: unknown) { alert((e as Error).message); }
     finally { setSaving(false); }
+  }
+
+  async function handleToggleBlock(u: User) {
+    setBlocking(u.id);
+    try {
+      await adminApi.toggleBlockUser(u.id, token);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setBlocking(null); }
   }
 
   return (
@@ -319,6 +330,7 @@ function UsersTab({ token }: { token: string }) {
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Role</th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden md:table-cell">Location</th>
                   <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Joined</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
                   <th className="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
@@ -363,11 +375,26 @@ function UsersTab({ token }: { token: string }) {
                     <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">
                       {fmtDate((u as User & { created_at: string }).created_at)}
                     </td>
+                    <td className="px-4 py-3.5">
+                      {u.is_blocked
+                        ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full"><Ban size={10} /> Blocked</span>
+                        : <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full"><CheckCircle size={10} /> Active</span>
+                      }
+                    </td>
                     <td className="px-5 py-3.5 text-right">
-                      <button onClick={() => setConfirm({ id: u.id, name: u.name })}
-                        className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleToggleBlock(u)}
+                          disabled={blocking === u.id}
+                          title={u.is_blocked ? "Unblock user" : "Block user"}
+                          className={`transition-colors p-1.5 rounded-lg disabled:opacity-50 ${u.is_blocked ? "text-green-500 hover:text-green-700 hover:bg-green-50" : "text-orange-400 hover:text-orange-600 hover:bg-orange-50"}`}>
+                          {u.is_blocked ? <CheckCircle size={14} /> : <Ban size={14} />}
+                        </button>
+                        <button onClick={() => setConfirm({ id: u.id, name: u.name })}
+                          className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -542,6 +569,10 @@ function PropertiesTab({ token }: { token: string }) {
                           <Link href={`/property/${p.id}`} target="_blank"
                             className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
                             <Eye size={14} />
+                          </Link>
+                          <Link href={`/dashboard/properties/${p.id}/edit`}
+                            className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                            <Edit2 size={14} />
                           </Link>
                           <button onClick={() => setConfirm({ id: p.id, title: p.title })}
                             className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
@@ -1147,17 +1178,119 @@ function LoanEnquiriesTab({ token }: { token: string }) {
   );
 }
 
+// ─── Pricing tab ─────────────────────────────────────────────────────────────
+
+function PricingTab({ token }: { token: string }) {
+  const [settings, setSettings] = useState<AdminSettings | null>(null);
+  const [form, setForm] = useState({ listing_fee: 1000, processing_fee_pct: 3.3, commission_pct: 0 });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    adminApi.getSettings(token)
+      .then((s) => { setSettings(s); setForm({ listing_fee: s.listing_fee, processing_fee_pct: s.processing_fee_pct, commission_pct: s.commission_pct }); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  async function handleSave() {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const updated = await adminApi.updateSettings(form, token);
+      setSettings(updated);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setSaving(false); }
+  }
+
+  const fee    = form.listing_fee;
+  const proc   = parseFloat(((fee * form.processing_fee_pct) / 100).toFixed(2));
+  const comm   = parseFloat(((fee * form.commission_pct) / 100).toFixed(2));
+  const total  = parseFloat((fee + proc).toFixed(2));
+  const net    = parseFloat((fee - comm).toFixed(2));
+
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
+  const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <h3 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-2"><DollarSign size={16} className="text-[#16a34a]" /> Listing Fee Configuration</h3>
+
+        {loading ? (
+          <div className="text-sm text-gray-400 py-4">Loading settings…</div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <label className={lbl}>Listing Fee (LKR) — fixed amount charged per listing</label>
+              <input type="number" min={0} step={1} className={inp}
+                value={form.listing_fee}
+                onChange={(e) => setForm({ ...form, listing_fee: parseFloat(e.target.value) || 0 })} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Processing Fee % — payment gateway charge</label>
+                <input type="number" min={0} max={100} step={0.1} className={inp}
+                  value={form.processing_fee_pct}
+                  onChange={(e) => setForm({ ...form, processing_fee_pct: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <div>
+                <label className={lbl}>Commission % — platform deduction from listing fee</label>
+                <input type="number" min={0} max={100} step={0.1} className={inp}
+                  value={form.commission_pct}
+                  onChange={(e) => setForm({ ...form, commission_pct: parseFloat(e.target.value) || 0 })} />
+              </div>
+            </div>
+
+            {/* Live breakdown */}
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Fee Breakdown Preview</p>
+              <div className="flex justify-between text-gray-700">
+                <span>Listing Fee</span><span className="font-semibold">LKR {fmt(fee)}</span>
+              </div>
+              <div className="flex justify-between text-gray-500">
+                <span>Processing Fee ({form.processing_fee_pct}%)</span><span>+ LKR {fmt(proc)}</span>
+              </div>
+              <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-900">
+                <span>Total charged to seller</span><span>LKR {fmt(total)}</span>
+              </div>
+              <div className="border-t border-gray-200 pt-2 flex justify-between text-orange-600">
+                <span>Commission deduction ({form.commission_pct}%)</span><span>− LKR {fmt(comm)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-[#16a34a]">
+                <span>Net to platform</span><span>LKR {fmt(net)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button onClick={handleSave} disabled={saving}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : "Save Settings"}
+              </button>
+              {saved && <span className="text-sm text-green-600 font-medium flex items-center gap-1"><Check size={14} /> Saved</span>}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans";
+type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "pricing";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "overview",    label: "Overview",    icon: <LayoutDashboard size={16} /> },
-  { id: "users",       label: "Users",       icon: <Users size={16} /> },
-  { id: "properties",  label: "Properties",  icon: <Home size={16} /> },
-  { id: "inquiries",   label: "Inquiries",   icon: <MessageSquare size={16} /> },
-  { id: "news",        label: "News",        icon: <Newspaper size={16} /> },
+  { id: "overview",    label: "Overview",       icon: <LayoutDashboard size={16} /> },
+  { id: "users",       label: "Users",          icon: <Users size={16} /> },
+  { id: "properties",  label: "Properties",     icon: <Home size={16} /> },
+  { id: "inquiries",   label: "Inquiries",      icon: <MessageSquare size={16} /> },
+  { id: "news",        label: "News",           icon: <Newspaper size={16} /> },
   { id: "loans",       label: "Loan Enquiries", icon: <DollarSign size={16} /> },
+  { id: "pricing",     label: "Pricing",        icon: <Settings size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -1224,6 +1357,7 @@ export default function AdminPage() {
         {tab === "inquiries"   && token && <InquiriesTab token={token} />}
         {tab === "news"        && token && <NewsTab token={token} />}
         {tab === "loans"       && token && <LoanEnquiriesTab token={token} />}
+        {tab === "pricing"     && token && <PricingTab token={token} />}
       </div>
 
       <Footer />

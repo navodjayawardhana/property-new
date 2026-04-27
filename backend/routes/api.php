@@ -93,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users',                      [AdminController::class, 'users']);
         Route::patch('/users/{user}',             [AdminController::class, 'updateUser']);
         Route::delete('/users/{user}',            [AdminController::class, 'deleteUser']);
+        Route::post('/users/{user}/toggle-block', [AdminController::class, 'toggleBlockUser']);
         Route::get('/properties',                 [AdminController::class, 'properties']);
         Route::post('/properties',                [AdminController::class, 'createProperty']);
         Route::patch('/properties/{property}',    [AdminController::class, 'updateProperty']);
@@ -111,5 +112,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/loan-enquiries',                        [AdminController::class, 'loanEnquiries']);
         Route::patch('/loan-enquiries/{loanEnquiry}',        [AdminController::class, 'updateLoanEnquiry']);
         Route::delete('/loan-enquiries/{loanEnquiry}',       [AdminController::class, 'deleteLoanEnquiry']);
+
+        // Pricing settings
+        Route::get('/settings',  [AdminController::class, 'getSettings']);
+        Route::put('/settings',  [AdminController::class, 'updateSettings']);
     });
 });

@@ -128,7 +128,9 @@ export default function SignInPage() {
         resetDigits(); setScreen("verify");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Sign in failed.");
+      const e = err as { errors?: Record<string, string[]>; message?: string };
+      const first = e.errors ? Object.values(e.errors)[0]?.[0] : undefined;
+      setError(first ?? e.message ?? "Sign in failed.");
     } finally { setLoading(false); }
   };
 
@@ -208,7 +210,9 @@ export default function SignInPage() {
       await loginWithToken(res.token);
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+      const e = err as { errors?: Record<string, string[]>; message?: string };
+      const first = e.errors ? Object.values(e.errors)[0]?.[0] : undefined;
+      setError(first ?? e.message ?? "Invalid code."); resetDigits();
     } finally { setLoading(false); }
   };
 
@@ -418,7 +422,19 @@ export default function SignInPage() {
               It expires in 10 minutes.
             </p>
             <form onSubmit={handlePhoneOtp} className="space-y-6">
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {error && (
+                error.toLowerCase().includes("blocked") ? (
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3.5 flex gap-3 items-start">
+                    <ShieldAlert size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-bold text-orange-800">Account Blocked</p>
+                      <p className="text-xs text-orange-700 mt-0.5">Your account has been blocked. Contact us for more information.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+                )
+              )}
               {digitInputs}
               <button type="submit" disabled={loading}
                 className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
@@ -603,7 +619,21 @@ export default function SignInPage() {
             </div>
           )}
 
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>}
+          {error && (
+            error.toLowerCase().includes("blocked") ? (
+              <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3.5 mb-4 flex gap-3 items-start">
+                <ShieldAlert size={18} className="text-orange-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-bold text-orange-800">Account Blocked</p>
+                  <p className="text-xs text-orange-700 mt-0.5">
+                    Your account has been blocked. Contact us for more information.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>
+            )
+          )}
 
           {/* Email form */}
           {loginMethod === "email" && (

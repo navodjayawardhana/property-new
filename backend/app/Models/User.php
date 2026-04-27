@@ -22,6 +22,7 @@ class User extends Authenticatable
         'phone',
         'role',
         'avatar',
+        'is_blocked',
         'suburb',
         'state',
         'postcode',
@@ -42,7 +43,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'is_blocked'        => 'boolean',
         ];
     }
 

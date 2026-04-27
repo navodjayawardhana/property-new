@@ -9,6 +9,7 @@ use App\Models\PropertyImage;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
@@ -107,6 +108,19 @@ class AdminController extends Controller
         return response()->json(['message' => 'User deleted.']);
     }
 
+    public function toggleBlockUser(Request $request, User $user): JsonResponse
+    {
+        $this->gate($request);
+
+        if ($user->id === $request->user()->id) {
+            return response()->json(['message' => 'Cannot block your own account.'], 422);
+        }
+
+        $user->update(['is_blocked' => ! $user->is_blocked]);
+
+        return response()->json($user->fresh());
+    }
+
     // ── Properties ────────────────────────────────────────────────────────────
 
     public function properties(Request $request): JsonResponse
@@ -196,9 +210,25 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'status'      => 'sometimes|in:active,inactive,sold',
-            'is_featured' => 'sometimes|boolean',
-            'listing_type'=> 'sometimes|in:buy,rent,sold',
+            'status'         => 'sometimes|in:active,inactive,sold',
+            'is_featured'    => 'sometimes|boolean',
+            'listing_type'   => 'sometimes|in:buy,rent,sold',
+            'title'          => 'sometimes|string|max:255',
+            'price'          => 'sometimes|integer|min:0',
+            'price_per_week' => 'nullable|integer|min:0',
+            'address'        => 'sometimes|string|max:255',
+            'suburb'         => 'sometimes|string|max:100',
+            'state'          => 'sometimes|string|max:100',
+            'postcode'       => 'nullable|string|max:10',
+            'country'        => 'nullable|string|max:100',
+            'beds'           => 'sometimes|integer|min:0|max:20',
+            'baths'          => 'sometimes|integer|min:0|max:20',
+            'cars'           => 'sometimes|integer|min:0|max:20',
+            'land_size'      => 'nullable|string|max:50',
+            'property_type'  => 'sometimes|string|max:50',
+            'condition'      => 'sometimes|in:new,used',
+            'category'       => 'sometimes|in:domestic,commercial,both',
+            'description'    => 'sometimes|string',
         ]);
 
         $property->update($validated);
@@ -316,5 +346,37 @@ class AdminController extends Controller
         $loanEnquiry->delete();
 
         return response()->json(['message' => 'Loan enquiry deleted.']);
+    }
+
+    // ── Pricing Settings ──────────────────────────────────────────────────────
+
+    public function getSettings(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $rows = DB::table('settings')->get()->keyBy('key');
+
+        return response()->json([
+            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'     => (float) ($rows['commission_pct']->value     ?? 0),
+        ]);
+    }
+
+    public function updateSettings(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $validated = $request->validate([
+            'listing_fee'        => 'required|numeric|min:0',
+            'processing_fee_pct' => 'required|numeric|min:0|max:100',
+            'commission_pct'     => 'required|numeric|min:0|max:100',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            DB::table('settings')->updateOrInsert(['key' => $key], ['value' => $value]);
+        }
+
+        return response()->json($validated);
     }
 }

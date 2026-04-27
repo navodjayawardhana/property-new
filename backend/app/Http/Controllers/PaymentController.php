@@ -15,8 +15,15 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
-    private const LISTING_FEE        = 1000.00;
-    private const PROCESSING_FEE_PCT = 3.3;
+    private function settings(): array
+    {
+        $rows = DB::table('settings')->get()->keyBy('key');
+        return [
+            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'     => (float) ($rows['commission_pct']->value     ?? 0),
+        ];
+    }
 
     public function initiate(Request $request): JsonResponse
     {
@@ -61,11 +68,12 @@ class PaymentController extends Controller
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Step 3 — generate order: flat listing fee + 3.3% processing fee
+        // Step 3 — generate order: flat listing fee + processing fee (from settings)
+        $cfg            = $this->settings();
         $orderId        = 'GB-' . strtoupper(uniqid());
         $listingPrice   = (float) $request->price;
-        $listingFee     = self::LISTING_FEE;
-        $processingFee  = round($listingFee * self::PROCESSING_FEE_PCT / 100, 2);
+        $listingFee     = $cfg['listing_fee'];
+        $processingFee  = round($listingFee * $cfg['processing_fee_pct'] / 100, 2);
         $paymentAmount  = $listingFee + $processingFee;
 
         // Step 4 — persist images to temporary storage

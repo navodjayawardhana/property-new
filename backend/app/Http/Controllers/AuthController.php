@@ -123,6 +123,12 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        if ($user->is_blocked) {
+            throw ValidationException::withMessages([
+                'email' => ['Your account has been blocked. Please contact support.'],
+            ]);
+        }
+
         // Block login until email is verified
         if (! $user->email_verified_at) {
             // Resend a fresh OTP so they can complete verification
@@ -333,6 +339,12 @@ class AuthController extends Controller
         if (! $user || $user->otp !== $request->otp || now()->isAfter($user->otp_expires_at)) {
             throw ValidationException::withMessages([
                 'otp' => ['Invalid or expired code. Please try again.'],
+            ]);
+        }
+
+        if ($user->is_blocked) {
+            throw ValidationException::withMessages([
+                'otp' => ['Your account has been blocked. Please contact support.'],
             ]);
         }
 
