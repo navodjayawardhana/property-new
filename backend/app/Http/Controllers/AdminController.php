@@ -76,7 +76,7 @@ class AdminController extends Controller
             });
         }
 
-        return response()->json($query->paginate(20));
+        return response()->json($query->paginate(5));
     }
 
     public function updateUser(Request $request, User $user): JsonResponse
@@ -151,7 +151,7 @@ class AdminController extends Controller
             });
         }
 
-        return response()->json($query->paginate(20));
+        return response()->json($query->paginate(5));
     }
 
     public function createProperty(Request $request): JsonResponse
@@ -278,7 +278,7 @@ class AdminController extends Controller
             });
         }
 
-        return response()->json($query->paginate(20));
+        return response()->json($query->paginate(5));
     }
 
     public function updateInquiry(Request $request, Inquiry $inquiry): JsonResponse
@@ -323,7 +323,7 @@ class AdminController extends Controller
             });
         }
 
-        return response()->json($query->paginate(20));
+        return response()->json($query->paginate(5));
     }
 
     public function updateLoanEnquiry(Request $request, LoanEnquiry $loanEnquiry): JsonResponse

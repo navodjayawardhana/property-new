@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\SlideController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\LoanEnquiryController;
 use App\Http\Controllers\NewsController;
@@ -39,6 +40,9 @@ Route::get('/news/{newsArticle}', [NewsController::class, 'show']);
 
 // Public loan pre-approval enquiry
 Route::post('/loan-enquiries', [LoanEnquiryController::class, 'store']);
+
+// Public slides
+Route::get('/slides', [SlideController::class, 'index']);
 
 // PayHere server-to-server callback (no auth — called by PayHere servers)
 Route::post('/payment/notify', [PaymentController::class, 'notify']);
@@ -116,5 +120,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Pricing settings
         Route::get('/settings',  [AdminController::class, 'getSettings']);
         Route::put('/settings',  [AdminController::class, 'updateSettings']);
+
+        // Slideshow
+        Route::get('/slides',             [SlideController::class, 'adminIndex']);
+        Route::post('/slides',            [SlideController::class, 'store']);
+        Route::patch('/slides/{slide}',   [SlideController::class, 'update']);
+        Route::delete('/slides/{slide}',  [SlideController::class, 'destroy']);
     });
 });

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { properties as propertiesApi, admin as adminApi, type Property, type PropertyImage } from "@/lib/api";
+import { useState, useRef, useEffect } from "react";
+import { properties as propertiesApi, admin as adminApi, type Property, type PropertyImage, type AdminSettings } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, Info } from "lucide-react";
 
 type FormState = {
   title: string;
@@ -80,6 +80,13 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
   const [otpCode, setOtpCode] = useState('');
   const [otpError, setOtpError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [settings, setSettings] = useState<AdminSettings | null>(null);
+
+  useEffect(() => {
+    if (isAdmin && token) {
+      adminApi.getSettings(token).then(setSettings).catch(() => {});
+    }
+  }, [isAdmin, token]);
 
   function set(field: keyof FormState, value: string | boolean) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -364,6 +371,44 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           <label className={lbl}>Price (LKR) *</label>
           <input required type="number" min={0} className={inp} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="e.g. 15000000" />
         </div>
+
+        {/* Admin fee breakdown — shown when admin enters a price */}
+        {isAdmin && settings && form.price && Number(form.price) > 0 && (() => {
+          const listingFee = settings.listing_fee;
+          const procFee    = parseFloat((listingFee * settings.processing_fee_pct / 100).toFixed(2));
+          const total      = parseFloat((listingFee + procFee).toFixed(2));
+          const net        = parseFloat((listingFee - procFee).toFixed(2));
+          const lkr = (n: number) => `LKR ${n.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          return (
+            <div className="md:col-span-2 bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5 mb-3">
+                <Info size={13} /> Fee Breakdown
+              </p>
+              <div className="space-y-1.5 text-xs">
+                <div className="flex justify-between text-gray-700">
+                  <span>Listing Fee</span>
+                  <span className="font-semibold">{lkr(listingFee)}</span>
+                </div>
+                <div className="flex justify-between text-gray-500">
+                  <span>Processing Fee ({settings.processing_fee_pct}%)</span>
+                  <span>+ {lkr(procFee)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-gray-900 border-t border-blue-200 pt-1.5 text-sm">
+                  <span>Total Fee</span>
+                  <span>{lkr(total)}</span>
+                </div>
+                <div className="flex justify-between text-red-500 border-t border-blue-200 pt-1.5">
+                  <span>Deducted (gateway)</span>
+                  <span>− {lkr(procFee)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-green-700">
+                  <span>Net to Platform</span>
+                  <span>{lkr(net)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {form.listing_type === 'rent' && (
           <div className="md:col-span-2">

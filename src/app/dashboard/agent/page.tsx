@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -11,6 +11,7 @@ import { formatPrice } from "@/lib/utils";
 import {
   Plus, Edit2, Trash2, Loader2, Home, TrendingUp, MessageSquare,
   ChevronDown, ChevronUp, ExternalLink, Phone, Mail, RefreshCw,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -25,12 +26,42 @@ const INQ_STATUS: Record<string, string> = {
   resolved: "bg-green-100 text-green-700",
 };
 
+function Pagination({ current, last, onChange }: { current: number; last: number; onChange: (p: number) => void }) {
+  if (last <= 1) return null;
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-5">
+      <button onClick={() => onChange(current - 1)} disabled={current === 1}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronLeft size={14} />
+      </button>
+      {Array.from({ length: last }, (_, i) => i + 1)
+        .filter(p => p === 1 || p === last || Math.abs(p - current) <= 1)
+        .reduce<(number | "…")[]>((acc, p, i, arr) => {
+          if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("…");
+          acc.push(p); return acc;
+        }, [])
+        .map((p, i) => p === "…"
+          ? <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
+          : <button key={p} onClick={() => onChange(p as number)}
+              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${current === p ? "bg-[#16a34a] text-white" : "border border-gray-200 text-gray-700 hover:border-[#16a34a]"}`}>{p}</button>
+        )}
+      <button onClick={() => onChange(current + 1)} disabled={current === last}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
+
 export default function AgentDashboard() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
 
   const [tab, setTab] = useState<'listings' | 'inquiries'>('listings');
   const [items, setItems] = useState<Property[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [fetching, setFetching] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -47,18 +78,24 @@ export default function AgentDashboard() {
     }
   }, [loading, user, router]);
 
-  useEffect(() => {
+  const loadListings = useCallback((p: number) => {
     if (!token) return;
-    propertiesApi.mine(token)
-      .then((res) => setItems(res.data))
+    setFetching(true);
+    propertiesApi.mine(token, p)
+      .then((res) => {
+        setItems(res.data);
+        setPage(res.current_page);
+        setLastPage(res.last_page);
+        setTotal(res.total);
+      })
       .catch(console.error)
       .finally(() => setFetching(false));
   }, [token]);
 
+  useEffect(() => { loadListings(1); }, [loadListings]);
+
   useEffect(() => {
-    if (tab === 'inquiries' && token && !inqLoaded) {
-      loadInquiries();
-    }
+    if (tab === 'inquiries' && token && !inqLoaded) loadInquiries();
   }, [tab, token]);
 
   function loadInquiries() {
@@ -87,7 +124,7 @@ export default function AgentDashboard() {
     setDeletingId(id);
     try {
       await propertiesApi.delete(id, token);
-      setItems((prev) => prev.filter((p) => p.id !== id));
+      loadListings(page);
     } catch (e: unknown) {
       alert((e as Error).message ?? 'Delete failed');
     } finally {
@@ -119,7 +156,7 @@ export default function AgentDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { label: 'Total Listings', value: items.length, icon: Home, color: 'text-[#16a34a]', bg: 'bg-[#16a34a]/10' },
+            { label: 'Total Listings', value: total, icon: Home, color: 'text-[#16a34a]', bg: 'bg-[#16a34a]/10' },
             { label: 'Active', value: active, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100' },
             { label: 'New Inquiries', value: pendingCount, icon: MessageSquare, color: 'text-orange-500', bg: 'bg-orange-100' },
           ].map(({ label, value, icon: Icon, color, bg }) => (
@@ -138,7 +175,7 @@ export default function AgentDashboard() {
           <button onClick={() => setTab('listings')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'listings' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <Home size={14} /> Client Listings
-            {items.length > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{items.length}</span>}
+            {total > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{total}</span>}
           </button>
           <button onClick={() => setTab('inquiries')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'inquiries' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
@@ -153,7 +190,7 @@ export default function AgentDashboard() {
             <div className="flex items-center justify-center py-20">
               <Loader2 size={24} className="animate-spin text-gray-400" />
             </div>
-          ) : items.length === 0 ? (
+          ) : total === 0 ? (
             <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
               <Home size={40} className="text-gray-200 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">No client listings yet</p>
@@ -163,89 +200,113 @@ export default function AgentDashboard() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {items.map((p) => (
-                <div key={p.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                  <div className="flex items-center gap-3 px-4 py-3">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-gray-100">
-                      {p.images[0] ? (
-                        <img src={p.images[0].url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Home size={18} className="text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-gray-900 text-sm line-clamp-1">{p.title}</p>
-                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full capitalize ${STATUS_BADGE[p.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                          {p.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-0.5">{p.address}, {p.suburb} · {formatPrice(p)}</p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={() => togglePerProp(p.id)}
-                        className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#16a34a] px-2 py-1.5 rounded-lg hover:bg-[#16a34a]/5 transition-colors font-medium">
-                        <MessageSquare size={12} />
-                        {expandedId === p.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                      </button>
-                      <Link href={`/property/${p.id}`}
-                        className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                        <ExternalLink size={14} />
-                      </Link>
-                      <Link href={`/dashboard/properties/${p.id}/edit`}
-                        className="p-1.5 text-gray-400 hover:text-[#16a34a] hover:bg-[#16a34a]/10 rounded-lg transition-colors">
-                        <Edit2 size={14} />
-                      </Link>
-                      <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50">
-                        {deletingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {expandedId === p.id && (
-                    <div className="border-t border-gray-100 px-4 py-3 bg-gray-50">
-                      {loadingPerProp === p.id ? (
-                        <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
-                          <Loader2 size={14} className="animate-spin" /> Loading…
-                        </div>
-                      ) : (perPropInquiries[p.id] ?? []).length === 0 ? (
-                        <p className="text-sm text-gray-400 py-2">No inquiries for this listing yet.</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {(perPropInquiries[p.id] ?? []).map((inq) => (
-                            <div key={inq.id} className="bg-white rounded-lg p-3 border border-gray-100">
-                              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                <span className="font-semibold text-gray-900 text-sm">{inq.name}</span>
-                                <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${INQ_STATUS[inq.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                                  {inq.status}
-                                </span>
-                                <span className="text-xs text-gray-400 capitalize">{inq.inquiry_type}</span>
-                                <span className="text-xs text-gray-400 ml-auto">{new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short' })}</span>
-                              </div>
-                              <p className="text-gray-600 text-xs mb-2">{inq.message}</p>
-                              <div className="flex gap-2">
-                                <a href={`mailto:${inq.email}`} className="flex items-center gap-1 text-xs text-[#16a34a] font-medium hover:underline">
-                                  <Mail size={10} /> {inq.email}
-                                </a>
-                                {inq.phone && (
-                                  <a href={`tel:${inq.phone}`} className="flex items-center gap-1 text-xs text-gray-500 font-medium hover:underline">
-                                    <Phone size={10} /> {inq.phone}
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+            <>
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <p className="text-sm text-gray-500">{total} listing{total !== 1 ? 's' : ''} · page {page} of {lastPage}</p>
                 </div>
-              ))}
-            </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50">
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Property</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden md:table-cell">Type</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Price</th>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                      <th className="px-4 py-3" />
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {items.map((p) => (
+                      <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                              {p.images[0] ? (
+                                <img src={p.images[0].url} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Home size={16} className="text-gray-300" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-gray-900 line-clamp-1">{p.title}</p>
+                              <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{p.address}, {p.suburb}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 hidden md:table-cell">{p.property_type}</td>
+                        <td className="px-4 py-3 font-semibold text-[#16a34a] hidden sm:table-cell">{formatPrice(p)}</td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full capitalize ${STATUS_BADGE[p.status] ?? 'bg-gray-100 text-gray-500'}`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1 justify-end">
+                            <button onClick={() => togglePerProp(p.id)}
+                              className="flex items-center gap-1 text-xs text-gray-500 hover:text-[#16a34a] px-2 py-1.5 rounded-lg hover:bg-[#16a34a]/5 transition-colors font-medium">
+                              <MessageSquare size={12} />
+                              {expandedId === p.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </button>
+                            <Link href={`/property/${p.id}`}
+                              className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                              <ExternalLink size={14} />
+                            </Link>
+                            <Link href={`/dashboard/properties/${p.id}/edit`}
+                              className="p-1.5 text-gray-400 hover:text-[#16a34a] hover:bg-[#16a34a]/10 rounded-lg transition-colors">
+                              <Edit2 size={14} />
+                            </Link>
+                            <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
+                              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50">
+                              {deletingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Inquiry expand rows */}
+                {items.map((p) => expandedId === p.id && (
+                  <div key={`inq-${p.id}`} className="border-t border-gray-100 px-4 py-3 bg-gray-50">
+                    {loadingPerProp === p.id ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
+                        <Loader2 size={14} className="animate-spin" /> Loading…
+                      </div>
+                    ) : (perPropInquiries[p.id] ?? []).length === 0 ? (
+                      <p className="text-sm text-gray-400 py-2">No inquiries for this listing yet.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {(perPropInquiries[p.id] ?? []).map((inq) => (
+                          <div key={inq.id} className="bg-white rounded-lg p-3 border border-gray-100">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-semibold text-gray-900 text-sm">{inq.name}</span>
+                              <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${INQ_STATUS[inq.status] ?? 'bg-gray-100 text-gray-500'}`}>{inq.status}</span>
+                              <span className="text-xs text-gray-400 capitalize">{inq.inquiry_type}</span>
+                              <span className="text-xs text-gray-400 ml-auto">{new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short' })}</span>
+                            </div>
+                            <p className="text-gray-600 text-xs mb-2">{inq.message}</p>
+                            <div className="flex gap-2">
+                              <a href={`mailto:${inq.email}`} className="flex items-center gap-1 text-xs text-[#16a34a] font-medium hover:underline">
+                                <Mail size={10} /> {inq.email}
+                              </a>
+                              {inq.phone && (
+                                <a href={`tel:${inq.phone}`} className="flex items-center gap-1 text-xs text-gray-500 font-medium hover:underline">
+                                  <Phone size={10} /> {inq.phone}
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <Pagination current={page} last={lastPage} onChange={(p) => loadListings(p)} />
+            </>
           )
         )}
 
@@ -290,9 +351,7 @@ export default function AgentDashboard() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <span className="font-semibold text-gray-900 text-sm">{inq.name}</span>
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${INQ_STATUS[inq.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                          {inq.status}
-                        </span>
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${INQ_STATUS[inq.status] ?? 'bg-gray-100 text-gray-500'}`}>{inq.status}</span>
                         <span className="text-xs text-gray-400 capitalize bg-gray-100 px-2 py-0.5 rounded-full">{inq.inquiry_type}</span>
                         <span className="text-xs text-gray-400 ml-auto">
                           {new Date(inq.created_at).toLocaleDateString('en-LK', { day: 'numeric', month: 'short', year: 'numeric' })}

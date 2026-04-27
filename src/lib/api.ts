@@ -58,6 +58,16 @@ export type User = {
   country: string | null;
 };
 
+export type Slide = {
+  id: number;
+  title: string | null;
+  subtitle: string | null;
+  media_type: 'image' | 'video';
+  media_url: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
 export type AdminSettings = {
   listing_fee: number;
   processing_fee_pct: number;
@@ -286,8 +296,8 @@ export const properties = {
       token,
     }),
 
-  mine: (token: string) =>
-    request<PaginatedProperties>('/my-properties', { token }),
+  mine: (token: string, page = 1) =>
+    request<PaginatedProperties>(`/my-properties?per_page=5&page=${page}`, { token }),
 };
 
 // ─── Inquiries ───────────────────────────────────────────────────────────────
@@ -587,6 +597,24 @@ export const newsApi = {
 
   delete: (id: number, token: string) =>
     request<{ message: string }>(`/admin/news/${id}`, { method: 'DELETE', token }),
+};
+
+// ─── Slides ──────────────────────────────────────────────────────────────────
+
+export const slidesApi = {
+  list: () => request<Slide[]>('/slides'),
+
+  adminList: (token: string) =>
+    request<Slide[]>('/admin/slides', { token }),
+
+  create: (data: FormData, token: string) =>
+    request<Slide>('/admin/slides', { method: 'POST', body: data, token }),
+
+  update: (id: number, data: { title?: string | null; subtitle?: string | null; is_active?: boolean }, token: string) =>
+    request<Slide>(`/admin/slides/${id}`, { method: 'PATCH', body: data, token }),
+
+  destroy: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/slides/${id}`, { method: 'DELETE', token }),
 };
 
 // ─── Profile ─────────────────────────────────────────────────────────────────

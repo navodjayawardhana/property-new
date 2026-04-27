@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -11,7 +11,35 @@ import { formatPrice } from "@/lib/utils";
 import {
   Plus, Edit2, Trash2, Loader2, Home, TrendingUp, CheckCircle,
   MessageSquare, ExternalLink, Phone, Mail, RefreshCw,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
+
+function Pagination({ current, last, onChange }: { current: number; last: number; onChange: (p: number) => void }) {
+  if (last <= 1) return null;
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-5">
+      <button onClick={() => onChange(current - 1)} disabled={current === 1}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronLeft size={14} />
+      </button>
+      {Array.from({ length: last }, (_, i) => i + 1)
+        .filter(p => p === 1 || p === last || Math.abs(p - current) <= 1)
+        .reduce<(number | "…")[]>((acc, p, i, arr) => {
+          if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("…");
+          acc.push(p); return acc;
+        }, [])
+        .map((p, i) => p === "…"
+          ? <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
+          : <button key={p} onClick={() => onChange(p as number)}
+              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${current === p ? "bg-[#16a34a] text-white" : "border border-gray-200 text-gray-700 hover:border-[#16a34a]"}`}>{p}</button>
+        )}
+      <button onClick={() => onChange(current + 1)} disabled={current === last}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
 
 const STATUS_BADGE: Record<string, string> = {
   active: "bg-green-100 text-green-700",
@@ -31,6 +59,9 @@ export default function SellerDashboard() {
 
   const [tab, setTab] = useState<'listings' | 'inquiries'>('listings');
   const [items, setItems] = useState<Property[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [fetching, setFetching] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -44,13 +75,21 @@ export default function SellerDashboard() {
     }
   }, [loading, user, router]);
 
-  useEffect(() => {
+  const loadListings = useCallback((p: number) => {
     if (!token) return;
-    propertiesApi.mine(token)
-      .then((res) => setItems(res.data))
+    setFetching(true);
+    propertiesApi.mine(token, p)
+      .then((res) => {
+        setItems(res.data);
+        setPage(res.current_page);
+        setLastPage(res.last_page);
+        setTotal(res.total);
+      })
       .catch(console.error)
       .finally(() => setFetching(false));
   }, [token]);
+
+  useEffect(() => { loadListings(1); }, [loadListings]);
 
   useEffect(() => {
     if (tab === 'inquiries' && token && !inqLoaded) {
@@ -72,7 +111,7 @@ export default function SellerDashboard() {
     setDeletingId(id);
     try {
       await propertiesApi.delete(id, token);
-      setItems((prev) => prev.filter((p) => p.id !== id));
+      loadListings(page);
     } catch (e: unknown) {
       alert((e as Error).message ?? 'Delete failed');
     } finally {
@@ -85,6 +124,7 @@ export default function SellerDashboard() {
   const active = items.filter((p) => p.status === 'active').length;
   const sold = items.filter((p) => p.status === 'sold').length;
   const pendingCount = received.filter((i) => i.status === 'pending').length;
+  const fmtTotal = total;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -105,7 +145,7 @@ export default function SellerDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Total Listings', value: items.length, icon: Home, color: 'text-[#16a34a]', bg: 'bg-[#16a34a]/10' },
+            { label: 'Total Listings', value: fmtTotal, icon: Home, color: 'text-[#16a34a]', bg: 'bg-[#16a34a]/10' },
             { label: 'Active', value: active, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100' },
             { label: 'Sold', value: sold, icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-100' },
             { label: 'New Inquiries', value: pendingCount, icon: MessageSquare, color: 'text-orange-500', bg: 'bg-orange-100' },
@@ -125,7 +165,7 @@ export default function SellerDashboard() {
           <button onClick={() => setTab('listings')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'listings' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <Home size={14} /> My Listings
-            {items.length > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{items.length}</span>}
+            {total > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{total}</span>}
           </button>
           <button onClick={() => setTab('inquiries')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'inquiries' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
@@ -140,7 +180,7 @@ export default function SellerDashboard() {
             <div className="flex items-center justify-center py-20">
               <Loader2 size={24} className="animate-spin text-gray-400" />
             </div>
-          ) : items.length === 0 ? (
+          ) : total === 0 ? (
             <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
               <Home size={40} className="text-gray-200 mx-auto mb-3" />
               <p className="text-gray-500 font-medium">No listings yet</p>
@@ -151,7 +191,11 @@ export default function SellerDashboard() {
               </Link>
             </div>
           ) : (
+            <>
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100">
+                <p className="text-sm text-gray-500">{total} listing{total !== 1 ? 's' : ''} · page {page} of {lastPage}</p>
+              </div>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50">
@@ -197,6 +241,8 @@ export default function SellerDashboard() {
                 </tbody>
               </table>
             </div>
+            <Pagination current={page} last={lastPage} onChange={(p) => loadListings(p)} />
+            </>
           )
         )}
 

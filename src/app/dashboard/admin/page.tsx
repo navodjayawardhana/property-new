@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -9,8 +9,10 @@ import { useAuth } from "@/lib/auth-context";
 import {
   admin as adminApi,
   newsApi,
+  slidesApi,
   type AdminStats,
   type AdminSettings,
+  type Slide,
   type PaginatedUsers,
   type PaginatedInquiries,
   type PaginatedProperties,
@@ -27,6 +29,7 @@ import {
   ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
   Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
+  ImagePlay, Upload, Video,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -1178,18 +1181,194 @@ function LoanEnquiriesTab({ token }: { token: string }) {
   );
 }
 
+// ─── Slides tab ──────────────────────────────────────────────────────────────
+
+const MAX_SLIDES = 6;
+
+function SlidesTab({ token }: { token: string }) {
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [title, setTitle] = useState("");
+  const [subtitle, setSubtitle] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const load = () => {
+    setLoading(true);
+    slidesApi.adminList(token)
+      .then(setSlides)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, [token]);
+
+  function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    setIsVideo(f.type.startsWith("video"));
+    setPreview(URL.createObjectURL(f));
+  }
+
+  async function handleAdd() {
+    if (!file) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.append("media", file);
+      if (title) fd.append("title", title);
+      if (subtitle) fd.append("subtitle", subtitle);
+      await slidesApi.create(fd, token);
+      setFile(null); setPreview(null); setIsVideo(false);
+      setTitle(""); setSubtitle("");
+      if (fileRef.current) fileRef.current.value = "";
+      load();
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setSaving(false); }
+  }
+
+  async function handleDelete(id: number) {
+    if (!confirm("Delete this slide?")) return;
+    try {
+      await slidesApi.destroy(id, token);
+      load();
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleToggle(slide: Slide) {
+    try {
+      await slidesApi.update(slide.id, { is_active: !slide.is_active }, token);
+      load();
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  const canAdd = slides.length < MAX_SLIDES;
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      {/* Existing slides */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+            <ImagePlay size={16} className="text-[#16a34a]" /> Homepage Slides
+          </h3>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${slides.length >= MAX_SLIDES ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+            {slides.length} / {MAX_SLIDES} slides
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="p-8 text-center text-gray-400 text-sm">Loading slides…</div>
+        ) : slides.length === 0 ? (
+          <div className="p-8 text-center text-gray-400 text-sm">No slides yet — default homepage images are displayed.</div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {slides.map((s, i) => (
+              <div key={s.id} className="flex items-center gap-4 px-5 py-3">
+                <span className="text-xs text-gray-400 font-bold w-4 shrink-0">{i + 1}</span>
+                <div className="w-20 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                  {s.media_type === "video" ? (
+                    <video src={s.media_url} className="w-full h-full object-cover" muted />
+                  ) : (
+                    <img src={s.media_url} alt={s.title ?? ""} className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{s.title || <span className="text-gray-400 italic">No title</span>}</p>
+                  <p className="text-xs text-gray-400 truncate">{s.subtitle || "—"}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {s.media_type === "video" && (
+                    <span className="flex items-center gap-1 text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full font-medium">
+                      <Video size={10} /> Video
+                    </span>
+                  )}
+                  <button onClick={() => handleToggle(s)}
+                    title={s.is_active ? "Hide slide" : "Show slide"}
+                    className={`transition-colors ${s.is_active ? "text-green-500 hover:text-green-700" : "text-gray-300 hover:text-gray-500"}`}>
+                    {s.is_active ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
+                  </button>
+                  <button onClick={() => handleDelete(s.id)}
+                    className="text-red-400 hover:text-red-600 transition-colors p-1 hover:bg-red-50 rounded-lg">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Add new slide */}
+      {canAdd ? (
+        <div className="bg-white rounded-2xl border border-gray-100 p-5">
+          <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><Upload size={14} /> Add New Slide</h3>
+          <div className="space-y-3">
+            {/* Media picker */}
+            <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#16a34a] transition-colors bg-gray-50 overflow-hidden min-h-[120px]">
+              {preview ? (
+                isVideo ? (
+                  <video src={preview} className="w-full max-h-48 object-contain" controls muted />
+                ) : (
+                  <img src={preview} alt="" className="w-full max-h-48 object-cover" />
+                )
+              ) : (
+                <div className="flex flex-col items-center py-6 text-gray-400">
+                  <ImagePlay size={24} className="mb-2" />
+                  <span className="text-xs font-medium">Click to upload image or video</span>
+                  <span className="text-xs mt-0.5 text-gray-300">JPG, PNG, WEBP, MP4, MOV · max 50 MB</span>
+                </div>
+              )}
+              <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4,video/mov,video/webm" className="hidden" onChange={handleFilePick} />
+            </label>
+            {preview && (
+              <button onClick={() => { setFile(null); setPreview(null); setIsVideo(false); if (fileRef.current) fileRef.current.value = ""; }}
+                className="text-xs text-red-500 hover:text-red-700 font-medium">Remove media</button>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Title (optional)</label>
+                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Find Your Dream Home" className={inp} maxLength={100} />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 block mb-1">Subtitle (optional)</label>
+                <input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="e.g. Search across Sri Lanka" className={inp} maxLength={200} />
+              </div>
+            </div>
+
+            <button onClick={handleAdd} disabled={!file || saving}
+              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              {saving ? <><Loader2 size={14} className="animate-spin" /> Uploading…</> : <><Plus size={14} /> Add Slide</>}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700 font-medium">
+          Maximum of {MAX_SLIDES} slides reached. Delete a slide to add a new one.
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Pricing tab ─────────────────────────────────────────────────────────────
 
 function PricingTab({ token }: { token: string }) {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
-  const [form, setForm] = useState({ listing_fee: 1000, processing_fee_pct: 3.3, commission_pct: 0 });
+  const [form, setForm] = useState({ listing_fee: 1000, processing_fee_pct: 3.3 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     adminApi.getSettings(token)
-      .then((s) => { setSettings(s); setForm({ listing_fee: s.listing_fee, processing_fee_pct: s.processing_fee_pct, commission_pct: s.commission_pct }); })
+      .then((s) => { setSettings(s); setForm({ listing_fee: s.listing_fee, processing_fee_pct: s.processing_fee_pct }); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [token]);
@@ -1198,7 +1377,7 @@ function PricingTab({ token }: { token: string }) {
     setSaving(true);
     setSaved(false);
     try {
-      const updated = await adminApi.updateSettings(form, token);
+      const updated = await adminApi.updateSettings({ ...form, commission_pct: 0 }, token);
       setSettings(updated);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -1206,11 +1385,9 @@ function PricingTab({ token }: { token: string }) {
     finally { setSaving(false); }
   }
 
-  const fee    = form.listing_fee;
-  const proc   = parseFloat(((fee * form.processing_fee_pct) / 100).toFixed(2));
-  const comm   = parseFloat(((fee * form.commission_pct) / 100).toFixed(2));
-  const total  = parseFloat((fee + proc).toFixed(2));
-  const net    = parseFloat((fee - comm).toFixed(2));
+  const fee   = form.listing_fee;
+  const proc  = parseFloat(((fee * form.processing_fee_pct) / 100).toFixed(2));
+  const total = parseFloat((fee + proc).toFixed(2));
 
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
@@ -1224,44 +1401,34 @@ function PricingTab({ token }: { token: string }) {
           <div className="text-sm text-gray-400 py-4">Loading settings…</div>
         ) : (
           <div className="space-y-4">
-            <div>
-              <label className={lbl}>Listing Fee (LKR) — fixed amount charged per listing</label>
-              <input type="number" min={0} step={1} className={inp}
-                value={form.listing_fee}
-                onChange={(e) => setForm({ ...form, listing_fee: parseFloat(e.target.value) || 0 })} />
-            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={lbl}>Processing Fee % — payment gateway charge</label>
+                <label className={lbl}>Listing Fee (LKR)</label>
+                <input type="number" min={0} step={1} className={inp}
+                  value={form.listing_fee}
+                  onChange={(e) => setForm({ ...form, listing_fee: parseFloat(e.target.value) || 0 })} />
+              </div>
+              <div>
+                <label className={lbl}>Processing Fee %</label>
                 <input type="number" min={0} max={100} step={0.1} className={inp}
                   value={form.processing_fee_pct}
                   onChange={(e) => setForm({ ...form, processing_fee_pct: parseFloat(e.target.value) || 0 })} />
               </div>
-              <div>
-                <label className={lbl}>Commission % — platform deduction from listing fee</label>
-                <input type="number" min={0} max={100} step={0.1} className={inp}
-                  value={form.commission_pct}
-                  onChange={(e) => setForm({ ...form, commission_pct: parseFloat(e.target.value) || 0 })} />
-              </div>
             </div>
 
-            {/* Live breakdown */}
-            <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Fee Breakdown Preview</p>
+            {/* Live total */}
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2.5 text-sm">
               <div className="flex justify-between text-gray-700">
-                <span>Listing Fee</span><span className="font-semibold">LKR {fmt(fee)}</span>
+                <span>Price</span>
+                <span className="font-semibold">LKR {fmt(fee)}</span>
               </div>
               <div className="flex justify-between text-gray-500">
-                <span>Processing Fee ({form.processing_fee_pct}%)</span><span>+ LKR {fmt(proc)}</span>
+                <span>Processing Fee ({form.processing_fee_pct}%)</span>
+                <span>LKR {fmt(proc)}</span>
               </div>
-              <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-900">
-                <span>Total charged to seller</span><span>LKR {fmt(total)}</span>
-              </div>
-              <div className="border-t border-gray-200 pt-2 flex justify-between text-orange-600">
-                <span>Commission deduction ({form.commission_pct}%)</span><span>− LKR {fmt(comm)}</span>
-              </div>
-              <div className="flex justify-between font-bold text-[#16a34a]">
-                <span>Net to platform</span><span>LKR {fmt(net)}</span>
+              <div className="border-t border-gray-200 pt-2.5 flex justify-between font-bold text-gray-900 text-base">
+                <span>Total Price</span>
+                <span>LKR {fmt(total)}</span>
               </div>
             </div>
 
@@ -1281,7 +1448,7 @@ function PricingTab({ token }: { token: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "pricing";
+type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "slides" | "pricing";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview",    label: "Overview",       icon: <LayoutDashboard size={16} /> },
@@ -1290,6 +1457,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "inquiries",   label: "Inquiries",      icon: <MessageSquare size={16} /> },
   { id: "news",        label: "News",           icon: <Newspaper size={16} /> },
   { id: "loans",       label: "Loan Enquiries", icon: <DollarSign size={16} /> },
+  { id: "slides",      label: "Slides",         icon: <ImagePlay size={16} /> },
   { id: "pricing",     label: "Pricing",        icon: <Settings size={16} /> },
 ];
 
@@ -1357,6 +1525,7 @@ export default function AdminPage() {
         {tab === "inquiries"   && token && <InquiriesTab token={token} />}
         {tab === "news"        && token && <NewsTab token={token} />}
         {tab === "loans"       && token && <LoanEnquiriesTab token={token} />}
+        {tab === "slides"      && token && <SlidesTab token={token} />}
         {tab === "pricing"     && token && <PricingTab token={token} />}
       </div>
 

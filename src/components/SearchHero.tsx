@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { slidesApi, type Slide } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import {
   Search, SlidersHorizontal, X, ChevronDown, MapPin,
@@ -80,6 +81,22 @@ type Props = { defaultTab?: SearchTab; title?: string };
 export default function SearchHero({ defaultTab = "Buy", title }: Props) {
   const router = useRouter();
 
+  // ── Dynamic slides (falls back to SLIDES if API returns empty) ───────────────
+  const [slides, setSlides] = useState<SlideItem[]>(SLIDES);
+
+  useEffect(() => {
+    slidesApi.list().then((data: Slide[]) => {
+      if (data.length > 0) {
+        setSlides(data.map((s) => ({
+          type: s.media_type,
+          src: s.media_url,
+          label: s.title ?? "",
+          sub: s.subtitle ?? "",
+        })));
+      }
+    }).catch(() => {});
+  }, []);
+
   // ── Slider state ─────────────────────────────────────────────────────────────
   const [current, setCurrent]   = useState(0);
   const timerRef                = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -87,21 +104,22 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
   const startTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % SLIDES.length);
+      setCurrent((c) => (c + 1) % slides.length);
     }, INTERVAL_MS);
-  }, []);
+  }, [slides.length]);
 
   useEffect(() => {
+    setCurrent(0);
     startTimer();
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [startTimer]);
 
   function goTo(idx: number) {
     setCurrent(idx);
-    startTimer(); // reset auto-slide on manual nav
+    startTimer();
   }
-  function prev() { goTo((current - 1 + SLIDES.length) % SLIDES.length); }
-  function next() { goTo((current + 1) % SLIDES.length); }
+  function prev() { goTo((current - 1 + slides.length) % slides.length); }
+  function next() { goTo((current + 1) % slides.length); }
 
   // ── Search state ──────────────────────────────────────────────────────────────
   const [tab, setTab]                   = useState<SearchTab>(defaultTab);
@@ -188,7 +206,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
       <section className="relative w-full h-screen overflow-hidden">
 
         {/* Slides */}
-        {SLIDES.map((slide, i) => (
+        {slides.map((slide, i) => (
           <div key={i}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === current ? "opacity-100" : "opacity-0"}`}>
             {slide.type === "video" ? (
@@ -208,7 +226,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
         {/* Slide headline */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-4 pb-36 pointer-events-none">
-          {SLIDES.map((slide, i) => (
+          {slides.map((slide, i) => (
             <div key={i}
               className={`absolute text-center transition-all duration-700 ${i === current ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <h1 className="text-white font-black text-4xl md:text-6xl drop-shadow-2xl leading-tight">
@@ -295,7 +313,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
         {/* Dot indicators */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-          {SLIDES.map((_, i) => (
+          {slides.map((_, i) => (
             <button key={i} onClick={() => goTo(i)}
               className={`rounded-full transition-all duration-300 ${i === current ? "w-6 h-2.5 bg-white" : "w-2.5 h-2.5 bg-white/50 hover:bg-white/75"}`} />
           ))}
