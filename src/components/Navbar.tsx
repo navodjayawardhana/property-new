@@ -225,20 +225,31 @@ export default function Navbar() {
                 Sign in
               </Link>
               <Link href="/join"
-                className={`text-sm font-bold px-5 py-2 rounded-full transition-colors ${
+                className={`text-sm font-bold px-5 py-2 rounded-full border-2 transition-colors ${
                   transparent
-                    ? "bg-white text-[#16a34a] hover:bg-white/90"
-                    : "bg-[#16a34a] text-white hover:bg-[#15803d]"
+                    ? "border-white text-white hover:bg-white/10"
+                    : "border-[#16a34a] text-[#16a34a] hover:bg-green-50"
                 }`}>
-                Join
+                Sign Up
               </Link>
             </>
           )}
         </div>
 
+        {/* Post Ad — mobile header (near logo, hidden on desktop) */}
+        <button
+          onClick={handlePostAd}
+          className={`lg:hidden flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full transition-colors shrink-0 ${
+            transparent
+              ? "bg-white text-[#16a34a]"
+              : "bg-[#16a34a] text-white"
+          } ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a]" : ""}`}>
+          <Plus size={12} /> Post Ad
+        </button>
+
         {/* Mobile hamburger */}
         <button
-          className={`lg:hidden ml-auto transition-colors ${transparent ? "text-white" : "text-gray-700"}`}
+          className={`lg:hidden transition-colors ${transparent ? "text-white" : "text-gray-700"}`}
           onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -279,23 +290,24 @@ export default function Navbar() {
               </Link>
             );
           })}
-          <div className="flex gap-3 mt-3 flex-wrap">
+          {user ? (
             <button
-              onClick={() => { setOpen(false); handlePostAd(); }}
-              className="flex items-center gap-1.5 bg-[#16a34a] text-white text-sm font-bold px-4 py-1.5 rounded-full">
-              <Plus size={13} /> Post Ad
+              onClick={() => { logout(); setOpen(false); }}
+              className="mt-4 w-full border border-red-200 text-red-600 font-semibold text-sm py-2.5 rounded-xl hover:bg-red-50 transition-colors">
+              Sign out
             </button>
-            {user ? (
-              <button onClick={() => logout()} className="text-sm font-medium text-red-600">
-                Sign out
-              </button>
-            ) : (
-              <>
-                <Link href="/signin" className="text-sm font-medium text-gray-700">Sign in</Link>
-                <Link href="/join" className="bg-gray-100 text-gray-700 text-sm font-bold px-4 py-1.5 rounded-full">Join</Link>
-              </>
-            )}
-          </div>
+          ) : (
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href="/signin" onClick={() => setOpen(false)}
+                className="text-center border-2 border-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
+                Sign In
+              </Link>
+              <Link href="/join" onClick={() => setOpen(false)}
+                className="text-center bg-[#16a34a] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </header>
