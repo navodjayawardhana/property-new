@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { UserAvatar } from "@/components/UserAvatar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { profile as profileApi } from "@/lib/api";
@@ -37,7 +38,7 @@ export default function ProfilePage() {
   // Personal info
   const [name, setName]               = useState("");
   const [email, setEmail]             = useState("");
-  const [phoneDialCode, setPhoneDialCode] = useState("+61");
+  const [phoneDialCode, setPhoneDialCode] = useState("+94");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [suburb, setSuburb]           = useState("");
   const [userState, setUserState]     = useState("");
@@ -165,11 +166,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-5">
             <div className="relative shrink-0">
               <div className="w-20 h-20 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center">
-                {avatarSrc ? (
-                  <img src={avatarSrc} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white text-2xl font-black">{user.name.charAt(0).toUpperCase()}</span>
-                )}
+                <UserAvatar src={avatarSrc} name={user.name} avatarBg="bg-[#16a34a]" textSize="text-2xl" />
               </div>
               {avatarLoading && (
                 <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">

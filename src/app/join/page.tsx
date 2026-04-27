@@ -20,7 +20,7 @@ export default function JoinPage() {
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "", country: "", state: "", city: "" });
-  const [countryCode, setCountryCode] = useState("+61");
+  const [countryCode, setCountryCode] = useState("+94");
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
