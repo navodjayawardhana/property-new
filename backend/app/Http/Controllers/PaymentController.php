@@ -326,7 +326,8 @@ class PaymentController extends Controller
 
         unset($listingData['image_paths']);
 
-        $listingData['order_id'] = $pending->order_id;
+        $listingData['order_id']    = $pending->order_id;
+        $listingData['listing_fee'] = $pending->payment_amount;
 
         $property = $user->properties()->create($listingData);
 

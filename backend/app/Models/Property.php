@@ -37,10 +37,12 @@ class Property extends Model
         'is_featured',
         'status',
         'order_id',
+        'listing_fee',
     ];
 
     protected $casts = [
-        'price' => 'integer',
+        'price'       => 'integer',
+        'listing_fee' => 'float',
         'price_per_week' => 'integer',
         'beds' => 'integer',
         'baths' => 'integer',

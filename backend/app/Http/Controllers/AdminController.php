@@ -154,6 +154,14 @@ class AdminController extends Controller
         return response()->json($query->paginate(5));
     }
 
+    private function calcListingFee(): float
+    {
+        $rows = DB::table('settings')->get()->keyBy('key');
+        $fee  = (float) ($rows['listing_fee']->value        ?? 1000);
+        $pct  = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+        return round($fee + $fee * $pct / 100, 2);
+    }
+
     public function createProperty(Request $request): JsonResponse
     {
         $this->gate($request);
@@ -185,6 +193,7 @@ class AdminController extends Controller
         $admin = $request->user();
         $validated['agent_name']  = $admin->name;
         $validated['agency_name'] = $admin->name;
+        $validated['listing_fee'] = $this->calcListingFee();
 
         $property = $admin->properties()->create($validated);
 

@@ -25,7 +25,7 @@
               <p style="margin:0 0 4px;color:#6b7280;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">New inquiry received</p>
               <h1 style="margin:0 0 24px;color:#111827;font-size:20px;font-weight:800;line-height:1.3;">
                 {{ $property->address }}<br />
-                <span style="color:#6b7280;font-size:14px;font-weight:500;">{{ $property->suburb }} {{ $property->state }} {{ $property->postcode }}</span>
+                <span style="color:#6b7280;font-size:14px;font-weight:500;">{{ $property->suburb }}, {{ $property->state }} &nbsp; {{ $property->postcode }}</span>
               </h1>
 
               <!-- Property summary box -->
@@ -54,20 +54,20 @@
 
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
                 <tr>
-                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="110" style="color:#6b7280;font-size:13px;">From</td>
+                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">From</td>
                         <td style="color:#111827;font-size:13px;font-weight:600;">{{ $inquiry->name }}</td>
                       </tr>
                     </table>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="110" style="color:#6b7280;font-size:13px;">Email</td>
+                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Email</td>
                         <td style="font-size:13px;"><a href="mailto:{{ $inquiry->email }}" style="color:#121e80;font-weight:600;text-decoration:none;">{{ $inquiry->email }}</a></td>
                       </tr>
                     </table>
@@ -75,10 +75,10 @@
                 </tr>
                 @if($inquiry->phone)
                 <tr>
-                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="110" style="color:#6b7280;font-size:13px;">Phone</td>
+                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Phone</td>
                         <td style="font-size:13px;"><a href="tel:{{ $inquiry->phone }}" style="color:#121e80;font-weight:600;text-decoration:none;">{{ $inquiry->phone }}</a></td>
                       </tr>
                     </table>
@@ -86,20 +86,20 @@
                 </tr>
                 @endif
                 <tr>
-                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="110" style="color:#6b7280;font-size:13px;">Inquiry type</td>
+                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Inquiry type</td>
                         <td style="color:#111827;font-size:13px;font-weight:600;text-transform:capitalize;">{{ $inquiry->inquiry_type }}</td>
                       </tr>
                     </table>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 0;">
+                  <td style="padding:11px 0;">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td width="110" style="color:#6b7280;font-size:13px;vertical-align:top;padding-top:2px;">Received</td>
+                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;padding-top:2px;">Received</td>
                         <td style="color:#111827;font-size:13px;">{{ $inquiry->created_at->format('d M Y, g:i A') }}</td>
                       </tr>
                     </table>

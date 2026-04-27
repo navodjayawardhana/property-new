@@ -6,10 +6,19 @@ use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
+    private function calcListingFee(): float
+    {
+        $rows = DB::table('settings')->get()->keyBy('key');
+        $fee  = (float) ($rows['listing_fee']->value        ?? 1000);
+        $pct  = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+        return round($fee + $fee * $pct / 100, 2);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = Property::with('images')->latest();
@@ -153,6 +162,7 @@ class PropertyController extends Controller
 
         $validated['agent_name']  = $request->user()->name;
         $validated['agency_name'] = $request->user()->name;
+        $validated['listing_fee'] = $this->calcListingFee();
 
         $property = $request->user()->properties()->create($validated);
 
