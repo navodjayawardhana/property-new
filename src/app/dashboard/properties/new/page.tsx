@@ -26,7 +26,7 @@ export default function NewPropertyPage() {
 
   if (loading || !user) return null;
 
-  const backHref = user.role === 'agent' ? '/dashboard/agent' : '/dashboard/seller';
+  const backHref = user.role === 'admin' ? '/dashboard/admin' : user.role === 'agent' ? '/dashboard/agent' : '/dashboard/seller';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -39,7 +39,7 @@ export default function NewPropertyPage() {
 
         <div className="mb-6">
           <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">
-            {user.role === 'agent' ? 'Agent Dashboard' : 'Seller Dashboard'}
+            {user.role === 'admin' ? 'Admin Dashboard' : user.role === 'agent' ? 'Agent Dashboard' : 'Seller Dashboard'}
           </p>
           <h1 className="text-2xl font-black text-gray-900 mt-0.5">Create New Listing</h1>
         </div>
@@ -48,6 +48,7 @@ export default function NewPropertyPage() {
           <PropertyForm
             mode="create"
             token={token!}
+            isAdmin={user.role === 'admin'}
             onSuccess={handleSuccess}
           />
         </div>

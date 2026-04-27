@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { properties as propertiesApi, type Property, type PropertyImage } from "@/lib/api";
+import { properties as propertiesApi, admin as adminApi, type Property, type PropertyImage } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { X, Upload, Loader2 } from "lucide-react";
 
@@ -33,6 +33,7 @@ type Props = {
   propertyId?: number;
   existingImages?: PropertyImage[];
   token: string;
+  isAdmin?: boolean;
   onSuccess: (property: Property) => void;
 };
 
@@ -67,7 +68,7 @@ const STATES = [
 ];
 const TYPES = ['House', 'Apartment', 'Townhouse', 'Land', 'Unit', 'Villa', 'Acreage'];
 
-export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, onSuccess }: Props) {
+export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, isAdmin = false, onSuccess }: Props) {
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -107,7 +108,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     } catch { /* ignore */ }
   }
 
-  function buildFormData(otp: string): FormData {
+  function buildFormData(otp?: string): FormData {
     const fd = new FormData();
     fd.append('title', form.title);
     fd.append('listing_type', form.listing_type);
@@ -128,7 +129,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     fd.append('description', form.description);
     fd.append('status', form.status);
     fd.append('is_featured', form.is_featured ? '1' : '0');
-    fd.append('listing_otp', otp);
+    if (otp) fd.append('listing_otp', otp);
     newFiles.forEach((file) => fd.append('images[]', file));
     return fd;
   }
@@ -175,6 +176,20 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     setError(null);
 
     if (mode === 'create') {
+      if (isAdmin) {
+        setSubmitting(true);
+        try {
+          const property = await adminApi.createProperty(buildFormData(), token);
+          onSuccess(property);
+        } catch (err: unknown) {
+          const e = err as Error & { errors?: Record<string, string[]> };
+          setError(e.errors ? Object.values(e.errors).flat().join(' · ') : (e.message ?? 'Something went wrong'));
+        } finally {
+          setSubmitting(false);
+        }
+        return;
+      }
+
       setSubmitting(true);
       try {
         const res = await propertiesApi.sendListingOtp(token);
@@ -436,7 +451,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         {mode === 'create' ? 'Create Listing' : 'Save Changes'}
       </button>
 
-      {otpPhase === 'otp' && (
+      {otpPhase === 'otp' && !isAdmin && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl">
             <h2 className="text-lg font-bold text-gray-900 mb-1">Verify &amp; Pay</h2>

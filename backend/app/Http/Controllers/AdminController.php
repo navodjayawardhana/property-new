@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inquiry;
 use App\Models\LoanEnquiry;
 use App\Models\Property;
+use App\Models\PropertyImage;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -137,6 +138,57 @@ class AdminController extends Controller
         }
 
         return response()->json($query->paginate(20));
+    }
+
+    public function createProperty(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $validated = $request->validate([
+            'title'          => 'required|string|max:255',
+            'price'          => 'required|integer|min:0',
+            'price_per_week' => 'nullable|integer|min:0',
+            'address'        => 'required|string|max:255',
+            'suburb'         => 'required|string|max:100',
+            'state'          => 'required|string|max:100',
+            'postcode'       => 'nullable|string|max:10',
+            'country'        => 'nullable|string|max:100',
+            'beds'           => 'required|integer|min:0|max:20',
+            'baths'          => 'required|integer|min:0|max:20',
+            'cars'           => 'required|integer|min:0|max:20',
+            'land_size'      => 'nullable|string|max:50',
+            'property_type'  => 'required|string|max:50',
+            'condition'      => 'required|in:new,used',
+            'category'       => 'required|in:domestic,commercial,both',
+            'listing_type'   => 'required|in:buy,rent,sold',
+            'description'    => 'required|string',
+            'is_featured'    => 'boolean',
+            'status'         => 'in:active,inactive,sold',
+            'images'         => 'nullable|array',
+            'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        $admin = $request->user();
+        $validated['agent_name']  = $admin->name;
+        $validated['agency_name'] = $admin->name;
+
+        $property = $admin->properties()->create($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store("properties/{$property->id}", 'public');
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'image_path'  => $path,
+                    'is_primary'  => $index === 0,
+                    'sort_order'  => $index,
+                ]);
+            }
+        }
+
+        $property->load('images');
+
+        return response()->json($property, 201);
     }
 
     public function updateProperty(Request $request, Property $property): JsonResponse

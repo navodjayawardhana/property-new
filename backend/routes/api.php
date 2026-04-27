@@ -94,6 +94,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/users/{user}',             [AdminController::class, 'updateUser']);
         Route::delete('/users/{user}',            [AdminController::class, 'deleteUser']);
         Route::get('/properties',                 [AdminController::class, 'properties']);
+        Route::post('/properties',                [AdminController::class, 'createProperty']);
         Route::patch('/properties/{property}',    [AdminController::class, 'updateProperty']);
         Route::delete('/properties/{property}',   [AdminController::class, 'deleteProperty']);
         Route::get('/inquiries',                  [AdminController::class, 'inquiries']);

@@ -420,6 +420,9 @@ export const admin = {
     return request<PaginatedProperties>(`/admin/properties${qs ? '?' + qs : ''}`, { token });
   },
 
+  createProperty: (data: FormData, token: string) =>
+    request<Property>('/admin/properties', { method: 'POST', body: data, token }),
+
   updateProperty: (id: number, data: { status?: string; is_featured?: boolean; listing_type?: string }, token: string) =>
     request<Property>(`/admin/properties/${id}`, { method: 'PATCH', body: data, token }),
 
