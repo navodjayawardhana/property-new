@@ -196,6 +196,8 @@ export type PaymentReceiptData = {
   listing_title: string;
   listing_address: string;
   listing_price: number;
+  listing_fee: number;
+  processing_fee: number;
   payment_amount: number;
   property_id: number;
 };

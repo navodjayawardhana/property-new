@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
-    private const LISTING_FEE = 1000.00;
+    private const LISTING_FEE        = 1000.00;
+    private const PROCESSING_FEE_PCT = 3.3;
 
     public function initiate(Request $request): JsonResponse
     {
@@ -60,10 +61,12 @@ class PaymentController extends Controller
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Step 3 — generate order with flat listing fee
-        $orderId       = 'GB-' . strtoupper(uniqid());
-        $listingPrice  = (float) $request->price;
-        $paymentAmount = self::LISTING_FEE;
+        // Step 3 — generate order: flat listing fee + 3.3% processing fee
+        $orderId        = 'GB-' . strtoupper(uniqid());
+        $listingPrice   = (float) $request->price;
+        $listingFee     = self::LISTING_FEE;
+        $processingFee  = round($listingFee * self::PROCESSING_FEE_PCT / 100, 2);
+        $paymentAmount  = $listingFee + $processingFee;
 
         // Step 4 — persist images to temporary storage
         $imagePaths = [];
@@ -85,9 +88,11 @@ class PaymentController extends Controller
             'property_type', 'condition', 'category', 'listing_type',
             'description', 'is_featured', 'status',
         ]);
-        $listingData['agent_name']  = $user->name;
-        $listingData['agency_name'] = $user->name;
-        $listingData['image_paths'] = $imagePaths;
+        $listingData['agent_name']    = $user->name;
+        $listingData['agency_name']   = $user->name;
+        $listingData['image_paths']   = $imagePaths;
+        $listingData['listing_fee']   = $listingFee;
+        $listingData['processing_fee']= $processingFee;
 
         PendingListing::create([
             'user_id'        => $user->id,
@@ -275,6 +280,8 @@ class PaymentController extends Controller
             'listing_title'   => $listingData['title'] ?? '',
             'listing_address' => ($listingData['address'] ?? '') . ', ' . ($listingData['suburb'] ?? ''),
             'listing_price'   => (float) ($listingData['price'] ?? 0),
+            'listing_fee'     => (float) ($listingData['listing_fee'] ?? self::LISTING_FEE),
+            'processing_fee'  => (float) ($listingData['processing_fee'] ?? 0),
             'payment_amount'  => $pending->payment_amount,
             'property_id'     => $pending->property_id,
         ]);
@@ -294,8 +301,9 @@ class PaymentController extends Controller
                 listingTitle:   $listingData['title'] ?? '',
                 listingAddress: ($listingData['address'] ?? '') . ', ' . ($listingData['suburb'] ?? ''),
                 listingPrice:   (float) ($listingData['price'] ?? 0),
+                listingFee:     (float) ($listingData['listing_fee'] ?? self::LISTING_FEE),
+                processingFee:  (float) ($listingData['processing_fee'] ?? 0),
                 paymentAmount:  $pending->payment_amount,
-                feePercent:     0,
                 paidAt:         $pending->updated_at->format('d M Y, H:i'),
             ));
         } catch (\Throwable $e) {

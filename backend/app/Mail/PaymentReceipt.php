@@ -19,8 +19,9 @@ class PaymentReceipt extends Mailable
         public readonly string $listingTitle,
         public readonly string $listingAddress,
         public readonly float  $listingPrice,
+        public readonly float  $listingFee,
+        public readonly float  $processingFee,
         public readonly float  $paymentAmount,
-        public readonly int    $feePercent,
         public readonly string $paidAt,
     ) {}
 

@@ -76,7 +76,11 @@
       <div class="section-title">Payment Summary</div>
       <div class="detail-row">
         <span class="label">Listing Fee (Fixed Rate)</span>
-        <span>LKR {{ number_format($paymentAmount, 2) }}</span>
+        <span>LKR {{ number_format($listingFee, 2) }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">Processing Fee (3.3%)</span>
+        <span>LKR {{ number_format($processingFee, 2) }}</span>
       </div>
 
       <div class="total-row" style="margin-top:12px;">
