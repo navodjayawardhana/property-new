@@ -188,6 +188,18 @@ export type PropertyFilters = {
   page?: number;
 };
 
+export type PaymentReceiptData = {
+  order_id: string;
+  paid_at: string;
+  user_name: string;
+  user_email: string;
+  listing_title: string;
+  listing_address: string;
+  listing_price: number;
+  payment_amount: number;
+  property_id: number;
+};
+
 export type PayHereCheckout = {
   checkout_url: string;
   order_id: string;
@@ -239,6 +251,9 @@ export const properties = {
       `/payment/complete/${orderId}`,
       { method: 'POST', token },
     ),
+
+  getReceipt: (orderId: string, token: string) =>
+    request<PaymentReceiptData>(`/payment/receipt/${orderId}`, { token }),
 
   create: (data: FormData, token: string) =>
     request<Property>('/properties', { method: 'POST', body: data, token }),

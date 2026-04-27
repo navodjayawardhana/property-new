@@ -36,6 +36,7 @@ class Property extends Model
         'days_listed',
         'is_featured',
         'status',
+        'order_id',
     ];
 
     protected $casts = [

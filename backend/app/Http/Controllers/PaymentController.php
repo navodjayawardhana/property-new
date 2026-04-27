@@ -8,12 +8,14 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Mail\PaymentReceipt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
-    private const FEE_PERCENT = 1;
+    private const LISTING_FEE = 1000.00;
 
     public function initiate(Request $request): JsonResponse
     {
@@ -58,13 +60,10 @@ class PaymentController extends Controller
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // Step 3 — generate order and calculate 10% fee
+        // Step 3 — generate order with flat listing fee
         $orderId       = 'GB-' . strtoupper(uniqid());
         $listingPrice  = (float) $request->price;
-        $paymentAmount = round($listingPrice * self::FEE_PERCENT / 100, 2);
-        if ($paymentAmount < 1.00) {
-            $paymentAmount = 1.00; // PayHere minimum
-        }
+        $paymentAmount = self::LISTING_FEE;
 
         // Step 4 — persist images to temporary storage
         $imagePaths = [];
@@ -228,7 +227,6 @@ class PaymentController extends Controller
         }
 
         $propertyId = DB::transaction(function () use ($pending, $request) {
-            // Re-read inside the transaction with a row lock to prevent double creation
             $locked = PendingListing::lockForUpdate()->find($pending->id);
 
             if ($locked->payment_status === 'completed') {
@@ -247,18 +245,72 @@ class PaymentController extends Controller
             return $property->id;
         });
 
+        // Send receipt email (outside transaction so it doesn't block the DB lock)
+        $this->sendReceiptEmail($pending->fresh(), $request->user());
+
         return response()->json([
             'status'      => 'completed',
             'property_id' => $propertyId,
         ]);
     }
 
+    public function receipt(Request $request, string $orderId): JsonResponse
+    {
+        $pending = PendingListing::where('order_id', $orderId)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (! $pending || $pending->payment_status !== 'completed') {
+            return response()->json(['message' => 'Receipt not available.'], 404);
+        }
+
+        $listingData = $pending->listing_data;
+        $user        = $request->user();
+
+        return response()->json([
+            'order_id'        => $pending->order_id,
+            'paid_at'         => $pending->updated_at->format('d M Y, H:i'),
+            'user_name'       => $user->name,
+            'user_email'      => $user->email,
+            'listing_title'   => $listingData['title'] ?? '',
+            'listing_address' => ($listingData['address'] ?? '') . ', ' . ($listingData['suburb'] ?? ''),
+            'listing_price'   => (float) ($listingData['price'] ?? 0),
+            'payment_amount'  => $pending->payment_amount,
+            'property_id'     => $pending->property_id,
+        ]);
+    }
+
+    private function sendReceiptEmail(PendingListing $pending, User $user): void
+    {
+        if (! $user->email) return;
+
+        try {
+            $listingData = $pending->listing_data;
+
+            Mail::to($user->email)->send(new PaymentReceipt(
+                orderId:        $pending->order_id,
+                userName:       $user->name,
+                userEmail:      $user->email,
+                listingTitle:   $listingData['title'] ?? '',
+                listingAddress: ($listingData['address'] ?? '') . ', ' . ($listingData['suburb'] ?? ''),
+                listingPrice:   (float) ($listingData['price'] ?? 0),
+                paymentAmount:  $pending->payment_amount,
+                feePercent:     0,
+                paidAt:         $pending->updated_at->format('d M Y, H:i'),
+            ));
+        } catch (\Throwable $e) {
+            Log::error("PayHere: failed to send receipt for order {$pending->order_id}: {$e->getMessage()}");
+        }
+    }
+
     private function createPropertyFromPending(PendingListing $pending, User $user)
     {
-        $listingData = $pending->listing_data;
-        $imagePaths  = $listingData['image_paths'] ?? [];
+        $listingData             = $pending->listing_data;
+        $imagePaths              = $listingData['image_paths'] ?? [];
 
         unset($listingData['image_paths']);
+
+        $listingData['order_id'] = $pending->order_id;
 
         $property = $user->properties()->create($listingData);
 

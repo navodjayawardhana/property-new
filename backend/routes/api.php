@@ -58,10 +58,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Send OTP before creating a listing
     Route::post('/send-listing-otp', [AuthController::class, 'sendListingOtp']);
 
-    // Payment — initiate checkout, complete on return, check status
+    // Payment — initiate checkout, complete on return, receipt
     Route::post('/payment/initiate', [PaymentController::class, 'initiate']);
     Route::post('/payment/complete/{orderId}', [PaymentController::class, 'complete']);
     Route::get('/payment/status/{orderId}', [PaymentController::class, 'status']);
+    Route::get('/payment/receipt/{orderId}', [PaymentController::class, 'receipt']);
 
     // Property management
     Route::post('/properties', [PropertyController::class, 'store']);
