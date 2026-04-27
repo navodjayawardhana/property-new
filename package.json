@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "countries-list": "^3.3.0",
     "lucide-react": "^1.8.0",
     "next": "16.2.4",
     "puppeteer": "^24.41.0",
