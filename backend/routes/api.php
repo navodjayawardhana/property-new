@@ -51,6 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/avatar', [AuthController::class, 'uploadAvatar']);
     Route::delete('/profile/avatar', [AuthController::class, 'deleteAvatar']);
 
+    // Send OTP before creating a listing
+    Route::post('/send-listing-otp', [AuthController::class, 'sendListingOtp']);
+
     // Property management
     Route::post('/properties', [PropertyController::class, 'store']);
     Route::put('/properties/{property}', [PropertyController::class, 'update']);

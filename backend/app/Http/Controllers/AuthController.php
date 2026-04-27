@@ -454,6 +454,24 @@ class AuthController extends Controller
         return $digits;
     }
 
+    public function sendListingOtp(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $otp  = (string) random_int(100000, 999999);
+
+        $user->update([
+            'otp'            => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
+        ]);
+
+        Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
+
+        return response()->json([
+            'message'      => 'Verification code sent to your email.',
+            'masked_email' => $this->maskEmail($user->email),
+        ]);
+    }
+
     private function maskPhone(string $phone): string
     {
         $clean = preg_replace('/\D/', '', $phone);

@@ -110,6 +110,21 @@ class PropertyController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $request->validate([
+            'listing_otp' => 'required|string|size:6',
+        ]);
+
+        $user = $request->user();
+
+        if ($user->otp !== $request->listing_otp || ! $user->otp_expires_at || now()->isAfter($user->otp_expires_at)) {
+            return response()->json([
+                'message' => 'Invalid or expired verification code.',
+                'errors'  => ['listing_otp' => ['Invalid or expired verification code.']],
+            ], 422);
+        }
+
+        $user->update(['otp' => null, 'otp_expires_at' => null]);
+
         $validated = $request->validate([
             'title'          => 'required|string|max:255',
             'price'          => 'required|integer|min:0',

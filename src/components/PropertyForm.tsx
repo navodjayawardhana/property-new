@@ -74,6 +74,10 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
   const [currentImages, setCurrentImages] = useState<PropertyImage[]>(existingImages);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [otpPhase, setOtpPhase] = useState<'form' | 'otp'>('form');
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function set(field: keyof FormState, value: string | boolean) {
@@ -103,64 +107,98 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     } catch { /* ignore */ }
   }
 
+  function buildFormData(otp: string): FormData {
+    const fd = new FormData();
+    fd.append('title', form.title);
+    fd.append('listing_type', form.listing_type);
+    fd.append('property_type', form.property_type);
+    fd.append('condition', form.condition);
+    fd.append('category', form.category);
+    fd.append('address', form.address);
+    fd.append('suburb', form.suburb);
+    fd.append('state', form.state);
+    fd.append('postcode', form.postcode);
+    fd.append('country', form.country);
+    fd.append('beds', form.beds);
+    fd.append('baths', form.baths);
+    fd.append('cars', form.cars);
+    if (form.land_size) fd.append('land_size', form.land_size);
+    fd.append('price', form.price);
+    if (form.price_per_week) fd.append('price_per_week', form.price_per_week);
+    fd.append('description', form.description);
+    fd.append('status', form.status);
+    fd.append('is_featured', form.is_featured ? '1' : '0');
+    fd.append('listing_otp', otp);
+    newFiles.forEach((file) => fd.append('images[]', file));
+    return fd;
+  }
+
+  async function handleOtpSubmit() {
+    setOtpError(null);
+    setSubmitting(true);
+    try {
+      const property = await propertiesApi.create(buildFormData(otpCode), token);
+      onSuccess(property);
+    } catch (err: unknown) {
+      const e = err as Error & { errors?: Record<string, string[]> };
+      const msg = e.errors ? Object.values(e.errors).flat().join(' · ') : (e.message ?? 'Something went wrong');
+      setOtpError(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (mode === 'create') {
+      setSubmitting(true);
+      try {
+        const res = await propertiesApi.sendListingOtp(token);
+        setMaskedEmail(res.masked_email);
+        setOtpCode('');
+        setOtpError(null);
+        setOtpPhase('otp');
+      } catch (err: unknown) {
+        const e = err as Error;
+        setError(e.message ?? 'Failed to send verification code.');
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     setSubmitting(true);
     try {
       let property: Property;
 
-      if (mode === 'create') {
-        const fd = new FormData();
-        fd.append('title', form.title);
-        fd.append('listing_type', form.listing_type);
-        fd.append('property_type', form.property_type);
-        fd.append('condition', form.condition);
-        fd.append('category', form.category);
-        fd.append('address', form.address);
-        fd.append('suburb', form.suburb);
-        fd.append('state', form.state);
-        fd.append('postcode', form.postcode);
-        fd.append('country', form.country);
-        fd.append('beds', form.beds);
-        fd.append('baths', form.baths);
-        fd.append('cars', form.cars);
-        if (form.land_size) fd.append('land_size', form.land_size);
-        fd.append('price', form.price);
-        if (form.price_per_week) fd.append('price_per_week', form.price_per_week);
-        fd.append('description', form.description);
-        fd.append('status', form.status);
-        fd.append('is_featured', form.is_featured ? '1' : '0');
-        newFiles.forEach((file) => fd.append('images[]', file));
-        property = await propertiesApi.create(fd, token);
-      } else {
-        property = await propertiesApi.update(propertyId!, {
-          title: form.title,
-          listing_type: form.listing_type,
-          property_type: form.property_type,
-          condition: form.condition,
-          category: form.category,
-          address: form.address,
-          suburb: form.suburb,
-          state: form.state,
-          postcode: form.postcode,
-          country: form.country,
-          beds: parseInt(form.beds) || 0,
-          baths: parseInt(form.baths) || 0,
-          cars: parseInt(form.cars) || 0,
-          land_size: form.land_size || null,
-          price: parseInt(form.price) || 0,
-          price_per_week: form.price_per_week ? parseInt(form.price_per_week) : null,
-          description: form.description,
-          status: form.status,
-          is_featured: form.is_featured,
-        }, token);
-        if (newFiles.length > 0) {
-          const imgFd = new FormData();
-          newFiles.forEach((file) => imgFd.append('images[]', file));
-          await propertiesApi.uploadImages(propertyId!, imgFd, token);
-          property = await propertiesApi.get(propertyId!);
-        }
+      property = await propertiesApi.update(propertyId!, {
+        title: form.title,
+        listing_type: form.listing_type,
+        property_type: form.property_type,
+        condition: form.condition,
+        category: form.category,
+        address: form.address,
+        suburb: form.suburb,
+        state: form.state,
+        postcode: form.postcode,
+        country: form.country,
+        beds: parseInt(form.beds) || 0,
+        baths: parseInt(form.baths) || 0,
+        cars: parseInt(form.cars) || 0,
+        land_size: form.land_size || null,
+        price: parseInt(form.price) || 0,
+        price_per_week: form.price_per_week ? parseInt(form.price_per_week) : null,
+        description: form.description,
+        status: form.status,
+        is_featured: form.is_featured,
+      }, token);
+      if (newFiles.length > 0) {
+        const imgFd = new FormData();
+        newFiles.forEach((file) => imgFd.append('images[]', file));
+        await propertiesApi.uploadImages(propertyId!, imgFd, token);
+        property = await propertiesApi.get(propertyId!);
       }
       onSuccess(property);
     } catch (err: unknown) {
@@ -375,6 +413,46 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         {submitting && <Loader2 size={16} className="animate-spin" />}
         {mode === 'create' ? 'Create Listing' : 'Save Changes'}
       </button>
+
+      {otpPhase === 'otp' && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Verify Your Email</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              A 6-digit code was sent to <span className="font-medium text-gray-700">{maskedEmail}</span>. Enter it below to publish your listing.
+            </p>
+            {otpError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-3">{otpError}</div>
+            )}
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              className="w-full border border-gray-200 rounded-lg px-4 py-3 text-center text-2xl font-bold tracking-widest outline-none focus:border-[#16a34a] mb-4"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={handleOtpSubmit}
+              disabled={otpCode.length !== 6 || submitting}
+              className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              {submitting && <Loader2 size={16} className="animate-spin" />}
+              Verify &amp; Create Listing
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOtpPhase('form'); setOtpCode(''); setOtpError(null); }}
+              className="w-full mt-2 text-sm text-gray-500 hover:text-gray-700 py-2 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

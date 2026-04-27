@@ -202,6 +202,9 @@ export const properties = {
 
   get: (id: number | string) => request<Property>(`/properties/${id}`),
 
+  sendListingOtp: (token: string) =>
+    request<{ message: string; masked_email: string }>('/send-listing-otp', { method: 'POST', token }),
+
   create: (data: FormData, token: string) =>
     request<Property>('/properties', { method: 'POST', body: data, token }),
 
