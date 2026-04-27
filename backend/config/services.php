@@ -47,4 +47,10 @@ return [
         'service_id' => env('NOTIFY_LK_SERVICE_ID'),
     ],
 
+    'payhere' => [
+        'merchant_id'     => env('PAYHERE_MERCHANT_ID'),
+        'merchant_secret' => env('PAYHERE_MERCHANT_SECRET'),
+        'sandbox'         => env('PAYHERE_SANDBOX', true),
+    ],
+
 ];

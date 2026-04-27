@@ -6,6 +6,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\LoanEnquiryController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PropertyController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,9 @@ Route::get('/news/{newsArticle}', [NewsController::class, 'show']);
 // Public loan pre-approval enquiry
 Route::post('/loan-enquiries', [LoanEnquiryController::class, 'store']);
 
+// PayHere server-to-server callback (no auth — called by PayHere servers)
+Route::post('/payment/notify', [PaymentController::class, 'notify']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
@@ -53,6 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Send OTP before creating a listing
     Route::post('/send-listing-otp', [AuthController::class, 'sendListingOtp']);
+
+    // Payment — initiate checkout, complete on return, check status
+    Route::post('/payment/initiate', [PaymentController::class, 'initiate']);
+    Route::post('/payment/complete/{orderId}', [PaymentController::class, 'complete']);
+    Route::get('/payment/status/{orderId}', [PaymentController::class, 'status']);
 
     // Property management
     Route::post('/properties', [PropertyController::class, 'store']);

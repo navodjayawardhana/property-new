@@ -137,13 +137,35 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     setOtpError(null);
     setSubmitting(true);
     try {
-      const property = await propertiesApi.create(buildFormData(otpCode), token);
-      onSuccess(property);
+      const checkout = await propertiesApi.initiatePayment(buildFormData(otpCode), token);
+
+      // Auto-submit a hidden form to PayHere checkout page
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = checkout.checkout_url;
+
+      const fields = [
+        'merchant_id', 'return_url', 'cancel_url', 'notify_url',
+        'order_id', 'items', 'currency', 'amount',
+        'first_name', 'last_name', 'email', 'phone',
+        'address', 'city', 'country', 'hash',
+      ] as const;
+
+      fields.forEach((key) => {
+        const input = document.createElement('input');
+        input.type  = 'hidden';
+        input.name  = key;
+        input.value = checkout[key];
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      // page navigates away — no finally block needed
     } catch (err: unknown) {
       const e = err as Error & { errors?: Record<string, string[]> };
       const msg = e.errors ? Object.values(e.errors).flat().join(' · ') : (e.message ?? 'Something went wrong');
       setOtpError(msg);
-    } finally {
       setSubmitting(false);
     }
   }
@@ -417,9 +439,12 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
       {otpPhase === 'otp' && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Verify Your Email</h2>
-            <p className="text-sm text-gray-500 mb-4">
-              A 6-digit code was sent to <span className="font-medium text-gray-700">{maskedEmail}</span>. Enter it below to publish your listing.
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Verify &amp; Pay</h2>
+            <p className="text-sm text-gray-500 mb-1">
+              A 6-digit code was sent to <span className="font-medium text-gray-700">{maskedEmail}</span>.
+            </p>
+            <p className="text-xs text-gray-400 mb-4">
+              After verification you will be redirected to PayHere to pay a 10% listing fee.
             </p>
             {otpError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-3">{otpError}</div>
@@ -441,7 +466,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
               className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 size={16} className="animate-spin" />}
-              Verify &amp; Create Listing
+              {submitting ? 'Redirecting to payment...' : 'Verify & Proceed to Payment'}
             </button>
             <button
               type="button"

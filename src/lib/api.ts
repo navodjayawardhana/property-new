@@ -188,6 +188,26 @@ export type PropertyFilters = {
   page?: number;
 };
 
+export type PayHereCheckout = {
+  checkout_url: string;
+  order_id: string;
+  merchant_id: string;
+  amount: string;
+  currency: string;
+  items: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  return_url: string;
+  cancel_url: string;
+  notify_url: string;
+  hash: string;
+};
+
 export const properties = {
   list: (filters?: PropertyFilters) => {
     const params = new URLSearchParams();
@@ -204,6 +224,21 @@ export const properties = {
 
   sendListingOtp: (token: string) =>
     request<{ message: string; masked_email: string }>('/send-listing-otp', { method: 'POST', token }),
+
+  initiatePayment: (data: FormData, token: string) =>
+    request<PayHereCheckout>('/payment/initiate', { method: 'POST', body: data, token }),
+
+  checkPaymentStatus: (orderId: string, token: string) =>
+    request<{ status: 'pending' | 'completed' | 'failed'; property_id: number | null }>(
+      `/payment/status/${orderId}`,
+      { token },
+    ),
+
+  completePayment: (orderId: string, token: string) =>
+    request<{ status: string; property_id: number }>(
+      `/payment/complete/${orderId}`,
+      { method: 'POST', token },
+    ),
 
   create: (data: FormData, token: string) =>
     request<Property>('/properties', { method: 'POST', body: data, token }),
