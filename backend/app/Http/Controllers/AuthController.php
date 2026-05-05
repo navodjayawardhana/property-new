@@ -382,13 +382,22 @@ class AuthController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        $to = config('mail.from.address');
+        Log::info('Contact form submission', [
+            'name'    => $request->name,
+            'email'   => $request->email,
+            'message' => $request->message,
+        ]);
 
-        Mail::to($to)->send(new ContactMessage(
-            $request->name,
-            $request->email,
-            $request->message,
-        ));
+        try {
+            $to = config('mail.from.address');
+            Mail::to(trim($to))->send(new ContactMessage(
+                $request->name,
+                $request->email,
+                $request->message,
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Contact email failed: ' . $e->getMessage());
+        }
 
         return response()->json(['message' => 'Your message has been sent.']);
     }
