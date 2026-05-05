@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { useAuth } from "@/lib/auth-context";
 import { getSaved } from "@/lib/saved-properties";
-import { inquiries as inquiriesApi, favorites as favoritesApi, loanEnquiries as loanEnqApi, type Inquiry, type Property, type LoanEnquiry } from "@/lib/api";
+import { inquiries as inquiriesApi, favorites as favoritesApi, loanEnquiries as loanEnqApi, bankLoanRatesApi, type Inquiry, type Property, type LoanEnquiry } from "@/lib/api";
 import {
   Heart, MessageSquare, Home, ExternalLink, Search, ArrowRight, RefreshCw, Building2,
 } from "lucide-react";
@@ -48,6 +48,7 @@ export default function BuyerDashboard() {
   const [tab, setTab] = useState<"saved" | "inquiries" | "loans">("saved");
   const [myLoans, setMyLoans] = useState<LoanEnquiry[]>([]);
   const [loadingLoans, setLoadingLoans] = useState(false);
+  const [bankLogoMap, setBankLogoMap] = useState<Record<string, string | null>>({});
 
   const [saved, setSaved] = useState<Property[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(false);
@@ -73,10 +74,15 @@ export default function BuyerDashboard() {
   useEffect(() => {
     if (tab === "loans" && token) {
       setLoadingLoans(true);
-      loanEnqApi.mine(token)
-        .then(setMyLoans)
-        .catch(() => {})
-        .finally(() => setLoadingLoans(false));
+      Promise.all([
+        loanEnqApi.mine(token),
+        bankLoanRatesApi.list(),
+      ]).then(([loans, rates]) => {
+        setMyLoans(loans);
+        const map: Record<string, string | null> = {};
+        rates.forEach((r) => { map[r.bank_name] = r.logo_url; });
+        setBankLogoMap(map);
+      }).catch(() => {}).finally(() => setLoadingLoans(false));
     }
   }, [tab, token]);
 
@@ -308,38 +314,48 @@ export default function BuyerDashboard() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-gray-500 font-medium mb-2">{myLoans.length} application{myLoans.length !== 1 ? "s" : ""}</p>
-              {myLoans.map((loan) => (
-                <div key={loan.id} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#16a34a]/10 rounded-xl flex items-center justify-center shrink-0">
-                        <Building2 size={16} className="text-[#16a34a]" />
+              {myLoans.map((loan) => {
+                const logo = loan.selected_bank ? bankLogoMap[loan.selected_bank] : null;
+                return (
+                  <div key={loan.id} className="bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow overflow-hidden">
+                    {/* Card header */}
+                    <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
+                      <div className="flex items-center gap-3">
+                        {/* Bank logo */}
+                        <div className="w-12 h-12 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                          {logo
+                            ? <img src={logo} alt={loan.selected_bank ?? ""} className="w-full h-full object-contain p-1" />
+                            : loan.selected_bank
+                              ? <span className="font-black text-gray-400 text-base">{loan.selected_bank.charAt(0)}</span>
+                              : <Building2 size={18} className="text-gray-300" />}
+                        </div>
+                        <div>
+                          <p className="font-black text-gray-900 text-sm leading-tight">{loan.selected_bank ?? "Home Loan"}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{PURPOSE_LABEL[loan.loan_purpose] ?? loan.loan_purpose}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-bold text-gray-900 text-sm">{loan.selected_bank ?? "Home Loan"}</p>
-                        <p className="text-xs text-gray-400">{PURPOSE_LABEL[loan.loan_purpose] ?? loan.loan_purpose}</p>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${LOAN_STATUS_COLOR[loan.status] ?? "bg-gray-100 text-gray-600"}`}>
+                        {LOAN_STATUS_LABEL[loan.status] ?? loan.status}
+                      </span>
+                    </div>
+                    {/* Card stats */}
+                    <div className="grid grid-cols-3 gap-0 border-t border-gray-50 divide-x divide-gray-50 text-center">
+                      <div className="py-3 px-2">
+                        <p className="text-xs text-gray-400">Loan Amount</p>
+                        <p className="text-sm font-black text-gray-900 mt-0.5">{LKR(loan.loan_amount)}</p>
+                      </div>
+                      <div className="py-3 px-2">
+                        <p className="text-xs text-gray-400">Term</p>
+                        <p className="text-sm font-black text-gray-900 mt-0.5">{loan.loan_term ? `${loan.loan_term} yrs` : "—"}</p>
+                      </div>
+                      <div className="py-3 px-2">
+                        <p className="text-xs text-gray-400">Submitted</p>
+                        <p className="text-sm font-semibold text-gray-700 mt-0.5">{new Date(loan.created_at).toLocaleDateString("en-LK", { day: "numeric", month: "short" })}</p>
                       </div>
                     </div>
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${LOAN_STATUS_COLOR[loan.status] ?? "bg-gray-100 text-gray-600"}`}>
-                      {LOAN_STATUS_LABEL[loan.status] ?? loan.status}
-                    </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-50 text-center">
-                    <div>
-                      <p className="text-xs text-gray-400">Loan Amount</p>
-                      <p className="text-sm font-black text-gray-900">{LKR(loan.loan_amount)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Term</p>
-                      <p className="text-sm font-black text-gray-900">{loan.loan_term ? `${loan.loan_term} yrs` : "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">Submitted</p>
-                      <p className="text-sm font-semibold text-gray-700">{new Date(loan.created_at).toLocaleDateString("en-LK", { day: "numeric", month: "short" })}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )
         )}
