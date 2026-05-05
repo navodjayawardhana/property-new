@@ -273,9 +273,9 @@ export default function Footer() {
             <Link href="/agents" className="hover:text-gray-800 hover:underline whitespace-nowrap">Agent admin</Link>
             <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Legal</Link>
             <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Privacy settings</Link>
-            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Privacy centre</Link>
-            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Site map</Link>
-            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Careers</Link>
+            {/* <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Privacy centre</Link> */}
+            <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Return & refund policy</Link>
+            {/* <Link href="/" className="hover:text-gray-800 hover:underline whitespace-nowrap">Careers</Link> */}
           </div>
         </div>
       </div>

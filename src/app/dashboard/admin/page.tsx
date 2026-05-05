@@ -10,6 +10,7 @@ import {
   admin as adminApi,
   newsApi,
   slidesApi,
+  bankLoanRatesApi,
   type AdminStats,
   type AdminSettings,
   type Slide,
@@ -20,6 +21,8 @@ import {
   type PaginatedLoanEnquiries,
   type NewsArticleApi,
   type LoanEnquiry,
+  type BankLoanRate,
+  type BankLoanRateInput,
   type Property,
   type Inquiry,
   type User,
@@ -29,7 +32,8 @@ import {
   ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
   Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
-  ImagePlay, Upload, Video,
+  ImagePlay, Upload, Video, Building2, CreditCard, Calendar, MapPin, Briefcase,
+  Phone, Mail, FileText,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -1037,6 +1041,134 @@ const PURPOSE_LABELS: Record<string, string> = {
   refinance:  "Refinance",
 };
 
+// ── Loan enquiry detail modal ─────────────────────────────────────────────────
+
+function LoanDetailModal({ enq, onClose, onStatusChange }: {
+  enq: LoanEnquiry;
+  onClose: () => void;
+  onStatusChange: (enq: LoanEnquiry, status: string) => Promise<void>;
+}) {
+  const LKR = (n: number | null) =>
+    n != null ? n.toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 }) : "—";
+
+  function Row({ label, value, icon: Icon }: { label: string; value: React.ReactNode; icon?: React.ElementType }) {
+    return (
+      <div className="flex items-start gap-3 py-3 border-b border-gray-50 last:border-0">
+        {Icon && (
+          <div className="w-7 h-7 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
+            <Icon size={13} className="text-gray-500" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-gray-400 font-medium">{label}</p>
+          <p className="text-sm font-semibold text-gray-900 mt-0.5 break-words">{value || "—"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  function Section({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+      <div className="mb-5">
+        <p className="text-xs font-black text-gray-500 uppercase tracking-widest mb-2">{title}</p>
+        <div className="bg-gray-50 rounded-xl px-4 divide-y divide-gray-100">{children}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <Avatar name={enq.name} />
+            <div>
+              <p className="font-black text-gray-900 text-sm">{enq.name}</p>
+              <p className="text-xs text-gray-400">{fmtDate(enq.created_at)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <select value={enq.status} onChange={(e) => onStatusChange(enq, e.target.value)}
+              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 outline-none bg-white text-gray-700">
+              <option value="new">New</option>
+              <option value="in_review">In Review</option>
+              <option value="pre_approved">Pre-Approved</option>
+              <option value="declined">Declined</option>
+            </select>
+            <button onClick={onClose} className="w-8 h-8 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
+
+          {/* Status badge */}
+          <div className="flex flex-wrap gap-2 mb-5">
+            <Badge label={LOAN_STATUS_LABELS[enq.status] ?? enq.status} color={LOAN_STATUS_COLORS[enq.status] ?? "bg-gray-100 text-gray-600"} />
+            <Badge label={PURPOSE_LABELS[enq.loan_purpose] ?? enq.loan_purpose} color="bg-indigo-100 text-indigo-700" />
+            {enq.selected_bank && <Badge label={enq.selected_bank} color="bg-green-100 text-green-700" />}
+          </div>
+
+          <Section title="Personal Details">
+            <Row label="Full Name"   value={enq.name}       icon={Users} />
+            <Row label="NIC Number"  value={enq.nic_number} icon={CreditCard} />
+            <Row label="Email"       value={<a href={`mailto:${enq.email}`} className="text-[#16a34a] hover:underline">{enq.email}</a>} icon={Mail} />
+            <Row label="Phone"       value={enq.phone}      icon={Phone} />
+          </Section>
+
+          {enq.selected_bank && (
+            <Section title="Selected Bank">
+              <Row label="Bank Name" value={enq.selected_bank} icon={Building2} />
+            </Section>
+          )}
+
+          <Section title="Loan Details">
+            <Row label="Loan Amount"              value={LKR(enq.loan_amount)}                icon={DollarSign} />
+            <Row label="Loan Term"                value={enq.loan_term ? `${enq.loan_term} years` : null} icon={Calendar} />
+            <Row label="Deposit Amount"           value={LKR(enq.deposit_amount)}             icon={DollarSign} />
+            <Row label="Estimated Property Value" value={LKR(enq.estimated_property_value)}   icon={Home} />
+            <Row label="Loan Purpose"             value={PURPOSE_LABELS[enq.loan_purpose] ?? enq.loan_purpose} icon={FileText} />
+          </Section>
+
+          <Section title="Employment & Income">
+            <Row label="Employment Type" value={EMPLOYMENT_LABELS[enq.employment_type] ?? enq.employment_type} icon={Briefcase} />
+            <Row label="Annual Income"   value={LKR(enq.annual_income) + " p.a."} icon={DollarSign} />
+          </Section>
+
+          <Section title="Property">
+            <Row label="Property Type" value={enq.property_type} icon={Home} />
+            <Row label="District"      value={enq.property_state} icon={MapPin} />
+          </Section>
+
+          {enq.message && (
+            <Section title="Additional Notes">
+              <div className="py-3">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{enq.message}</p>
+              </div>
+            </Section>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 shrink-0 flex gap-3">
+          <a href={`mailto:${enq.email}`}
+            className="flex-1 flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold py-2.5 rounded-xl transition-colors">
+            <Mail size={14} /> Email Applicant
+          </a>
+          <button onClick={onClose}
+            className="flex-1 border border-gray-200 text-gray-700 text-sm font-semibold py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LoanEnquiriesTab({ token }: { token: string }) {
   const [data, setData] = useState<PaginatedLoanEnquiries | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1044,7 +1176,7 @@ function LoanEnquiriesTab({ token }: { token: string }) {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [viewEnq, setViewEnq] = useState<LoanEnquiry | null>(null);
 
   const load = useCallback(async (p = page, s = search, st = statusFilter) => {
     setLoading(true);
@@ -1118,47 +1250,33 @@ function LoanEnquiriesTab({ token }: { token: string }) {
                       <span className="font-semibold text-sm text-gray-900">{enq.name}</span>
                       <Badge label={LOAN_STATUS_LABELS[enq.status] ?? enq.status} color={LOAN_STATUS_COLORS[enq.status] ?? "bg-gray-100 text-gray-600"} />
                       <Badge label={PURPOSE_LABELS[enq.loan_purpose] ?? enq.loan_purpose} color="bg-indigo-100 text-indigo-700" />
+                      {enq.selected_bank && <Badge label={enq.selected_bank} color="bg-green-100 text-green-700" />}
                     </div>
                     <p className="text-xs text-gray-400">{enq.email}{enq.phone ? ` · ${enq.phone}` : ""}</p>
-
-                    {/* Loan details row */}
                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-gray-600">
-                      <span><span className="text-gray-400">Income:</span> <span className="font-semibold">{LKR(enq.annual_income)} p.a.</span></span>
                       <span><span className="text-gray-400">Loan:</span> <span className="font-semibold">{LKR(enq.loan_amount)}</span></span>
-                      <span><span className="text-gray-400">Deposit:</span> <span className="font-semibold">{LKR(enq.deposit_amount)}</span></span>
-                      <span><span className="text-gray-400">Employment:</span> <span className="font-semibold">{EMPLOYMENT_LABELS[enq.employment_type] ?? enq.employment_type}</span></span>
-                      <span><span className="text-gray-400">Property:</span> <span className="font-semibold">{enq.property_type}, {enq.property_state}</span></span>
+                      {enq.loan_term && <span><span className="text-gray-400">Term:</span> <span className="font-semibold">{enq.loan_term} yrs</span></span>}
+                      <span><span className="text-gray-400">Income:</span> <span className="font-semibold">{LKR(enq.annual_income)} p.a.</span></span>
+                      <span><span className="text-gray-400">District:</span> <span className="font-semibold">{enq.property_state}</span></span>
                     </div>
-
-                    {enq.message && (
-                      <>
-                        <p className={`text-sm text-gray-500 mt-2 ${expanded === enq.id ? "" : "line-clamp-2"}`}>{enq.message}</p>
-                        {enq.message.length > 100 && (
-                          <button onClick={() => setExpanded(expanded === enq.id ? null : enq.id)}
-                            className="text-xs text-[#16a34a] font-medium mt-0.5 hover:underline">
-                            {expanded === enq.id ? "Show less" : "Show more"}
-                          </button>
-                        )}
-                      </>
-                    )}
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xs text-gray-400 hidden lg:block">{fmtDate(enq.created_at)}</span>
+                    <button onClick={() => setViewEnq(enq)} title="View full details"
+                      className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
+                      <Eye size={13} />
+                    </button>
                     <select value={enq.status} onChange={(e) => handleStatusChange(enq, e.target.value)}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none bg-white text-gray-700 hidden sm:block">
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 outline-none bg-white text-gray-700 hidden sm:block">
                       <option value="new">New</option>
                       <option value="in_review">In Review</option>
                       <option value="pre_approved">Pre-Approved</option>
                       <option value="declined">Declined</option>
                     </select>
-                    <span className="text-xs text-gray-400 hidden lg:block">{fmtDate(enq.created_at)}</span>
-                    <a href={`mailto:${enq.email}`}
-                      className="text-[#16a34a] hover:text-[#15803d] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
-                      <TrendingUp size={14} />
-                    </a>
                     <button onClick={() => setConfirm({ id: enq.id, name: enq.name })}
-                      className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
-                      <Trash2 size={14} />
+                      className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-red-400 hover:border-red-300 hover:text-red-600 transition-colors">
+                      <Trash2 size={13} />
                     </button>
                   </div>
                 </div>
@@ -1175,6 +1293,17 @@ function LoanEnquiriesTab({ token }: { token: string }) {
           msg={`Delete loan enquiry from "${confirm.name}"?`}
           onConfirm={() => handleDelete(confirm.id)}
           onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      {viewEnq && (
+        <LoanDetailModal
+          enq={viewEnq}
+          onClose={() => setViewEnq(null)}
+          onStatusChange={async (enq, status) => {
+            await handleStatusChange(enq, status);
+            setViewEnq((prev) => prev ? { ...prev, status: status as LoanEnquiry["status"] } : null);
+          }}
         />
       )}
     </div>
@@ -1357,6 +1486,313 @@ function SlidesTab({ token }: { token: string }) {
   );
 }
 
+// ─── Bank Rates tab ───────────────────────────────────────────────────────────
+
+const LOAN_TYPE_OPTIONS = [
+  { value: "variable",      label: "Variable Rate"   },
+  { value: "fixed",         label: "Fixed Rate"      },
+  { value: "split",         label: "Split Loan"      },
+  { value: "interest_only", label: "Interest Only"   },
+];
+
+const LOAN_TYPE_COLORS: Record<string, string> = {
+  variable:      "bg-green-100 text-green-700",
+  fixed:         "bg-blue-100 text-blue-700",
+  split:         "bg-purple-100 text-purple-700",
+  interest_only: "bg-orange-100 text-orange-700",
+};
+
+const LOAN_TYPE_LABELS: Record<string, string> = {
+  variable:      "Variable",
+  fixed:         "Fixed",
+  split:         "Split",
+  interest_only: "Interest Only",
+};
+
+const EMPTY_FORM: BankLoanRateInput = {
+  bank_name: "", loan_type: "variable", interest_rate: 8.5,
+  min_loan: 500000, max_loan: 50000000, max_term: 30,
+  features: [], is_active: true, sort_order: 0,
+};
+
+function BankRatesTab({ token }: { token: string }) {
+  const [banks, setBanks] = useState<BankLoanRate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState<BankLoanRateInput>(EMPTY_FORM);
+  const [featuresText, setFeaturesText] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [removeLogo, setRemoveLogo] = useState(false);
+  const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try { setBanks(await bankLoanRatesApi.adminList(token)); }
+    catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  function resetLogoState() {
+    setLogoFile(null);
+    setLogoPreview(null);
+    setRemoveLogo(false);
+  }
+
+  function openAdd() {
+    setEditId(null);
+    setForm(EMPTY_FORM);
+    setFeaturesText("");
+    resetLogoState();
+    setShowForm(true);
+  }
+
+  function openEdit(b: BankLoanRate) {
+    setEditId(b.id);
+    setForm({
+      bank_name: b.bank_name, loan_type: b.loan_type,
+      interest_rate: b.interest_rate, min_loan: b.min_loan,
+      max_loan: b.max_loan, max_term: b.max_term,
+      features: b.features ?? [], is_active: b.is_active, sort_order: b.sort_order,
+    });
+    setFeaturesText((b.features ?? []).join(", "));
+    setLogoPreview(b.logo_url ?? null);
+    setLogoFile(null);
+    setRemoveLogo(false);
+    setShowForm(true);
+  }
+
+  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setLogoFile(f);
+    setLogoPreview(URL.createObjectURL(f));
+    setRemoveLogo(false);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const features = featuresText ? featuresText.split(",").map((s) => s.trim()).filter(Boolean) : [];
+      if (editId !== null) {
+        const updated = await bankLoanRatesApi.update(editId,
+          { ...form, features, logo: logoFile ?? undefined, remove_logo: removeLogo }, token);
+        setBanks((prev) => prev.map((b) => (b.id === editId ? updated : b)));
+      } else {
+        const created = await bankLoanRatesApi.create({ ...form, features, logo: logoFile ?? undefined }, token);
+        setBanks((prev) => [...prev, created]);
+      }
+      setShowForm(false);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setSaving(false); }
+  }
+
+  async function handleToggleActive(b: BankLoanRate) {
+    try {
+      const updated = await bankLoanRatesApi.update(b.id, { is_active: !b.is_active }, token);
+      setBanks((prev) => prev.map((x) => (x.id === b.id ? updated : x)));
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await bankLoanRatesApi.destroy(id, token);
+      setBanks((prev) => prev.filter((b) => b.id !== id));
+      setConfirm(null);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
+  const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">{banks.length} bank{banks.length !== 1 ? "s" : ""} configured</p>
+        <button onClick={openAdd}
+          className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors">
+          <Plus size={14} /> Add Bank
+        </button>
+      </div>
+
+      {/* Add / Edit form */}
+      {showForm && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+          <h3 className="text-sm font-black text-gray-900">{editId !== null ? "Edit Bank Rate" : "Add New Bank"}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={lbl}>Bank Name *</label>
+              <input className={inp} value={form.bank_name}
+                onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g. Bank of Ceylon" />
+            </div>
+            <div>
+              <label className={lbl}>Loan Type *</label>
+              <select className={inp} value={form.loan_type}
+                onChange={(e) => setForm({ ...form, loan_type: e.target.value as BankLoanRateInput["loan_type"] })}>
+                {LOAN_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Interest Rate (% p.a.) *</label>
+              <input type="number" min={0} max={100} step={0.01} className={inp}
+                value={form.interest_rate}
+                onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <label className={lbl}>Max Term (years) *</label>
+              <input type="number" min={1} max={30} className={inp}
+                value={form.max_term}
+                onChange={(e) => setForm({ ...form, max_term: parseInt(e.target.value) || 30 })} />
+            </div>
+            <div>
+              <label className={lbl}>Min Loan (LKR) *</label>
+              <input type="number" min={0} step={100000} className={inp}
+                value={form.min_loan}
+                onChange={(e) => setForm({ ...form, min_loan: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <label className={lbl}>Max Loan (LKR) *</label>
+              <input type="number" min={0} step={1000000} className={inp}
+                value={form.max_loan}
+                onChange={(e) => setForm({ ...form, max_loan: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <label className={lbl}>Sort Order</label>
+              <input type="number" min={0} className={inp}
+                value={form.sort_order}
+                onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="flex items-center gap-3 pt-5">
+              <label className="text-xs font-semibold text-gray-600">Active</label>
+              <button type="button" onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                className={`w-10 h-5 rounded-full transition-colors relative ${form.is_active ? "bg-[#16a34a]" : "bg-gray-200"}`}>
+                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${form.is_active ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className={lbl}>Bank Logo (optional)</label>
+            <div className="flex items-center gap-3">
+              {logoPreview && !removeLogo ? (
+                <div className="relative w-16 h-16 rounded-xl border border-gray-200 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center">
+                  <img src={logoPreview} alt="logo preview" className="w-full h-full object-contain p-1" />
+                  <button type="button" onClick={() => { setRemoveLogo(true); setLogoPreview(null); setLogoFile(null); }}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center">
+                    <X size={10} />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 shrink-0">
+                  <Building2 size={20} className="text-gray-300" />
+                </div>
+              )}
+              <div className="flex-1">
+                <input type="file" accept="image/*" onChange={handleLogoChange}
+                  className="w-full text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#16a34a]/10 file:text-[#16a34a] hover:file:bg-[#16a34a]/20 cursor-pointer" />
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP — max 2 MB</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className={lbl}>Features (comma-separated)</label>
+            <input className={inp} value={featuresText}
+              onChange={(e) => setFeaturesText(e.target.value)}
+              placeholder="e.g. Offset account, Redraw facility, Extra repayments" />
+            <p className="text-xs text-gray-400 mt-1">Separate features with commas</p>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button onClick={handleSave} disabled={saving || !form.bank_name}
+              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Check size={14} /> {editId !== null ? "Update" : "Create"}</>}
+            </button>
+            <button onClick={() => setShowForm(false)}
+              className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-gray-100">
+          <p className="text-sm font-bold text-gray-900 flex items-center gap-2">
+            <Building2 size={14} /> Bank Loan Rates
+          </p>
+        </div>
+        {loading ? (
+          <div className="p-8 text-center text-gray-400 text-sm">Loading…</div>
+        ) : banks.length === 0 ? (
+          <div className="p-10 text-center">
+            <Building2 size={32} className="text-gray-200 mx-auto mb-3" />
+            <p className="text-sm text-gray-400">No banks added yet. Click "Add Bank" to get started.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {banks.map((b) => (
+              <div key={b.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/40 transition-colors">
+                {/* Logo */}
+                <div className="w-10 h-10 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
+                  {b.logo_url
+                    ? <img src={b.logo_url} alt={b.bank_name} className="w-full h-full object-contain p-0.5" />
+                    : <Building2 size={16} className="text-gray-300" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <span className="font-semibold text-sm text-gray-900">{b.bank_name}</span>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${LOAN_TYPE_COLORS[b.loan_type] ?? "bg-gray-100 text-gray-600"}`}>
+                      {LOAN_TYPE_LABELS[b.loan_type] ?? b.loan_type}
+                    </span>
+                    {!b.is_active && <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">Inactive</span>}
+                  </div>
+                  <p className="text-xs text-gray-400">
+                    {b.interest_rate.toFixed(2)}% p.a. · Max {b.max_term} yrs ·
+                    LKR {(b.min_loan / 1000000).toFixed(1)}M – {(b.max_loan / 1000000).toFixed(0)}M
+                  </p>
+                  {b.features && b.features.length > 0 && (
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{b.features.join(" · ")}</p>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-black text-[#16a34a]">{b.interest_rate.toFixed(2)}%</p>
+                  <p className="text-xs text-gray-400">p.a.</p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button onClick={() => handleToggleActive(b)} title={b.is_active ? "Deactivate" : "Activate"}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                    {b.is_active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                  </button>
+                  <button onClick={() => openEdit(b)} title="Edit"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                    <Edit2 size={13} />
+                  </button>
+                  <button onClick={() => setConfirm({ id: b.id, name: b.bank_name })} title="Delete"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-red-300 text-gray-400 hover:text-red-500 transition-colors">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {confirm && (
+        <ConfirmDialog
+          msg={`Delete "${confirm.name}"? This cannot be undone.`}
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Pricing tab ─────────────────────────────────────────────────────────────
 
 function PricingTab({ token }: { token: string }) {
@@ -1448,7 +1884,7 @@ function PricingTab({ token }: { token: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "slides" | "pricing";
+type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "banks" | "slides" | "pricing";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview",    label: "Overview",       icon: <LayoutDashboard size={16} /> },
@@ -1457,6 +1893,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "inquiries",   label: "Inquiries",      icon: <MessageSquare size={16} /> },
   { id: "news",        label: "News",           icon: <Newspaper size={16} /> },
   { id: "loans",       label: "Loan Enquiries", icon: <DollarSign size={16} /> },
+  { id: "banks",       label: "Bank Rates",     icon: <Building2 size={16} /> },
   { id: "slides",      label: "Slides",         icon: <ImagePlay size={16} /> },
   { id: "pricing",     label: "Pricing",        icon: <Settings size={16} /> },
 ];
@@ -1525,6 +1962,7 @@ export default function AdminPage() {
         {tab === "inquiries"   && token && <InquiriesTab token={token} />}
         {tab === "news"        && token && <NewsTab token={token} />}
         {tab === "loans"       && token && <LoanEnquiriesTab token={token} />}
+        {tab === "banks"       && token && <BankRatesTab token={token} />}
         {tab === "slides"      && token && <SlidesTab token={token} />}
         {tab === "pricing"     && token && <PricingTab token={token} />}
       </div>

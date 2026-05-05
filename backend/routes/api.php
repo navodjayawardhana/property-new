@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankLoanRateController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SlideController;
 use App\Http\Controllers\InquiryController;
@@ -43,6 +44,9 @@ Route::post('/loan-enquiries', [LoanEnquiryController::class, 'store']);
 
 // Public slides
 Route::get('/slides', [SlideController::class, 'index']);
+
+// Public bank loan rates
+Route::get('/bank-loan-rates', [BankLoanRateController::class, 'index']);
 
 // PayHere server-to-server callback (no auth — called by PayHere servers)
 Route::post('/payment/notify', [PaymentController::class, 'notify']);
@@ -91,6 +95,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites/ids', [FavoriteController::class, 'ids']);
     Route::post('/favorites/{property}', [FavoriteController::class, 'toggle']);
 
+    // Authenticated loan enquiry (stores user_id) + viewing own enquiries
+    Route::post('/my-loan-enquiries', [LoanEnquiryController::class, 'storeAuth']);
+    Route::get('/my-loan-enquiries',  [LoanEnquiryController::class, 'myEnquiries']);
+
     // Admin routes
     Route::prefix('admin')->group(function () {
         Route::get('/stats',                      [AdminController::class, 'stats']);
@@ -120,6 +128,12 @@ Route::middleware('auth:sanctum')->group(function () {
         // Pricing settings
         Route::get('/settings',  [AdminController::class, 'getSettings']);
         Route::put('/settings',  [AdminController::class, 'updateSettings']);
+
+        // Bank loan rates
+        Route::get('/bank-loan-rates',                    [BankLoanRateController::class, 'adminIndex']);
+        Route::post('/bank-loan-rates',                   [BankLoanRateController::class, 'store']);
+        Route::put('/bank-loan-rates/{bankLoanRate}',     [BankLoanRateController::class, 'update']);
+        Route::delete('/bank-loan-rates/{bankLoanRate}',  [BankLoanRateController::class, 'destroy']);
 
         // Slideshow
         Route::get('/slides',             [SlideController::class, 'adminIndex']);

@@ -6,13 +6,28 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
-import { properties as propertiesApi, inquiries as inquiriesApi, type Property, type Inquiry } from "@/lib/api";
+import { properties as propertiesApi, inquiries as inquiriesApi, loanEnquiries as loanEnqApi, favorites as favoritesApi, type Property, type Inquiry, type LoanEnquiry } from "@/lib/api";
+import { getSaved } from "@/lib/saved-properties";
+import PropertyCard from "@/components/PropertyCard";
 import { formatPrice } from "@/lib/utils";
 import {
   Plus, Edit2, Trash2, Loader2, Home, TrendingUp, CheckCircle,
   MessageSquare, ExternalLink, Phone, Mail, RefreshCw,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Building2, Heart,
 } from "lucide-react";
+
+const LOAN_STATUS_COLOR: Record<string, string> = {
+  new: "bg-gray-100 text-gray-600", in_review: "bg-blue-100 text-blue-700",
+  pre_approved: "bg-green-100 text-green-700", declined: "bg-red-100 text-red-600",
+};
+const LOAN_STATUS_LABEL: Record<string, string> = {
+  new: "New", in_review: "In Review", pre_approved: "Pre-Approved", declined: "Declined",
+};
+const PURPOSE_LABEL: Record<string, string> = {
+  buy_home: "Buy a Home", investment: "Investment", refinance: "Refinance",
+};
+const LKR_fmt = (n: number) =>
+  Math.round(n).toLocaleString("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
 
 function Pagination({ current, last, onChange }: { current: number; last: number; onChange: (p: number) => void }) {
   if (last <= 1) return null;
@@ -57,7 +72,11 @@ export default function SellerDashboard() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
 
-  const [tab, setTab] = useState<'listings' | 'inquiries'>('listings');
+  const [tab, setTab] = useState<'listings' | 'saved' | 'inquiries' | 'loans'>('listings');
+  const [myLoans, setMyLoans] = useState<LoanEnquiry[]>([]);
+  const [loadingLoans, setLoadingLoans] = useState(false);
+  const [saved, setSaved] = useState<Property[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(false);
   const [items, setItems] = useState<Property[]>([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -92,6 +111,21 @@ export default function SellerDashboard() {
   useEffect(() => { loadListings(1); }, [loadListings]);
 
   useEffect(() => {
+    setSaved(getSaved());
+    if (token) {
+      setLoadingSaved(true);
+      favoritesApi.list(token)
+        .then((props) => { if (props.length > 0) setSaved(props); })
+        .catch(() => {})
+        .finally(() => setLoadingSaved(false));
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (tab === 'loans' && token) {
+      setLoadingLoans(true);
+      loanEnqApi.mine(token).then(setMyLoans).catch(() => {}).finally(() => setLoadingLoans(false));
+    }
     if (tab === 'inquiries' && token && !inqLoaded) {
       loadInquiries();
     }
@@ -167,10 +201,20 @@ export default function SellerDashboard() {
             <Home size={14} /> My Listings
             {total > 0 && <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{total}</span>}
           </button>
+          <button onClick={() => setTab('saved')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'saved' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            <Heart size={14} /> Saved Properties
+            {saved.length > 0 && <span className="bg-[#16a34a] text-white text-xs px-1.5 py-0.5 rounded-full">{saved.length}</span>}
+          </button>
           <button onClick={() => setTab('inquiries')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'inquiries' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <MessageSquare size={14} /> Received Inquiries
             {pendingCount > 0 && <span className="bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full">{pendingCount}</span>}
+          </button>
+          <button onClick={() => setTab('loans')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'loans' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            <Building2 size={14} /> Loan Applications
+            {myLoans.length > 0 && <span className="bg-[#16a34a] text-white text-xs px-1.5 py-0.5 rounded-full">{myLoans.length}</span>}
           </button>
         </div>
 
@@ -247,6 +291,41 @@ export default function SellerDashboard() {
         )}
 
         {/* Received Inquiries tab */}
+        {tab === 'saved' && (
+          loadingSaved ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-2xl border border-gray-100 animate-pulse h-72" />)}
+            </div>
+          ) : saved.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+              <Heart size={40} className="text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-700 font-bold text-lg">No saved properties yet</p>
+              <p className="text-gray-400 text-sm mt-1">Tap the heart icon on any listing to save it here</p>
+              <div className="flex gap-3 justify-center mt-5">
+                <Link href="/buy" className="bg-[#16a34a] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">Browse for sale</Link>
+                <Link href="/rent" className="border border-gray-300 text-gray-700 text-sm font-bold px-5 py-2.5 rounded-xl hover:border-gray-400 transition-colors">Browse rentals</Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-500 font-medium">{saved.length} saved {saved.length === 1 ? 'property' : 'properties'}</p>
+                <button onClick={() => {
+                  if (token) {
+                    setLoadingSaved(true);
+                    favoritesApi.list(token).then((p) => { if (p.length > 0) setSaved(p); }).catch(() => {}).finally(() => setLoadingSaved(false));
+                  }
+                }} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#16a34a] transition-colors font-medium">
+                  <RefreshCw size={11} /> Sync
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {saved.map((p) => <PropertyCard key={p.id} property={p} />)}
+              </div>
+            </>
+          )
+        )}
+
         {tab === 'inquiries' && (
           fetchingInq ? (
             <div className="space-y-3">
@@ -327,6 +406,42 @@ export default function SellerDashboard() {
                         )}
                       </div>
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        )}
+
+        {tab === 'loans' && (
+          loadingLoans ? (
+            <div className="space-y-3">{[1,2,3].map((i) => <div key={i} className="bg-white rounded-xl border border-gray-100 p-4 h-24 animate-pulse" />)}</div>
+          ) : myLoans.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+              <Building2 size={40} className="text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-700 font-bold text-lg">No loan applications yet</p>
+              <p className="text-gray-400 text-sm mt-1">Apply for a home loan to track your applications here</p>
+              <a href="/home-loans" className="inline-block mt-5 bg-[#16a34a] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">Compare Loans</a>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-500 font-medium mb-2">{myLoans.length} application{myLoans.length !== 1 ? "s" : ""}</p>
+              {myLoans.map((loan) => (
+                <div key={loan.id} className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-sm transition-shadow">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#16a34a]/10 rounded-xl flex items-center justify-center shrink-0"><Building2 size={16} className="text-[#16a34a]" /></div>
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm">{loan.selected_bank ?? "Home Loan"}</p>
+                        <p className="text-xs text-gray-400">{PURPOSE_LABEL[loan.loan_purpose] ?? loan.loan_purpose}</p>
+                      </div>
+                    </div>
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${LOAN_STATUS_COLOR[loan.status] ?? "bg-gray-100 text-gray-600"}`}>{LOAN_STATUS_LABEL[loan.status] ?? loan.status}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-50 text-center">
+                    <div><p className="text-xs text-gray-400">Loan Amount</p><p className="text-sm font-black text-gray-900">{LKR_fmt(loan.loan_amount)}</p></div>
+                    <div><p className="text-xs text-gray-400">Term</p><p className="text-sm font-black text-gray-900">{loan.loan_term ? `${loan.loan_term} yrs` : "—"}</p></div>
+                    <div><p className="text-xs text-gray-400">Submitted</p><p className="text-sm font-semibold text-gray-700">{new Date(loan.created_at).toLocaleDateString("en-LK", { day: "numeric", month: "short" })}</p></div>
                   </div>
                 </div>
               ))}

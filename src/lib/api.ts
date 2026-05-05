@@ -498,13 +498,17 @@ export const favorites = {
 
 export type LoanEnquiry = {
   id: number;
+  user_id: number | null;
   name: string;
+  selected_bank: string | null;
+  nic_number: string | null;
   email: string;
   phone: string | null;
   employment_type: 'full_time' | 'part_time' | 'self_employed' | 'casual';
   annual_income: number;
   deposit_amount: number;
   loan_amount: number;
+  loan_term: number | null;
   loan_purpose: 'buy_home' | 'investment' | 'refinance';
   property_type: string;
   property_state: string;
@@ -524,8 +528,14 @@ export type PaginatedLoanEnquiries = {
 };
 
 export const loanEnquiries = {
-  submit: (data: Omit<LoanEnquiry, 'id' | 'status' | 'created_at' | 'updated_at'>) =>
+  submit: (data: Omit<LoanEnquiry, 'id' | 'user_id' | 'status' | 'created_at' | 'updated_at'>) =>
     request<LoanEnquiry>('/loan-enquiries', { method: 'POST', body: data }),
+
+  submitAuth: (data: Omit<LoanEnquiry, 'id' | 'user_id' | 'status' | 'created_at' | 'updated_at'>, token: string) =>
+    request<LoanEnquiry>('/my-loan-enquiries', { method: 'POST', body: data, token }),
+
+  mine: (token: string) =>
+    request<LoanEnquiry[]>('/my-loan-enquiries', { token }),
 };
 
 // ─── News ─────────────────────────────────────────────────────────────────────
@@ -597,6 +607,70 @@ export const newsApi = {
 
   delete: (id: number, token: string) =>
     request<{ message: string }>(`/admin/news/${id}`, { method: 'DELETE', token }),
+};
+
+// ─── Bank Loan Rates ─────────────────────────────────────────────────────────
+
+export type BankLoanRate = {
+  id: number;
+  bank_name: string;
+  logo_url: string | null;
+  loan_type: 'variable' | 'fixed' | 'split' | 'interest_only';
+  interest_rate: number;
+  min_loan: number;
+  max_loan: number;
+  max_term: number;
+  features: string[] | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BankLoanRateInput = {
+  bank_name: string;
+  loan_type: 'variable' | 'fixed' | 'split' | 'interest_only';
+  interest_rate: number;
+  min_loan: number;
+  max_loan: number;
+  max_term: number;
+  features?: string[];
+  is_active?: boolean;
+  sort_order?: number;
+};
+
+export const bankLoanRatesApi = {
+  list: () => request<BankLoanRate[]>('/bank-loan-rates'),
+
+  adminList: (token: string) =>
+    request<BankLoanRate[]>('/admin/bank-loan-rates', { token }),
+
+  create: (data: BankLoanRateInput & { logo?: File | null }, token: string) => {
+    const fd = new FormData();
+    Object.entries(data).forEach(([k, v]) => {
+      if (k === 'logo') { if (v) fd.append('logo', v as File); return; }
+      if (k === 'features') { (v as string[] ?? []).forEach((f) => fd.append('features[]', f)); return; }
+      if (v !== undefined && v !== null) fd.append(k, String(v));
+    });
+    return request<BankLoanRate>('/admin/bank-loan-rates', { method: 'POST', body: fd, token });
+  },
+
+  update: (id: number, data: Partial<BankLoanRateInput> & { logo?: File | null; remove_logo?: boolean }, token: string) => {
+    if (data.logo || data.remove_logo) {
+      const fd = new FormData();
+      Object.entries(data).forEach(([k, v]) => {
+        if (k === 'logo') { if (v) fd.append('logo', v as File); return; }
+        if (k === 'features') { (v as string[] ?? []).forEach((f) => fd.append('features[]', f)); return; }
+        if (v !== undefined && v !== null) fd.append(k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v));
+      });
+      fd.append('_method', 'PUT');
+      return request<BankLoanRate>(`/admin/bank-loan-rates/${id}`, { method: 'POST', body: fd, token });
+    }
+    return request<BankLoanRate>(`/admin/bank-loan-rates/${id}`, { method: 'PUT', body: data, token });
+  },
+
+  destroy: (id: number, token: string) =>
+    request<{ message: string }>(`/admin/bank-loan-rates/${id}`, { method: 'DELETE', token }),
 };
 
 // ─── Slides ──────────────────────────────────────────────────────────────────
