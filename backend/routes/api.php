@@ -48,6 +48,9 @@ Route::get('/slides', [SlideController::class, 'index']);
 // Public bank loan rates
 Route::get('/bank-loan-rates', [BankLoanRateController::class, 'index']);
 
+// Public listing fee info
+Route::get('/settings/public', [AdminController::class, 'publicSettings']);
+
 // PayHere server-to-server callback (no auth — called by PayHere servers)
 Route::post('/payment/notify', [PaymentController::class, 'notify']);
 

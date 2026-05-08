@@ -239,6 +239,11 @@ export type PayHereCheckout = {
   hash: string;
 };
 
+export const publicSettings = {
+  getFees: () =>
+    request<Pick<AdminSettings, 'listing_fee' | 'processing_fee_pct'>>('/settings/public'),
+};
+
 export const properties = {
   list: (filters?: PropertyFilters) => {
     const params = new URLSearchParams();

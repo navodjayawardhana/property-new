@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { properties as propertiesApi, admin as adminApi, type Property, type PropertyImage, type AdminSettings } from "@/lib/api";
+import { properties as propertiesApi, admin as adminApi, publicSettings as publicSettingsApi, type Property, type PropertyImage, type AdminSettings } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { X, Upload, Loader2, Info } from "lucide-react";
 
@@ -85,6 +85,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
   useEffect(() => {
     if (isAdmin && token) {
       adminApi.getSettings(token).then(setSettings).catch(() => {});
+    } else if (!isAdmin) {
+      publicSettingsApi.getFees().then(setSettings).catch(() => {});
     }
   }, [isAdmin, token]);
 
@@ -372,8 +374,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           <input required type="number" min={0} className={inp} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="e.g. 15000000" />
         </div>
 
-        {/* Admin fee breakdown — shown when admin enters a price */}
-        {isAdmin && settings && form.price && Number(form.price) > 0 && (() => {
+        {/* Fee breakdown — shown to agents/sellers when they enter a price */}
+        {!isAdmin && settings && form.price && Number(form.price) > 0 && (() => {
           const listingFee = settings.listing_fee;
           const procFee    = parseFloat((listingFee * settings.processing_fee_pct / 100).toFixed(2));
           const total      = parseFloat((listingFee + procFee).toFixed(2));
@@ -396,14 +398,6 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
                 <div className="flex justify-between font-bold text-gray-900 border-t border-blue-200 pt-1.5 text-sm">
                   <span>Total Fee</span>
                   <span>{lkr(total)}</span>
-                </div>
-                <div className="flex justify-between text-red-500 border-t border-blue-200 pt-1.5">
-                  <span>Deducted (gateway)</span>
-                  <span>− {lkr(procFee)}</span>
-                </div>
-                <div className="flex justify-between font-bold text-green-700">
-                  <span>Net to Platform</span>
-                  <span>{lkr(net)}</span>
                 </div>
               </div>
             </div>

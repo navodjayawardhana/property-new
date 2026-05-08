@@ -193,7 +193,7 @@ class AdminController extends Controller
         $admin = $request->user();
         $validated['agent_name']  = $admin->name;
         $validated['agency_name'] = $admin->name;
-        $validated['listing_fee'] = $this->calcListingFee();
+        $validated['listing_fee'] = 0;
 
         $property = $admin->properties()->create($validated);
 
@@ -358,6 +358,16 @@ class AdminController extends Controller
     }
 
     // ── Pricing Settings ──────────────────────────────────────────────────────
+
+    public function publicSettings(): JsonResponse
+    {
+        $rows = DB::table('settings')->get()->keyBy('key');
+
+        return response()->json([
+            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+        ]);
+    }
 
     public function getSettings(Request $request): JsonResponse
     {
