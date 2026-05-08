@@ -186,13 +186,15 @@ class AdminController extends Controller
             'description'    => 'required|string',
             'is_featured'    => 'boolean',
             'status'         => 'in:active,inactive,sold',
+            'agent_name'     => 'nullable|string|max:255',
+            'agency_name'    => 'nullable|string|max:255',
             'images'         => 'nullable|array',
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $admin = $request->user();
-        $validated['agent_name']  = $admin->name;
-        $validated['agency_name'] = $admin->name;
+        $validated['agent_name']  = $validated['agent_name']  ?? $admin->name;
+        $validated['agency_name'] = $validated['agency_name'] ?? $admin->name;
         $validated['listing_fee'] = 0;
 
         $property = $admin->properties()->create($validated);

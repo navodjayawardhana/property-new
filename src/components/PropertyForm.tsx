@@ -23,6 +23,8 @@ type FormState = {
   price: string;
   price_per_week: string;
   description: string;
+  agent_name: string;
+  agency_name: string;
   status: 'active' | 'inactive' | 'sold';
   is_featured: boolean;
 };
@@ -55,6 +57,8 @@ const defaultForm: FormState = {
   price: '',
   price_per_week: '',
   description: '',
+  agent_name: '',
+  agency_name: '',
   status: 'active',
   is_featured: false,
 };
@@ -136,6 +140,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     fd.append('price', form.price);
     if (form.price_per_week) fd.append('price_per_week', form.price_per_week);
     fd.append('description', form.description);
+    if (form.agent_name)  fd.append('agent_name',  form.agent_name);
+    if (form.agency_name) fd.append('agency_name', form.agency_name);
     fd.append('status', form.status);
     fd.append('is_featured', form.is_featured ? '1' : '0');
     if (otp) fd.append('listing_otp', otp);
@@ -237,6 +243,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         price: parseInt(form.price) || 0,
         price_per_week: form.price_per_week ? parseInt(form.price_per_week) : null,
         description: form.description,
+        agent_name: form.agent_name || undefined,
+        agency_name: form.agency_name || undefined,
         status: form.status,
         is_featured: form.is_featured,
       }, token);
@@ -443,6 +451,17 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         <div className="flex items-center gap-3 pt-5">
           <input type="checkbox" id="is_featured" checked={form.is_featured} onChange={(e) => set('is_featured', e.target.checked)} className="w-4 h-4 accent-[#16a34a]" />
           <label htmlFor="is_featured" className="text-sm font-medium text-gray-700">Feature on homepage</label>
+        </div>
+
+        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className={lbl}>Agent Name <span className="text-gray-400 font-normal">(optional)</span></label>
+            <input className={inp} value={form.agent_name} onChange={(e) => set('agent_name', e.target.value)} placeholder="e.g. John Silva" />
+          </div>
+          <div>
+            <label className={lbl}>Agency Name <span className="text-gray-400 font-normal">(optional)</span></label>
+            <input className={inp} value={form.agency_name} onChange={(e) => set('agency_name', e.target.value)} placeholder="e.g. Greenbrick Realty" />
+          </div>
         </div>
 
         <div className="md:col-span-2">

@@ -156,12 +156,14 @@ class PropertyController extends Controller
             'days_listed'    => 'nullable|integer|min:0',
             'is_featured'    => 'boolean',
             'status'         => 'in:active,inactive,sold',
+            'agent_name'     => 'nullable|string|max:255',
+            'agency_name'    => 'nullable|string|max:255',
             'images'         => 'nullable|array',
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        $validated['agent_name']  = $request->user()->name;
-        $validated['agency_name'] = $request->user()->name;
+        $validated['agent_name']  = $validated['agent_name']  ?? $request->user()->name;
+        $validated['agency_name'] = $validated['agency_name'] ?? $request->user()->name;
         $validated['listing_fee'] = $this->calcListingFee();
 
         $property = $request->user()->properties()->create($validated);
@@ -207,12 +209,14 @@ class PropertyController extends Controller
             'description'    => 'sometimes|string',
             'sold_date'      => 'nullable|date',
             'days_listed'    => 'nullable|integer|min:0',
+            'agent_name'     => 'nullable|string|max:255',
+            'agency_name'    => 'nullable|string|max:255',
             'is_featured'    => 'boolean',
             'status'         => 'in:active,inactive,sold',
         ]);
 
-        $validated['agent_name']  = $request->user()->name;
-        $validated['agency_name'] = $request->user()->name;
+        if (empty($validated['agent_name']))  $validated['agent_name']  = $request->user()->name;
+        if (empty($validated['agency_name'])) $validated['agency_name'] = $request->user()->name;
 
         $property->update($validated);
         $property->load('images');
