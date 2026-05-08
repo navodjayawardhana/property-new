@@ -161,6 +161,9 @@ export default function AgentLandingPage() {
   const [agentProps,   setAgentProps]   = useState<Property[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [propsLoading, setPropsLoading] = useState(true);
+  const [showAll,      setShowAll]      = useState(false);
+
+  const INITIAL_LIMIT = 6;
 
   useEffect(() => {
     agentsApi.get(slug).then(setAgent).catch(() => router.replace("/agents")).finally(() => setLoading(false));
@@ -331,7 +334,7 @@ export default function AgentLandingPage() {
       </section>
 
       {/* ── Listings ─────────────────────────────────────────────────────── */}
-      <section className="bg-white py-16">
+      <section id="listings-section" className="bg-white py-16">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-end justify-between mb-8">
             <div>
@@ -341,9 +344,16 @@ export default function AgentLandingPage() {
               </h2>
             </div>
             {!propsLoading && agentProps.length > 0 && (
-              <p className="text-sm text-gray-400 font-medium pb-1">
-                {agentProps.length} propert{agentProps.length !== 1 ? "ies" : "y"}
-              </p>
+              <div className="flex items-center gap-2 pb-1">
+                <span className="text-sm text-gray-400 font-medium">
+                  {agentProps.length} propert{agentProps.length !== 1 ? "ies" : "y"}
+                </span>
+                {agentProps.length > INITIAL_LIMIT && (
+                  <span className="text-xs bg-[#16a34a]/10 text-[#16a34a] font-bold px-2 py-0.5 rounded-full">
+                    {showAll ? "All shown" : `+${agentProps.length - INITIAL_LIMIT} more`}
+                  </span>
+                )}
+              </div>
             )}
           </div>
 
@@ -358,9 +368,48 @@ export default function AgentLandingPage() {
               <p className="text-gray-400 text-sm mt-1">Check back soon for {firstName}&apos;s properties.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {agentProps.map((p) => <PropertyCard key={p.id} property={p} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {(showAll ? agentProps : agentProps.slice(0, INITIAL_LIMIT)).map((p) => (
+                  <PropertyCard key={p.id} property={p} />
+                ))}
+              </div>
+
+              {agentProps.length > INITIAL_LIMIT && (
+                <div className="mt-10 text-center">
+                  {!showAll ? (
+                    <div className="space-y-3">
+                      {/* Progress bar */}
+                      <div className="flex items-center gap-3 max-w-xs mx-auto">
+                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#16a34a] rounded-full transition-all"
+                            style={{ width: `${(INITIAL_LIMIT / agentProps.length) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
+                          {INITIAL_LIMIT} of {agentProps.length}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setShowAll(true)}
+                        className="inline-flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-sm px-7 py-3 rounded-xl transition-colors shadow-md"
+                      >
+                        View all {agentProps.length} listings
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setShowAll(false); document.getElementById("listings-section")?.scrollIntoView({ behavior: "smooth" }); }}
+                      className="inline-flex items-center gap-2 border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-sm px-7 py-3 rounded-xl transition-colors"
+                    >
+                      <ChevronLeft size={16} /> Show less
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
