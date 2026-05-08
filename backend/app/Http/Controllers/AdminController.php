@@ -368,6 +368,7 @@ class AdminController extends Controller
         return response()->json([
             'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
             'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'     => 0,
         ]);
     }
 

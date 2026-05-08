@@ -27,6 +27,14 @@ class User extends Authenticatable
         'state',
         'postcode',
         'country',
+        'bio',
+        'facebook',
+        'instagram',
+        'linkedin',
+        'whatsapp',
+        'twitter',
+        'website',
+        'slug',
         'otp',
         'otp_expires_at',
         'email_verified_at',
@@ -63,5 +71,10 @@ class User extends Authenticatable
     public function inquiries(): HasMany
     {
         return $this->hasMany(Inquiry::class);
+    }
+
+    public function agentSlides(): HasMany
+    {
+        return $this->hasMany(AgentSlide::class);
     }
 }

@@ -1,20 +1,26 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
-import { properties as propertiesApi, inquiries as inquiriesApi, loanEnquiries as loanEnqApi, favorites as favoritesApi, bankLoanRatesApi, type Property, type Inquiry, type LoanEnquiry } from "@/lib/api";
+import { properties as propertiesApi, inquiries as inquiriesApi, loanEnquiries as loanEnqApi, favorites as favoritesApi, bankLoanRatesApi, agentSlidesApi, profile as profileApi, type Property, type Inquiry, type LoanEnquiry, type AgentSlide } from "@/lib/api";
 import { getSaved } from "@/lib/saved-properties";
 import PropertyCard from "@/components/PropertyCard";
 import { formatPrice } from "@/lib/utils";
 import {
   Plus, Edit2, Trash2, Loader2, Home, TrendingUp, MessageSquare,
   ChevronDown, ChevronUp, ExternalLink, Phone, Mail, RefreshCw,
-  ChevronLeft, ChevronRight, Building2, Heart,
+  ChevronLeft, ChevronRight, Building2, Heart, User, Upload, X,
+  Globe, MessageCircle, Save,
 } from "lucide-react";
+
+function FbIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>; }
+function IgIcon()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>; }
+function LiIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>; }
+function TwIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>; }
 
 const LOAN_STATUS_COLOR: Record<string, string> = {
   new: "bg-gray-100 text-gray-600", in_review: "bg-blue-100 text-blue-700",
@@ -72,7 +78,7 @@ export default function AgentDashboard() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
 
-  const [tab, setTab] = useState<'listings' | 'saved' | 'inquiries' | 'loans'>('listings');
+  const [tab, setTab] = useState<'listings' | 'saved' | 'inquiries' | 'loans' | 'profile'>('listings');
   const [myLoans, setMyLoans] = useState<LoanEnquiry[]>([]);
   const [loadingLoans, setLoadingLoans] = useState(false);
   const [bankLogoMap, setBankLogoMap] = useState<Record<string, string | null>>({});
@@ -91,6 +97,16 @@ export default function AgentDashboard() {
   const [received, setReceived] = useState<Inquiry[]>([]);
   const [fetchingInq, setFetchingInq] = useState(false);
   const [inqLoaded, setInqLoaded] = useState(false);
+
+  // Profile & Branding tab
+  const [slides, setSlides] = useState<AgentSlide[]>([]);
+  const [slidesLoaded, setSlidesLoaded] = useState(false);
+  const [uploadingSlide, setUploadingSlide] = useState(false);
+  const [deletingSlideId, setDeletingSlideId] = useState<number | null>(null);
+  const slideFileRef = useRef<HTMLInputElement>(null);
+  const [profileForm, setProfileForm] = useState({ bio: '', facebook: '', instagram: '', linkedin: '', whatsapp: '', twitter: '', website: '' });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
 
   useEffect(() => {
     if (!loading && (!user || (user.role !== 'agent' && user.role !== 'admin'))) {
@@ -137,7 +153,22 @@ export default function AgentDashboard() {
         }).catch(() => {}).finally(() => setLoadingLoans(false));
     }
     if (tab === 'inquiries' && token && !inqLoaded) loadInquiries();
+    if (tab === 'profile' && token && !slidesLoaded) loadSlides();
   }, [tab, token]);
+
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        bio:       (user as unknown as Record<string, string>).bio       ?? '',
+        facebook:  (user as unknown as Record<string, string>).facebook  ?? '',
+        instagram: (user as unknown as Record<string, string>).instagram ?? '',
+        linkedin:  (user as unknown as Record<string, string>).linkedin  ?? '',
+        whatsapp:  (user as unknown as Record<string, string>).whatsapp  ?? '',
+        twitter:   (user as unknown as Record<string, string>).twitter   ?? '',
+        website:   (user as unknown as Record<string, string>).website   ?? '',
+      });
+    }
+  }, [user]);
 
   function loadInquiries() {
     if (!token) return;
@@ -158,6 +189,61 @@ export default function AgentDashboard() {
       setPerPropInquiries((prev) => ({ ...prev, [propertyId]: data }));
     } catch { /* ignore */ }
     finally { setLoadingPerProp(null); }
+  }
+
+  function loadSlides() {
+    if (!token) return;
+    agentSlidesApi.list(token)
+      .then((data) => { setSlides(data); setSlidesLoaded(true); })
+      .catch(() => {});
+  }
+
+  async function handleSlideUpload(files: FileList | null) {
+    if (!files || !token) return;
+    setUploadingSlide(true);
+    try {
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append('image', file);
+        fd.append('sort_order', String(slides.length));
+        const slide = await agentSlidesApi.upload(fd, token);
+        setSlides((prev) => [...prev, slide]);
+      }
+    } catch (e: unknown) {
+      alert((e as Error).message ?? 'Upload failed');
+    } finally {
+      setUploadingSlide(false);
+    }
+  }
+
+  async function handleSlideDelete(id: number) {
+    if (!token || !confirm('Remove this slide?')) return;
+    setDeletingSlideId(id);
+    try {
+      await agentSlidesApi.remove(id, token);
+      setSlides((prev) => prev.filter((s) => s.id !== id));
+    } catch { /* ignore */ }
+    finally { setDeletingSlideId(null); }
+  }
+
+  async function toggleSlideActive(slide: AgentSlide) {
+    if (!token) return;
+    const updated = await agentSlidesApi.update(slide.id, { is_active: !slide.is_active }, token);
+    setSlides((prev) => prev.map((s) => s.id === slide.id ? updated : s));
+  }
+
+  async function handleProfileSave() {
+    if (!token) return;
+    setProfileSaving(true);
+    try {
+      await profileApi.update(profileForm, token);
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
+    } catch (e: unknown) {
+      alert((e as Error).message ?? 'Save failed');
+    } finally {
+      setProfileSaving(false);
+    }
   }
 
   async function handleDelete(id: number) {
@@ -232,6 +318,10 @@ export default function AgentDashboard() {
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'loans' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
             <Building2 size={14} /> Loan Applications
             {myLoans.length > 0 && <span className="bg-[#16a34a] text-white text-xs px-1.5 py-0.5 rounded-full">{myLoans.length}</span>}
+          </button>
+          <button onClick={() => setTab('profile')}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === 'profile' ? 'border-[#16a34a] text-[#16a34a]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            <User size={14} /> Profile & Branding
           </button>
         </div>
 
@@ -516,6 +606,117 @@ export default function AgentDashboard() {
             </div>
           )
         )}
+        {/* Profile & Branding tab */}
+        {tab === 'profile' && (
+          <div className="space-y-8">
+
+            {/* Slider management */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-black text-gray-900">Banner / Slideshow</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">These images appear at the top of your public agent profile page</p>
+                </div>
+                <button
+                  onClick={() => slideFileRef.current?.click()}
+                  disabled={uploadingSlide}
+                  className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors">
+                  {uploadingSlide ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                  {uploadingSlide ? 'Uploading…' : 'Upload Slide'}
+                </button>
+                <input ref={slideFileRef} type="file" multiple accept="image/jpeg,image/png,image/jpg,image/webp" className="hidden"
+                  onChange={(e) => handleSlideUpload(e.target.files)} />
+              </div>
+
+              {slides.length === 0 ? (
+                <div className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center">
+                  <Upload size={28} className="text-gray-300 mx-auto mb-2" />
+                  <p className="text-gray-400 text-sm">No slides yet. Upload images to create a banner slideshow.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {slides.map((slide) => (
+                    <div key={slide.id} className="relative rounded-xl overflow-hidden border border-gray-100 group aspect-video bg-gray-100">
+                      <img src={slide.url} alt="" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => toggleSlideActive(slide)}
+                          className={`text-xs font-bold px-2 py-1 rounded-lg transition-colors ${slide.is_active ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
+                          {slide.is_active ? 'Active' : 'Hidden'}
+                        </button>
+                        <button
+                          onClick={() => handleSlideDelete(slide.id)}
+                          disabled={deletingSlideId === slide.id}
+                          className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors">
+                          {deletingSlideId === slide.id ? <Loader2 size={12} className="animate-spin" /> : <X size={12} />}
+                        </button>
+                      </div>
+                      {!slide.is_active && (
+                        <div className="absolute top-1.5 left-1.5 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">Hidden</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Bio & Social links */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6">
+              <h3 className="font-black text-gray-900 mb-1">About & Social Links</h3>
+              <p className="text-xs text-gray-400 mb-5">Displayed on your public profile page</p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Bio / About</label>
+                  <textarea rows={4}
+                    value={profileForm.bio}
+                    onChange={(e) => setProfileForm((f) => ({ ...f, bio: e.target.value }))}
+                    placeholder="Tell buyers and sellers about yourself, your experience, and what areas you specialise in…"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { key: 'facebook',  icon: FbIcon,        label: 'Facebook',  placeholder: 'username or full URL' },
+                    { key: 'instagram', icon: IgIcon,        label: 'Instagram', placeholder: 'username or full URL' },
+                    { key: 'linkedin',  icon: LiIcon,        label: 'LinkedIn',  placeholder: 'username or full URL' },
+                    { key: 'twitter',   icon: TwIcon,        label: 'Twitter/X', placeholder: 'username or full URL' },
+                    { key: 'whatsapp',  icon: MessageCircle, label: 'WhatsApp',  placeholder: 'Phone number with country code' },
+                    { key: 'website',   icon: Globe,         label: 'Website',   placeholder: 'https://yoursite.com' },
+                  ].map(({ key, icon: Icon, label, placeholder }) => (
+                    <div key={key}>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1.5">
+                        <Icon size={12} /> {label}
+                      </label>
+                      <input
+                        value={profileForm[key as keyof typeof profileForm]}
+                        onChange={(e) => setProfileForm((f) => ({ ...f, [key]: e.target.value }))}
+                        placeholder={placeholder}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  {profileSaved && <p className="text-sm text-green-600 font-semibold">Saved successfully!</p>}
+                  <div className="ml-auto">
+                    <button
+                      onClick={handleProfileSave}
+                      disabled={profileSaving}
+                      className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors">
+                      {profileSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      {profileSaving ? 'Saving…' : 'Save Changes'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
 
       <Footer />

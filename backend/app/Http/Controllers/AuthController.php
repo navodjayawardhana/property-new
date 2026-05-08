@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -44,6 +45,8 @@ class AuthController extends Controller
             'state'    => $validated['state'] ?? null,
             'suburb'   => $validated['suburb'] ?? null,
         ]);
+
+        $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
 
         // Send email verification OTP
         $otp = (string) random_int(100000, 999999);
@@ -188,13 +191,20 @@ class AuthController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'     => 'sometimes|string|max:255',
-            'email'    => 'sometimes|email|unique:users,email,' . $user->id,
-            'phone'    => 'nullable|string|max:20',
-            'suburb'   => 'nullable|string|max:100',
-            'state'    => 'nullable|string|max:100',
-            'postcode' => 'nullable|string|max:10',
-            'country'  => 'nullable|string|max:100',
+            'name'      => 'sometimes|string|max:255',
+            'email'     => 'sometimes|email|unique:users,email,' . $user->id,
+            'phone'     => 'nullable|string|max:20',
+            'suburb'    => 'nullable|string|max:100',
+            'state'     => 'nullable|string|max:100',
+            'postcode'  => 'nullable|string|max:10',
+            'country'   => 'nullable|string|max:100',
+            'bio'       => 'nullable|string|max:2000',
+            'facebook'  => 'nullable|string|max:255',
+            'instagram' => 'nullable|string|max:255',
+            'linkedin'  => 'nullable|string|max:255',
+            'whatsapp'  => 'nullable|string|max:20',
+            'twitter'   => 'nullable|string|max:255',
+            'website'   => 'nullable|string|max:255',
         ]);
 
         $user->update($validated);
@@ -239,12 +249,20 @@ class AuthController extends Controller
         return response()->json($user->fresh());
     }
 
-    public function agent(int $id): JsonResponse
+    public function agent(string $slug): JsonResponse
     {
-        $agent = User::where('role', 'agent')->findOrFail($id);
+        $agent = User::where('role', 'agent')
+            ->where(function ($q) use ($slug) {
+                $q->where('slug', $slug)->orWhere('id', is_numeric($slug) ? (int) $slug : 0);
+            })
+            ->firstOrFail();
 
         return response()->json(
-            $agent->only(['id', 'name', 'email', 'phone', 'avatar', 'suburb', 'state', 'postcode', 'country'])
+            $agent->only([
+                'id', 'name', 'email', 'phone', 'avatar', 'slug',
+                'suburb', 'state', 'postcode', 'country',
+                'bio', 'facebook', 'instagram', 'linkedin', 'whatsapp', 'twitter', 'website',
+            ])
         );
     }
 
@@ -262,7 +280,10 @@ class AuthController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $agents = $query->select(['id', 'name', 'email', 'phone', 'avatar', 'suburb', 'state', 'postcode', 'country'])
+        $agents = $query->select([
+                'id', 'name', 'email', 'phone', 'avatar', 'slug',
+                'suburb', 'state', 'postcode', 'country',
+            ])
             ->paginate(24);
 
         return response()->json($agents);

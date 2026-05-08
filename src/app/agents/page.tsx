@@ -145,7 +145,7 @@ export default function AgentsPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {agents.map((agent) => (
-              <Link key={agent.id} href={`/agents/${agent.id}`}
+              <Link key={agent.id} href={`/agents/${agent.slug ?? agent.id}`}
                 className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-[#16a34a] hover:shadow-md transition-all group flex flex-col">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative shrink-0">

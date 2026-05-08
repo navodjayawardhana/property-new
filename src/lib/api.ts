@@ -241,7 +241,7 @@ export type PayHereCheckout = {
 
 export const publicSettings = {
   getFees: () =>
-    request<Pick<AdminSettings, 'listing_fee' | 'processing_fee_pct'>>('/settings/public'),
+    request<AdminSettings>('/settings/public'),
 };
 
 export const properties = {
@@ -362,10 +362,29 @@ export type Agent = {
   email: string;
   phone: string | null;
   avatar: string | null;
+  slug: string | null;
   suburb: string | null;
   state: string | null;
   postcode: string | null;
   country: string | null;
+  bio: string | null;
+  facebook: string | null;
+  instagram: string | null;
+  linkedin: string | null;
+  whatsapp: string | null;
+  twitter: string | null;
+  website: string | null;
+};
+
+export type AgentSlide = {
+  id: number;
+  user_id: number;
+  image_path: string;
+  url: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type PaginatedAgents = {
@@ -395,7 +414,23 @@ export const agentsApi = {
     return request<PaginatedAgents>(`/agents${qs ? `?${qs}` : ''}`);
   },
 
-  get: (id: number) => request<Agent>(`/agents/${id}`),
+  get: (slug: string | number) => request<Agent>(`/agents/${slug}`),
+
+  slides: (slug: string | number) => request<AgentSlide[]>(`/agents/${slug}/slides`),
+};
+
+export const agentSlidesApi = {
+  list: (token: string) =>
+    request<AgentSlide[]>('/agent-slides', { token }),
+
+  upload: (data: FormData, token: string) =>
+    request<AgentSlide>('/agent-slides', { method: 'POST', body: data, token }),
+
+  update: (id: number, data: { sort_order?: number; is_active?: boolean }, token: string) =>
+    request<AgentSlide>(`/agent-slides/${id}`, { method: 'PATCH', body: data, token }),
+
+  remove: (id: number, token: string) =>
+    request<{ message: string }>(`/agent-slides/${id}`, { method: 'DELETE', token }),
 };
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
@@ -707,6 +742,13 @@ export const profile = {
     state?: string | null;
     postcode?: string | null;
     country?: string | null;
+    bio?: string | null;
+    facebook?: string | null;
+    instagram?: string | null;
+    linkedin?: string | null;
+    whatsapp?: string | null;
+    twitter?: string | null;
+    website?: string | null;
   }, token: string) =>
     request<User>('/profile', { method: 'PATCH', body: data, token }),
 

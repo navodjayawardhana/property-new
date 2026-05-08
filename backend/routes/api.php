@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AgentSlideController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankLoanRateController;
 use App\Http\Controllers\FavoriteController;
@@ -33,7 +34,8 @@ Route::post('/properties/{property}/inquiries', [InquiryController::class, 'stor
 
 // Public agents directory
 Route::get('/agents', [AuthController::class, 'agents']);
-Route::get('/agents/{id}', [AuthController::class, 'agent']);
+Route::get('/agents/{slug}', [AuthController::class, 'agent']);
+Route::get('/agents/{slug}/slides', [AgentSlideController::class, 'publicIndex']);
 
 // Public news
 Route::get('/news', [NewsController::class, 'index']);
@@ -68,6 +70,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Send OTP before creating a listing
     Route::post('/send-listing-otp', [AuthController::class, 'sendListingOtp']);
+
+    // Agent slideshow management (own slides)
+    Route::get('/agent-slides',                      [AgentSlideController::class, 'index']);
+    Route::post('/agent-slides',                     [AgentSlideController::class, 'store']);
+    Route::patch('/agent-slides/{agentSlide}',       [AgentSlideController::class, 'update']);
+    Route::delete('/agent-slides/{agentSlide}',      [AgentSlideController::class, 'destroy']);
 
     // Payment — initiate checkout, complete on return, receipt
     Route::post('/payment/initiate', [PaymentController::class, 'initiate']);
