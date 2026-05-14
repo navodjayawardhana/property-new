@@ -1,0 +1,7 @@
+GREENBRICK_STORE_FILE=greenbrick-admin.keystore
+GREENBRICK_KEY_ALIAS=greenbrick-admin
+GREENBRICK_STORE_PASSWORD=GreenBrick@2025
+GREENBRICK_KEY_PASSWORD=GreenBrick@2025
+
+SHA1: 2A:4B:0D:14:55:26:84:9B:07:D7:0A:A4:3C:13:80:C5:B8:EC:13:28
+SHA256:  D2:6B:AA:7F:0D:8B:F2:7B:4B:3E:3F:0C:25:85:97:8E:1E:0E:E9:CA:76:D0:81:29:2D:A6:1B:D1:AB:88:92:38                                                                       

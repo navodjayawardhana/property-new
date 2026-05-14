@@ -16,7 +16,18 @@
       "Bash(find src *)",
       "Bash(git init *)",
       "Bash(git remote *)",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "Bash(mkdir \"D:\\\\__empty_tmp\")",
+      "Bash(robocopy \"D:\\\\__empty_tmp\" \"D:\\\\property-new\\\\adminPanelMobile\\\\node_modules\" /MIR /NFL /NDL /NJH /NJS /nc /ns /np)",
+      "Bash(cmd /c \"rd /s /q D:\\\\property-new\\\\adminPanelMobile\\\\node_modules\")",
+      "Bash(rmdir \"D:\\\\__empty_tmp\")",
+      "Bash(cmd *)",
+      "PowerShell(cmd /c \"mklink /J C:\\\\gb D:\\\\property-new\\\\adminPanelMobile\")",
+      "Bash(npx tsc *)",
+      "Bash(npx expo *)",
+      "Bash(npx expo-doctor *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\property-new\\\\adminPanelMobile\\\\app\" -Recurse -Filter \"*.tsx\")",
+      "Bash(Select-Object FullName)"
     ]
   }
 }
