@@ -129,7 +129,7 @@ function NewHomesContent() {
 
             <div className="flex items-center gap-2 ml-auto">
               <span className="text-sm text-gray-500">
-                {loading ? "..." : <><span className="font-bold text-gray-900">{total}</span> new propert{total !== 1 ? "ies" : "y"}</>}
+                {loading ?  <span className="inline-block h-4 w-28 bg-gray-200 rounded animate-pulse" /> : <><span className="font-bold text-gray-900">{total}</span> new propert{total !== 1 ? "ies" : "y"}</>}
               </span>
               <select value={sort} onChange={(e) => setSort(e.target.value)}
                 className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] text-gray-600 bg-white">

@@ -119,7 +119,7 @@ export default function Navbar() {
         {/* Post Ad button — desktop */}
         <button
           onClick={handlePostAd}
-          className={`hidden lg:flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full transition-colors shrink-0 ${
+          className={`hidden lg:flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-xl transition-colors shrink-0 ${
             transparent
               ? "bg-white text-[#16a34a] hover:bg-white/90"
               : "bg-[#16a34a] text-white hover:bg-[#15803d]"
@@ -208,13 +208,15 @@ export default function Navbar() {
           })() : (
             <>
               <Link href="/signin"
-                className={`text-sm font-medium transition-colors ${
-                  transparent ? "text-white hover:text-white/80" : "text-gray-700 hover:text-[#16a34a]"
+                className={`text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${
+                  transparent
+                    ? "text-white hover:bg-white/10"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}>
                 Sign in
               </Link>
               <Link href="/join"
-                className={`text-sm font-bold px-5 py-2 rounded-full border-2 transition-colors ${
+                className={`text-sm font-bold px-4 py-2 rounded-xl border-2 transition-colors ${
                   transparent
                     ? "border-white text-white hover:bg-white/10"
                     : "border-[#16a34a] text-[#16a34a] hover:bg-green-50"
@@ -224,17 +226,6 @@ export default function Navbar() {
             </>
           )}
         </div>
-
-        {/* Post Ad — mobile header (near logo, hidden on desktop) */}
-        <button
-          onClick={handlePostAd}
-          className={`lg:hidden flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full transition-colors shrink-0 ${
-            transparent
-              ? "bg-white text-[#16a34a]"
-              : "bg-[#16a34a] text-white"
-          } ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a]" : ""}`}>
-          <Plus size={12} /> Post Ad
-        </button>
 
         {/* Mobile hamburger */}
         <button
@@ -267,6 +258,11 @@ export default function Navbar() {
       {/* Mobile menu — always solid white */}
       {open && (
         <div className="lg:hidden bg-white border-t border-gray-200 px-4 pb-4">
+          <button
+            onClick={() => { handlePostAd(); setOpen(false); }}
+            className={`mt-4 mb-2 w-full flex items-center justify-center gap-2 bg-[#16a34a] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#15803d] transition-colors ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a]" : ""}`}>
+            <Plus size={15} /> Post Ad
+          </button>
           {navLinks.map((link) => {
             const active = pathname === link.href;
             return (

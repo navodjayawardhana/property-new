@@ -35,6 +35,9 @@ class PropertyImage extends Model
 
     public function getUrlAttribute(): string
     {
+        if (str_starts_with($this->image_path, 'http')) {
+            return $this->image_path;
+        }
         return Storage::disk('public')->url($this->image_path);
     }
 }
