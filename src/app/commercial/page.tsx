@@ -86,16 +86,16 @@ function CommercialContent() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-[#052e16] py-12 px-4">
+      <div className="bg-[#16a34a] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
               <Building2 size={18} className="text-white" />
             </div>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Commercial &amp; Mixed</p>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Commercial &amp; Mixed</p>
           </div>
           <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Commercial Properties</h1>
-          <p className="text-slate-400 text-sm">Commercial and mixed-use properties across Sri Lanka.</p>
+          <p className="text-green-200 text-sm">Commercial and mixed-use properties across Sri Lanka.</p>
         </div>
       </div>
 
@@ -111,11 +111,11 @@ function CommercialContent() {
                   const val = listingMap[lt];
                   const active = lt === "Any" ? !activeListing || activeListing === "Any" : activeListing === val;
                   return (
-                    <button key={lt}
+                      <button key={lt}
                       onClick={() => setParam("listing_type", val ?? null)}
                       className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
                         active
-                          ? "bg-[#052e16] text-white shadow-sm"
+                          ? "bg-[#16a34a] text-white shadow-sm"
                           : "text-gray-500 hover:text-gray-800"
                       }`}>
                       {lt}

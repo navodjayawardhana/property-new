@@ -26,7 +26,6 @@ const ROLES: { key: Role; label: string; icon: React.ReactNode; desc: string }[]
   { key: "buyer",  label: "Buyer",  icon: <Home size={15} />,        desc: "Find a property" },
   { key: "seller", label: "Seller", icon: <TrendingUp size={15} />,  desc: "List a property" },
   { key: "agent",  label: "Agent",  icon: <Briefcase size={15} />,   desc: "Manage listings" },
-  { key: "admin",  label: "Admin",  icon: <ShieldAlert size={15} />, desc: "Site admin" },
 ];
 
 export default function SignInPage() {

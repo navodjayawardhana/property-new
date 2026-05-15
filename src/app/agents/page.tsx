@@ -68,9 +68,14 @@ export default function AgentsPage() {
 
       {/* Hero */}
       <div className="bg-[#16a34a] py-12 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-green-300 text-xs font-bold uppercase tracking-widest mb-2">Connect</p>
-          <h1 className="text-white font-black text-3xl md:text-4xl mb-3">Find a Real Estate Agent</h1>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
+              <UserIcon size={18} className="text-white" />
+            </div>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Connect</p>
+          </div>
+          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Find a Real Estate Agent</h1>
           <p className="text-green-200 text-sm mb-8">Connect with experienced agents across Sri Lanka to buy, sell, or rent your property.</p>
 
           {/* Search bar */}

@@ -117,15 +117,16 @@ export default function HomeLoansPage() {
       <Navbar />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-[#15803d] via-[#16a34a] to-[#166534] pt-12 pb-20 px-4">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-green-200 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">
-            <Building2 size={12} /> Housing Loan Comparison
+      <div className="bg-[#16a34a] pt-12 pb-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
+              <Building2 size={18} className="text-white" />
+            </div>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Housing Loan Comparison</p>
           </div>
-          <h1 className="text-white font-black text-3xl md:text-4xl mb-3 leading-tight">
-            Compare Home Loan Interest Rates
-          </h1>
-          <p className="text-green-200 text-sm max-w-xl mx-auto">
+          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Compare Home Loan Interest Rates</h1>
+          <p className="text-green-200 text-sm">
             Enter your loan amount and period to compare monthly repayments and interest rates across banks in Sri Lanka.
           </p>
         </div>
