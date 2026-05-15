@@ -119,12 +119,12 @@ export default function Navbar() {
         {/* Post Ad button — desktop */}
         <button
           onClick={handlePostAd}
-          className={`hidden lg:flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-xl transition-colors shrink-0 ${
-            transparent
-              ? "bg-white text-[#16a34a] hover:bg-white/90"
-              : "bg-[#16a34a] text-white hover:bg-[#15803d]"
-          } ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a] animate-bounce" : ""}`}>
-          <Plus size={15} /> Post Ad
+          className={`relative overflow-hidden group hidden lg:flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-full transition-all duration-300 shrink-0 hover:scale-105 bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-400/40 hover:shadow-orange-400/60 ${
+            highlightPostAd ? "ring-4 ring-offset-2 ring-orange-400 animate-bounce" : ""
+          }`}>
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+          <Plus size={15} />
+          <span>Post Ad</span>
         </button>
 
         {/* Desktop auth */}
@@ -207,20 +207,26 @@ export default function Navbar() {
             );
           })() : (
             <>
-              <Link href="/signin"
-                className={`text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${
-                  transparent
-                    ? "text-white hover:bg-white/10"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}>
-                Sign in
-              </Link>
+              {transparent ? (
+                <Link href="/signin"
+                  className="text-sm font-semibold px-5 py-2.5 rounded-full text-white/90 hover:text-white hover:bg-white/10 transition-all duration-200">
+                  Sign in
+                </Link>
+              ) : (
+                <div className="p-[1.5px] rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 hover:scale-105 hover:shadow-lg hover:shadow-blue-300/40 transition-all duration-300">
+                  <Link href="/signin"
+                    className="flex items-center px-5 py-2 rounded-full bg-white hover:bg-blue-50/80 transition-colors">
+                    <span className="text-sm font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">Sign in</span>
+                  </Link>
+                </div>
+              )}
               <Link href="/join"
-                className={`text-sm font-bold px-4 py-2 rounded-xl border-2 transition-colors ${
+                className={`relative overflow-hidden group text-sm font-bold px-6 py-2.5 rounded-full transition-all duration-300 hover:scale-105 ${
                   transparent
-                    ? "border-white text-white hover:bg-white/10"
-                    : "border-[#16a34a] text-[#16a34a] hover:bg-green-50"
+                    ? "bg-white/15 backdrop-blur-sm border border-white/40 text-white hover:bg-white/25"
+                    : "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/35 hover:shadow-emerald-500/55"
                 }`}>
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                 Sign Up
               </Link>
             </>
@@ -260,7 +266,8 @@ export default function Navbar() {
         <div className="lg:hidden bg-white border-t border-gray-200 px-4 pb-4">
           <button
             onClick={() => { handlePostAd(); setOpen(false); }}
-            className={`mt-4 mb-2 w-full flex items-center justify-center gap-2 bg-[#16a34a] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#15803d] transition-colors ${highlightPostAd ? "ring-4 ring-offset-2 ring-[#16a34a]" : ""}`}>
+            className={`relative overflow-hidden group mt-4 mb-2 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold text-sm py-3 rounded-full shadow-lg shadow-orange-400/35 transition-all duration-300 active:scale-95 ${highlightPostAd ? "ring-4 ring-offset-2 ring-orange-400" : ""}`}>
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
             <Plus size={15} /> Post Ad
           </button>
           {navLinks.map((link) => {
@@ -282,13 +289,16 @@ export default function Navbar() {
               Sign out
             </button>
           ) : (
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link href="/signin" onClick={() => setOpen(false)}
-                className="text-center border-2 border-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
-                Sign In
-              </Link>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="p-[1.5px] rounded-full bg-gradient-to-r from-violet-400 to-indigo-500">
+                <Link href="/signin" onClick={() => setOpen(false)}
+                  className="flex items-center justify-center py-2.5 rounded-full bg-white hover:bg-violet-50 transition-colors">
+                  <span className="text-sm font-bold bg-gradient-to-r from-violet-500 to-indigo-600 bg-clip-text text-transparent">Sign In</span>
+                </Link>
+              </div>
               <Link href="/join" onClick={() => setOpen(false)}
-                className="text-center bg-[#16a34a] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
+                className="relative overflow-hidden group text-center bg-gradient-to-r from-emerald-500 to-green-600 text-white font-bold text-sm py-2.5 rounded-full shadow-md shadow-emerald-500/30 transition-all duration-200 active:scale-95">
+                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                 Sign Up
               </Link>
             </div>
