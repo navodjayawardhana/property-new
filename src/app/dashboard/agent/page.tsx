@@ -414,7 +414,7 @@ export default function AgentDashboard() {
                   <div key={`inq-${p.id}`} className="border-t border-gray-100 px-4 py-3 bg-gray-50">
                     {loadingPerProp === p.id ? (
                       <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
-                        <Loader2 size={14} className="animate-spin" /> Loading…
+                        <Loader2 size={14} className="animate-spin" /> <span className="inline-block h-3 w-52 bg-gray-200 rounded animate-pulse" />
                       </div>
                     ) : (perPropInquiries[p.id] ?? []).length === 0 ? (
                       <p className="text-sm text-gray-400 py-2">No inquiries for this listing yet.</p>

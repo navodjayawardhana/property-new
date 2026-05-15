@@ -320,12 +320,44 @@ function UsersTab({ token }: { token: string }) {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
           <p className="text-sm font-bold text-gray-900">
-            {loading ? "Loading…" : `${data?.total ?? 0} users`}
+                       {loading ? (
+  <span className="inline-block h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            ) : ( `${data?.total ?? 0} users`)}
           </p>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading users…</div>
+          <div className="animate-pulse overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {["User", "Role", "Location", "Joined", "Status", "Actions"].map((h) => (
+                    <th key={h} className="px-5 py-3"><div className="h-3 bg-gray-200 rounded w-14" /></th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {[1,2,3,4,5].map((i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 bg-gray-200 rounded w-28" />
+                          <div className="h-3 bg-gray-100 rounded w-36" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-16" /></td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : !data?.data.length ? (
           <div className="p-8 text-center text-gray-400 text-sm">No users found.</div>
         ) : (
@@ -503,11 +535,42 @@ function PropertiesTab({ token }: { token: string }) {
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-3.5 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} properties`}</p>
+          <p className="text-sm font-bold text-gray-900">{loading ? <span className="inline-block h-4 w-28 bg-gray-200 rounded animate-pulse" /> : `${data?.total ?? 0} properties`}</p>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading properties…</div>
+          <div className="animate-pulse overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {["Property","Owner","Type","Status","Featured","Price","Actions"].map((h) => (
+                    <th key={h} className="px-4 py-3"><div className="h-3 bg-gray-200 rounded w-12" /></th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {[1,2,3,4,5].map((i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-10 rounded-lg bg-gray-200 shrink-0" />
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 bg-gray-200 rounded w-32" />
+                          <div className="h-3 bg-gray-100 rounded w-20" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-5 bg-gray-200 rounded-full w-10" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-200 rounded w-16" /></td>
+                    <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : !data?.data.length ? (
           <div className="p-8 text-center text-gray-400 text-sm">No properties found.</div>
         ) : (
@@ -679,11 +742,26 @@ function InquiriesTab({ token }: { token: string }) {
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-3.5 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} inquiries`}</p>
+          <p className="text-sm font-bold text-gray-900">{loading ? <span className="inline-block h-4 w-28 bg-gray-200 rounded animate-pulse" /> : `${data?.total ?? 0} inquiries`}</p>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading inquiries…</div>
+          <div className="divide-y divide-gray-50 animate-pulse">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="flex items-start gap-3 px-5 py-4">
+                <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-28" />
+                    <div className="h-4 bg-gray-200 rounded-full w-16" />
+                    <div className="h-3 bg-gray-100 rounded w-20 ml-auto" />
+                  </div>
+                  <div className="h-3 bg-gray-100 rounded w-full" />
+                  <div className="h-3 bg-gray-100 rounded w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : !data?.data.length ? (
           <div className="p-8 text-center text-gray-400 text-sm">No inquiries found.</div>
         ) : (
@@ -848,11 +926,40 @@ function NewsTab({ token }: { token: string }) {
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-3.5 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} articles`}</p>
+          <p className="text-sm font-bold text-gray-900">{loading ? <span className="inline-block h-4 w-24 bg-gray-200 rounded animate-pulse" /> : `${data?.total ?? 0} articles`}</p>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading articles…</div>
+          <div className="animate-pulse overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50">
+                <tr>
+                  {["Article","Category","Status","Published","Actions"].map((h) => (
+                    <th key={h} className="px-4 py-3"><div className="h-3 bg-gray-200 rounded w-14" /></th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {[1,2,3,4].map((i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-10 rounded-lg bg-gray-200 shrink-0" />
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 bg-gray-200 rounded w-36" />
+                          <div className="h-3 bg-gray-100 rounded w-24" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-16" /></td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : !data?.data.length ? (
           <div className="p-8 text-center text-gray-400 text-sm">No articles found.</div>
         ) : (
@@ -1232,11 +1339,26 @@ function LoanEnquiriesTab({ token }: { token: string }) {
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-5 py-3.5 border-b border-gray-100">
-          <p className="text-sm font-bold text-gray-900">{loading ? "Loading…" : `${data?.total ?? 0} loan enquiries`}</p>
+          <p className="text-sm font-bold text-gray-900">{loading ? <span className="inline-block h-4 w-32 bg-gray-200 rounded animate-pulse" /> : `${data?.total ?? 0} loan enquiries`}</p>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading loan enquiries…</div>
+          <div className="divide-y divide-gray-50 animate-pulse">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="flex items-start gap-3 px-5 py-4">
+                <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-3.5 bg-gray-200 rounded w-28" />
+                    <div className="h-4 bg-gray-200 rounded-full w-20" />
+                    <div className="h-3 bg-gray-100 rounded w-16 ml-auto" />
+                  </div>
+                  <div className="h-3 bg-gray-100 rounded w-48" />
+                  <div className="h-3 bg-gray-100 rounded w-32" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : !data?.data.length ? (
           <div className="p-8 text-center text-gray-400 text-sm">No loan enquiries yet.</div>
         ) : (
@@ -1392,7 +1514,19 @@ function SlidesTab({ token }: { token: string }) {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading slides…</div>
+          <div className="divide-y divide-gray-50 animate-pulse">
+            {[1,2,3].map((i) => (
+              <div key={i} className="flex items-center gap-4 px-5 py-3">
+                <div className="w-4 h-3 bg-gray-200 rounded shrink-0" />
+                <div className="w-20 h-12 rounded-lg bg-gray-200 shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 bg-gray-200 rounded w-32" />
+                  <div className="h-3 bg-gray-100 rounded w-48" />
+                </div>
+                <div className="h-6 bg-gray-100 rounded-lg w-16 ml-auto" />
+              </div>
+            ))}
+          </div>
         ) : slides.length === 0 ? (
           <div className="p-8 text-center text-gray-400 text-sm">No slides yet — default homepage images are displayed.</div>
         ) : (
@@ -1726,7 +1860,19 @@ function BankRatesTab({ token }: { token: string }) {
           </p>
         </div>
         {loading ? (
-          <div className="p-8 text-center text-gray-400 text-sm">Loading…</div>
+          <div className="divide-y divide-gray-50 animate-pulse">
+            {[1,2,3].map((i) => (
+              <div key={i} className="flex items-center gap-4 px-5 py-4">
+                <div className="w-10 h-10 rounded-xl bg-gray-200 shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 bg-gray-200 rounded w-32" />
+                  <div className="h-3 bg-gray-100 rounded w-20" />
+                </div>
+                <div className="h-5 bg-gray-200 rounded-full w-16" />
+                <div className="h-6 bg-gray-100 rounded-lg w-16" />
+              </div>
+            ))}
+          </div>
         ) : banks.length === 0 ? (
           <div className="p-10 text-center">
             <Building2 size={32} className="text-gray-200 mx-auto mb-3" />
@@ -1834,7 +1980,24 @@ function PricingTab({ token }: { token: string }) {
         <h3 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-2"><DollarSign size={16} className="text-[#16a34a]" /> Listing Fee Configuration</h3>
 
         {loading ? (
-          <div className="text-sm text-gray-400 py-4">Loading settings…</div>
+          <div className="space-y-4 animate-pulse">
+            <div className="grid grid-cols-2 gap-4">
+              {[1,2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-24" />
+                  <div className="h-10 bg-gray-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[1,2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-28" />
+                  <div className="h-10 bg-gray-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

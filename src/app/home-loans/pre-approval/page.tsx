@@ -224,14 +224,20 @@ export default function PreApprovalPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#15803d] via-[#16a34a] to-[#166534] py-10 px-4">
-        <div className="max-w-2xl mx-auto text-center">
+      <div className="bg-[#16a34a] py-12 px-4">
+        <div className="max-w-7xl mx-auto">
           <Link href="/home-loans"
             className="inline-flex items-center gap-1.5 text-green-300 text-xs hover:text-white transition-colors mb-4">
             <ChevronLeft size={13} /> Back to Home Loans
           </Link>
-          <h1 className="text-white font-black text-3xl mb-2">Get Pre-Approved</h1>
-          <p className="text-green-200 text-sm max-w-md mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
+              <CheckCircle size={18} className="text-white" />
+            </div>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Pre-Approval</p>
+          </div>
+          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Get Pre-Approved</h1>
+          <p className="text-green-200 text-sm">
             Tell us about yourself and your loan needs — a specialist will be in touch within 24 hours.
           </p>
         </div>

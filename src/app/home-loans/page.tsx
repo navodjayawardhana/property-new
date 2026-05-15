@@ -222,7 +222,7 @@ export default function HomeLoansPage() {
             <div>
               <h2 className="font-black text-gray-900">Housing Loan Comparison</h2>
               <p className="text-xs text-gray-400 mt-0.5">
-                {loading ? "Loading…" : `${results.length} loan offer${results.length !== 1 ? "s" : ""} · ${LKR(loanAmt)} over ${term} years`}
+                {loading ? <span className="inline-block h-3 w-52 bg-gray-200 rounded animate-pulse" /> : `${results.length} loan offer${results.length !== 1 ? "s" : ""} · ${LKR(loanAmt)} over ${term} years`}
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-xs text-gray-400">

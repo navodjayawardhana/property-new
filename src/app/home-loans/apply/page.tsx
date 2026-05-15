@@ -411,21 +411,53 @@ export default function ApplyPage() {
       <Navbar />
 
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#15803d] via-[#16a34a] to-[#166534] py-10 px-4">
-        <div className="max-w-2xl mx-auto text-center">
+      <div className="bg-[#16a34a] py-12 px-4">
+        <div className="max-w-7xl mx-auto">
           <Link href="/home-loans"
             className="inline-flex items-center gap-1.5 text-green-300 text-xs hover:text-white transition-colors mb-4">
             <ChevronLeft size={13} /> Back to Loan Comparison
           </Link>
-          <h1 className="text-white font-black text-3xl mb-2">Apply for a Home Loan</h1>
-          <p className="text-green-200 text-sm max-w-md mx-auto">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
+              <FileText size={18} className="text-white" />
+            </div>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Home Loan Application</p>
+          </div>
+          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Apply for a Home Loan</h1>
+          <p className="text-green-200 text-sm">
             Fill in your details below and a loan specialist will contact you within 24–48 hours.
           </p>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-10 w-full flex-1">
-        <Suspense fallback={<div className="text-center text-gray-400 py-10">Loading…</div>}>
+        <Suspense fallback={
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 animate-pulse space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {[1,2,3,4].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-24" />
+                  <div className="h-11 bg-gray-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded w-32" />
+              <div className="flex gap-3">
+                {[1,2,3].map((i) => <div key={i} className="h-16 bg-gray-100 rounded-xl flex-1" />)}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {[1,2].map((i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-28" />
+                  <div className="h-11 bg-gray-100 rounded-xl" />
+                </div>
+              ))}
+            </div>
+            <div className="h-12 bg-gray-200 rounded-xl w-full" />
+          </div>
+        }>
           <ApplyForm />
         </Suspense>
       </div>

@@ -102,7 +102,11 @@ export default function AgentsPage() {
         {/* Filters & count */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <p className="text-sm text-gray-600">
-            {loading ? "Loading agents..." : <><span className="font-bold text-gray-900">{total}</span> agent{total !== 1 ? "s" : ""} available</>}
+            {loading ? (
+              <span className="inline-block h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              <><span className="font-bold text-gray-900">{total}</span> agent{total !== 1 ? "s" : ""} available</>
+            )}
           </p>
           <div className="flex items-center gap-2">
             <MapPin size={14} className="text-gray-400" />
