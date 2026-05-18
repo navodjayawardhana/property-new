@@ -156,6 +156,7 @@ export type Property = {
   price_per_week: number | null;
   address: string;
   suburb: string;
+  district: string | null;
   state: string;
   postcode: string;
   country: string | null;
@@ -366,6 +367,7 @@ export type Agent = {
   avatar: string | null;
   slug: string | null;
   suburb: string | null;
+  district: string | null;
   state: string | null;
   postcode: string | null;
   country: string | null;

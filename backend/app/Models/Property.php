@@ -18,6 +18,7 @@ class Property extends Model
         'price_per_week',
         'address',
         'suburb',
+        'district',
         'state',
         'postcode',
         'country',

@@ -33,6 +33,7 @@ type RegisterData = {
   role?: string;
   country?: string;
   state?: string;
+  district?: string;
   suburb?: string;
 };
 

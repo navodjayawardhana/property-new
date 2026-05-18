@@ -3,9 +3,10 @@
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, MapPin, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { COUNTRY_CODES } from "@/lib/countries";
+import SriLankaAddressFields from "@/components/SriLankaAddressFields";
 
 const accountTypes = [
   { id: "buyer",  label: "Buyer / Renter",   desc: "Search and save properties" },
@@ -19,7 +20,7 @@ export default function JoinPage() {
 
   const [step, setStep] = useState(1);
   const [accountType, setAccountType] = useState("buyer");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "", country: "", state: "", city: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirm: "", country: "", state: "", district: "", city: "", postcode: "" });
   const [countryCode, setCountryCode] = useState("+94");
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -34,19 +35,16 @@ export default function JoinPage() {
   const [digits, setDigits] = useState(["", "", "", "", "", ""]);
   const digitRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Auto-detect country, state, city from IP
+  // Auto-detect country from IP, set dial code
   useEffect(() => {
     fetch("https://ipapi.co/json/")
       .then((r) => r.json())
       .then((data) => {
         const found = COUNTRY_CODES.find((c) => c.code === data.country_code);
-        if (found) setCountryCode(found.dial);
-        setForm((p) => ({
-          ...p,
-          country: found?.name ?? data.country_name ?? "",
-          state: data.region ?? "",
-          city: data.city ?? "",
-        }));
+        if (found) {
+          setCountryCode(found.dial);
+          setForm((p) => ({ ...p, country: found.name }));
+        }
       })
       .catch(() => {});
   }, []);
@@ -104,6 +102,7 @@ export default function JoinPage() {
         role: accountType,
         country: form.country || undefined,
         state: form.state || undefined,
+        district: form.district || undefined,
         suburb: form.city || undefined,
       });
       setVerifyEmail_(email);
@@ -386,27 +385,17 @@ export default function JoinPage() {
                 </div>
               </div>
 
-              {/* State & City */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1.5 block">State / Region</label>
-                  <div className="relative">
-                    <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" value={form.state} onChange={(e) => update("state", e.target.value)}
-                      placeholder="New South Wales"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-gray-600 mb-1.5 block">City / Suburb</label>
-                  <div className="relative">
-                    <MapPin size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" value={form.city} onChange={(e) => update("city", e.target.value)}
-                      placeholder="Sydney"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
-                  </div>
-                </div>
-              </div>
+              {/* Province / District / City / Postcode */}
+              <SriLankaAddressFields
+                province={form.state}
+                district={form.district}
+                city={form.city}
+                postcode={form.postcode}
+                onProvinceChange={(v) => update("state", v)}
+                onDistrictChange={(v) => update("district", v)}
+                onCityChange={(v) => update("city", v)}
+                onPostcodeChange={(v) => update("postcode", v)}
+              />
 
               {/* Password */}
               <div>

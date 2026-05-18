@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { properties as propertiesApi, admin as adminApi, publicSettings as publicSettingsApi, type Property, type PropertyImage, type AdminSettings } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { X, Upload, Loader2, Info } from "lucide-react";
+import SriLankaAddressFields from "@/components/SriLankaAddressFields";
 
 type FormState = {
   title: string;
@@ -13,6 +14,7 @@ type FormState = {
   category: 'domestic' | 'commercial' | 'both';
   address: string;
   suburb: string;
+  district: string;
   state: string;
   postcode: string;
   country: string;
@@ -47,6 +49,7 @@ const defaultForm: FormState = {
   category: 'domestic',
   address: '',
   suburb: '',
+  district: '',
   state: '',
   postcode: '',
   country: 'Sri Lanka',
@@ -63,13 +66,6 @@ const defaultForm: FormState = {
   is_featured: false,
 };
 
-const STATES = [
-  'Colombo', 'Gampaha', 'Kalutara', 'Kandy', 'Matale',
-  'Nuwara Eliya', 'Galle', 'Matara', 'Hambantota', 'Jaffna',
-  'Kilinochchi', 'Mannar', 'Mullaitivu', 'Vavuniya', 'Trincomalee',
-  'Batticaloa', 'Ampara', 'Kurunegala', 'Puttalam', 'Anuradhapura',
-  'Polonnaruwa', 'Badulla', 'Monaragala', 'Ratnapura', 'Kegalle',
-];
 const TYPES = ['House', 'Apartment', 'Townhouse', 'Land', 'Unit', 'Villa', 'Acreage'];
 
 export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, isAdmin = false, onSuccess }: Props) {
@@ -130,6 +126,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     fd.append('category', form.category);
     fd.append('address', form.address);
     fd.append('suburb', form.suburb);
+    if (form.district) fd.append('district', form.district);
     fd.append('state', form.state);
     fd.append('postcode', form.postcode);
     fd.append('country', form.country);
@@ -233,6 +230,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
         category: form.category,
         address: form.address,
         suburb: form.suburb,
+        district: form.district || undefined,
         state: form.state,
         postcode: form.postcode,
         country: form.country,
@@ -349,22 +347,17 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           <input required className={inp} value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="e.g. 12 Oak Street" />
         </div>
 
-        <div>
-          <label className={lbl}>City *</label>
-          <input required className={inp} value={form.suburb} onChange={(e) => set('suburb', e.target.value)} placeholder="e.g. Colombo" />
-        </div>
-
-        <div>
-          <label className={lbl}>District *</label>
-          <select required className={inp} value={form.state} onChange={(e) => set('state', e.target.value)}>
-            <option value="">Select district</option>
-            {STATES.map((s) => <option key={s}>{s}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className={lbl}>Postcode</label>
-          <input className={inp} value={form.postcode} onChange={(e) => set('postcode', e.target.value)} placeholder="e.g. 10100" maxLength={10} />
+        <div className="md:col-span-2">
+          <SriLankaAddressFields
+            province={form.state}
+            district={form.district}
+            city={form.suburb}
+            postcode={form.postcode}
+            onProvinceChange={(v) => set('state', v)}
+            onDistrictChange={(v) => set('district', v)}
+            onCityChange={(v) => set('suburb', v)}
+            onPostcodeChange={(v) => set('postcode', v)}
+          />
         </div>
 
         <div className="md:col-span-2">

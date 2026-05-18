@@ -32,6 +32,7 @@ class AuthController extends Controller
             'role'     => 'nullable|in:buyer,seller,agent',
             'country'  => 'nullable|string|max:100',
             'state'    => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
             'suburb'   => 'nullable|string|max:100',
         ]);
 
@@ -43,6 +44,7 @@ class AuthController extends Controller
             'role'     => $validated['role'] ?? 'buyer',
             'country'  => $validated['country'] ?? null,
             'state'    => $validated['state'] ?? null,
+            'district' => $validated['district'] ?? null,
             'suburb'   => $validated['suburb'] ?? null,
         ]);
 
@@ -261,7 +263,7 @@ class AuthController extends Controller
         return response()->json(
             $agent->only([
                 'id', 'name', 'email', 'phone', 'avatar', 'slug',
-                'suburb', 'state', 'postcode', 'country',
+                'suburb', 'state', 'postcode', 'country', 'district',
                 'bio', 'facebook', 'instagram', 'linkedin', 'whatsapp', 'twitter', 'website',
             ])
         );
@@ -277,13 +279,16 @@ class AuthController extends Controller
         if ($request->filled('state')) {
             $query->where('state', $request->state);
         }
+           if ($request->filled('district')) {
+            $query->where('district', 'like', '%' . $request->district . '%');
+        }
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         $agents = $query->select([
                 'id', 'name', 'email', 'phone', 'avatar', 'slug',
-                'suburb', 'state', 'postcode', 'country',
+                'suburb', 'state', 'postcode', 'country', 'district',
             ])
             ->paginate(24);
 

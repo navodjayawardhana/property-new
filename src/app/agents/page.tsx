@@ -221,10 +221,10 @@ function AgentsContent() {
                     <p className="text-xs text-[#16a34a] font-semibold">
                       Real Estate Agent
                     </p>
-                    {(agent.suburb || agent.state) && (
+                    {(agent.district || agent.state) && (
                       <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
                         <MapPin size={9} className="shrink-0" />
-                        {[agent.suburb, agent.state].filter(Boolean).join(", ")}
+                        {[agent.district || agent.suburb, agent.state].filter(Boolean).join(" · ")}
                       </p>
                     )}
                   </div>

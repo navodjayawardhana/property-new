@@ -74,6 +74,7 @@ export default function EditPropertyPage() {
               category: property.category as 'domestic' | 'commercial' | 'both',
               address: property.address,
               suburb: property.suburb,
+              district: property.district ?? '',
               state: property.state,
               postcode: property.postcode ?? '',
               country: property.country ?? 'Sri Lanka',

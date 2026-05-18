@@ -228,10 +228,10 @@ export default function AgentLandingPage() {
                 <h1 className="text-3xl md:text-5xl font-black text-white leading-none tracking-tight drop-shadow-lg">
                   {agent.name}
                 </h1>
-                {(agent.suburb || agent.state) && (
+                {(agent.district || agent.state) && (
                   <p className="text-white/70 text-sm flex items-center gap-1 mt-2">
                     <MapPin size={13} className="shrink-0" />
-                    {[agent.suburb, agent.state, agent.country].filter(Boolean).join(", ")}
+                    {[agent.district, agent.state, agent.country].filter(Boolean).join(" · ")}
                   </p>
                 )}
               </div>
@@ -248,10 +248,16 @@ export default function AgentLandingPage() {
               <p className="text-3xl font-black text-white">{propsLoading ? "—" : agentProps.length}</p>
               <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">Listings</p>
             </div>
+            {agent.district && (
+              <div className="text-center">
+                <p className="text-lg font-black text-white">{agent.district}</p>
+                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">District</p>
+              </div>
+            )}
             {agent.state && (
               <div className="text-center">
                 <p className="text-lg font-black text-white">{agent.state}</p>
-                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">District</p>
+                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">Province</p>
               </div>
             )}
             {agent.phone && (
