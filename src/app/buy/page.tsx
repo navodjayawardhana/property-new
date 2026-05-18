@@ -32,6 +32,7 @@ const SORT_OPTIONS = [
   "Price (low → high)",
   "Price (high → low)",
 ];
+const INITIAL_LIMIT = 9;
 
 function ActiveFilters({
   searchParams,
@@ -97,6 +98,7 @@ function BuyContent() {
   const [items, setItems] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [showAll, setShowAll] = useState(false);
   const [latestNews, setLatestNews] = useState<NewsArticleApi[]>([]);
 
   useEffect(() => {
@@ -132,6 +134,7 @@ function BuyContent() {
   );
 
   useEffect(() => {
+    setShowAll(false);
     setLoading(true);
     propertiesApi
       .list(buildFilters())
@@ -249,11 +252,36 @@ function BuyContent() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-              {sorted.map((p) => (
-                <PropertyCard key={p.id} property={p} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {(showAll ? sorted : sorted.slice(0, INITIAL_LIMIT)).map((p) => (
+                  <PropertyCard key={p.id} property={p} />
+                ))}
+              </div>
+              {sorted.length > INITIAL_LIMIT && (
+                <div className="mt-10 mb-4 text-center">
+                  {!showAll ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 max-w-xs mx-auto">
+                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#16a34a] rounded-full" style={{ width: `${(INITIAL_LIMIT / sorted.length) * 100}%` }} />
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{INITIAL_LIMIT} of {sorted.length}</span>
+                      </div>
+                      <button onClick={() => setShowAll(true)}
+                        className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm px-7 py-3 rounded-xl transition-colors shadow-md">
+                        View {sorted.length - INITIAL_LIMIT} more
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setShowAll(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      className="inline-flex items-center gap-2 border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-sm px-7 py-3 rounded-xl transition-colors">
+                      View less
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
