@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\LoanEnquiryNotification;
 use App\Models\LoanEnquiry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class LoanEnquiryController extends Controller
 {
@@ -31,6 +34,7 @@ class LoanEnquiryController extends Controller
     {
         $validated = $request->validate($this->rules);
         $enquiry   = LoanEnquiry::create($validated);
+        $this->notifyAdmin($enquiry);
 
         return response()->json($enquiry, 201);
     }
@@ -41,8 +45,21 @@ class LoanEnquiryController extends Controller
         $validated            = $request->validate($this->rules);
         $validated['user_id'] = $request->user()->id;
         $enquiry              = LoanEnquiry::create($validated);
+        $this->notifyAdmin($enquiry);
 
         return response()->json($enquiry, 201);
+    }
+
+    private function notifyAdmin(LoanEnquiry $enquiry): void
+    {
+        $adminEmail = env('ADMIN_EMAIL', config('mail.from.address'));
+        if (!$adminEmail) return;
+
+        try {
+            Mail::to($adminEmail)->send(new LoanEnquiryNotification($enquiry));
+        } catch (\Throwable $e) {
+            Log::error('Failed to queue loan enquiry email: ' . $e->getMessage());
+        }
     }
 
     // Protected: list the authenticated user's own enquiries

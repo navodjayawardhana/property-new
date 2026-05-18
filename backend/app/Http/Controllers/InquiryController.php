@@ -35,9 +35,9 @@ class InquiryController extends Controller
         if ($ownerEmail) {
             try {
                 Mail::to($ownerEmail, $property->user->name)
-                    ->queue(new InquiryNotification($inquiry, $property));
+                    ->send(new InquiryNotification($inquiry, $property));
             } catch (\Throwable $e) {
-                Log::error('Failed to queue inquiry email: ' . $e->getMessage());
+                Log::error('Failed to send inquiry email: ' . $e->getMessage());
             }
         }
 
