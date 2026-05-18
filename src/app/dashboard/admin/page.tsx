@@ -998,7 +998,7 @@ function NewsTab({ token }: { token: string }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {data.data.slice((newsPage - 1) * NEWS_PAGE_SIZE, newsPage * NEWS_PAGE_SIZE).map((a) => (
+                {[...data.data].sort((a, b) => a.id - b.id).slice((newsPage - 1) * NEWS_PAGE_SIZE, newsPage * NEWS_PAGE_SIZE).map((a) => (
                   <tr key={a.id} className="hover:bg-gray-50/30 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -1542,8 +1542,9 @@ function SlidesTab({ token }: { token: string }) {
     setShowAddModal(true);
   }
 
-  const pagedSlides = slides.slice((slidePage - 1) * SLIDE_PAGE_SIZE, slidePage * SLIDE_PAGE_SIZE);
-  const totalSlidePages = Math.ceil(slides.length / SLIDE_PAGE_SIZE);
+  const sortedSlides = [...slides].sort((a, b) => a.sort_order - b.sort_order);
+  const pagedSlides = sortedSlides.slice((slidePage - 1) * SLIDE_PAGE_SIZE, slidePage * SLIDE_PAGE_SIZE);
+  const totalSlidePages = Math.ceil(sortedSlides.length / SLIDE_PAGE_SIZE);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -1814,8 +1815,9 @@ function BankRatesTab({ token }: { token: string }) {
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
 
-  const pagedBanks = banks.slice((bankPage - 1) * BANK_PAGE_SIZE, bankPage * BANK_PAGE_SIZE);
-  const totalBankPages = Math.ceil(banks.length / BANK_PAGE_SIZE);
+  const sortedBanks = [...banks].sort((a, b) => a.id - b.id);
+  const pagedBanks = sortedBanks.slice((bankPage - 1) * BANK_PAGE_SIZE, bankPage * BANK_PAGE_SIZE);
+  const totalBankPages = Math.ceil(sortedBanks.length / BANK_PAGE_SIZE);
 
   return (
     <div className="space-y-5">

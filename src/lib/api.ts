@@ -690,7 +690,7 @@ export const bankLoanRatesApi = {
     Object.entries(data).forEach(([k, v]) => {
       if (k === 'logo') { if (v) fd.append('logo', v as File); return; }
       if (k === 'features') { (v as string[] ?? []).forEach((f) => fd.append('features[]', f)); return; }
-      if (v !== undefined && v !== null) fd.append(k, String(v));
+      if (v !== undefined && v !== null) fd.append(k, typeof v === 'boolean' ? (v ? '1' : '0') : String(v));
     });
     return request<BankLoanRate>('/admin/bank-loan-rates', { method: 'POST', body: fd, token });
   },

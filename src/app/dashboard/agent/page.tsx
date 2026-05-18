@@ -701,8 +701,9 @@ export default function AgentDashboard() {
                 </button>
               </div>
               {(() => {
-                const pagedSaved = saved.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
-                const totalSavedPages = Math.ceil(saved.length / PAGE_SIZE);
+                const sortedSaved = [...saved].sort((a, b) => a.id - b.id);
+                const pagedSaved = sortedSaved.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalSavedPages = Math.ceil(sortedSaved.length / PAGE_SIZE);
                 return (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -742,8 +743,9 @@ export default function AgentDashboard() {
                 </button>
               </div>
               {(() => {
-                const pagedReceived = received.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
-                const totalReceivedPages = Math.ceil(received.length / PAGE_SIZE);
+                const sortedReceived = [...received].sort((a, b) => a.id - b.id);
+                const pagedReceived = sortedReceived.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalReceivedPages = Math.ceil(sortedReceived.length / PAGE_SIZE);
                 return (
                   <>
                     {pagedReceived.map((inq) => (
@@ -814,8 +816,9 @@ export default function AgentDashboard() {
             <div className="space-y-3">
               <p className="text-sm text-gray-500 font-medium mb-2">{myLoans.length} application{myLoans.length !== 1 ? "s" : ""}</p>
               {(() => {
-                const pagedLoans = myLoans.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
-                const totalLoanPages = Math.ceil(myLoans.length / PAGE_SIZE);
+                const sortedLoans = [...myLoans].sort((a, b) => a.id - b.id);
+                const pagedLoans = sortedLoans.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalLoanPages = Math.ceil(sortedLoans.length / PAGE_SIZE);
                 return (
                   <>
                     {pagedLoans.map((loan) => {
