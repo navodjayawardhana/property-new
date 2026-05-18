@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 const pills = ["Buying", "Renting", "Selling", "Researching"];
@@ -8,6 +9,7 @@ const pills = ["Buying", "Renting", "Selling", "Researching"];
 const allCards = [
   {
     for: ["Buying", "Renting", "Selling", "Researching"],
+    href: "/buy",
     title: "Get estimated property prices with a realEstimate™",
     desc: "See how much your property's worth in real-time and get alerts as it changes.",
     cta: "Check property values",
@@ -26,6 +28,7 @@ const allCards = [
   },
   {
     for: ["Buying", "Renting"],
+    href: "/home-loans",
     title: "Need help with a mortgage?",
     desc: "Compare your finance options and get connected with a broker in minutes.",
     cta: "Explore home loans",
@@ -45,6 +48,7 @@ const allCards = [
   },
   {
     for: ["Buying", "Renting", "Selling", "Researching"],
+    href: "/buy",
     title: "Explore suburb profiles",
     desc: "Discover median prices, recent sales, and lifestyle insights for any suburb.",
     cta: "Research suburbs",
@@ -62,6 +66,7 @@ const allCards = [
   },
   {
     for: ["Selling"],
+    href: "/agents",
     title: "Ready to sell your property?",
     desc: "Get a free appraisal and connect with top-rated local agents in your area.",
     cta: "Find an agent",
@@ -80,6 +85,7 @@ const allCards = [
   },
   {
     for: ["Researching"],
+    href: "/sold",
     title: "Track market trends",
     desc: "Stay ahead with real-time data on property prices, auction results and more.",
     cta: "View market insights",
@@ -130,9 +136,10 @@ export default function ExploreSection() {
         {/* Cards grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleCards.map((card) => (
-            <div
+            <Link
               key={card.title}
-              className={`bg-gradient-to-br ${card.gradient} rounded-2xl p-6 flex flex-col justify-between min-h-[190px] group hover:shadow-md transition-shadow cursor-pointer`}
+              href={card.href}
+              className={`bg-gradient-to-br ${card.gradient} rounded-2xl p-6 flex flex-col justify-between min-h-[190px] group hover:shadow-md transition-shadow`}
             >
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1 pt-1">
@@ -149,7 +156,7 @@ export default function ExploreSection() {
                 {card.cta}
                 <ArrowRight size={13} />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

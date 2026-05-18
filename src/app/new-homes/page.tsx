@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import SearchHero from "@/components/SearchHero";
+import ExploreSection from "@/components/ExploreSection";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
@@ -151,25 +153,8 @@ function NewHomesContent() {
 
   return (
     <>
-      {/* Hero */}
-      <div className="bg-[#16a34a] py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
-              <Home size={18} className="text-white" />
-            </div>
-            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">
-              Brand new
-            </p>
-          </div>
-          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">
-            New Homes
-          </h1>
-          <p className="text-green-200 text-sm">
-            Browse brand-new properties — never been lived in.
-          </p>
-        </div>
-      </div>
+      <SearchHero defaultTab="Buy" title="Search new homes" />
+      <ExploreSection />
 
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
 import ExploreSection from "@/components/ExploreSection";
@@ -294,9 +295,9 @@ function BuyContent() {
               Explore your home loan options
             </h3>
           </div>
-          <button className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold px-5 py-2.5 rounded transition-colors shrink-0">
+          <Link href="/home-loans" className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold px-5 py-2.5 rounded transition-colors shrink-0">
             Compare loans
-          </button>
+          </Link>
         </div>
       </section>
 

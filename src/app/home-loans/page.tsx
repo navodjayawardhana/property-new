@@ -3,6 +3,8 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import SearchHero from "@/components/SearchHero";
+import ExploreSection from "@/components/ExploreSection";
 import Footer from "@/components/Footer";
 import {
   Home, TrendingUp, Users, DollarSign, Clock,
@@ -118,27 +120,13 @@ export default function HomeLoansPage() {
   const best = results[0] ?? null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+      <SearchHero defaultTab="Buy" title="Compare home loan interest rates" />
+      <ExploreSection />
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-[#16a34a] pt-12 pb-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 bg-white/15 rounded-lg flex items-center justify-center">
-              <Building2 size={18} className="text-white" />
-            </div>
-            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Housing Loan Comparison</p>
-          </div>
-          <h1 className="text-white font-black text-3xl md:text-4xl mb-2">Compare Home Loan Interest Rates</h1>
-          <p className="text-green-200 text-sm">
-            Enter your loan amount and period to compare monthly repayments and interest rates across banks in Sri Lanka.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Calculator card (overlaps hero) ──────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 w-full -mt-10">
+      {/* ── Calculator card ───────────────────────────────────────────────── */}
+      <div className="max-w-5xl mx-auto px-4 pt-8 w-full">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-end">
 
