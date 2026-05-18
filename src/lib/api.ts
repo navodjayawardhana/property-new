@@ -54,6 +54,7 @@ export type User = {
   slug: string | null;
   is_blocked: boolean;
   suburb: string | null;
+  district: string | null;
   state: string | null;
   postcode: string | null;
   country: string | null;
@@ -740,6 +741,7 @@ export const profile = {
     email?: string;
     phone?: string | null;
     suburb?: string | null;
+    district?: string | null;
     state?: string | null;
     postcode?: string | null;
     country?: string | null;

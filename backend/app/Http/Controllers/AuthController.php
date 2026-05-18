@@ -195,6 +195,7 @@ class AuthController extends Controller
             'email'     => 'sometimes|email|unique:users,email,' . $user->id,
             'phone'     => 'nullable|string|max:20',
             'suburb'    => 'nullable|string|max:100',
+            'district'  => 'nullable|string|max:100',
             'state'     => 'nullable|string|max:100',
             'postcode'  => 'nullable|string|max:10',
             'country'   => 'nullable|string|max:100',

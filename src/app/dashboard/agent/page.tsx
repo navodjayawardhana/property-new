@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { UserAvatar } from "@/components/UserAvatar";
+import SriLankaAddressFields from "@/components/SriLankaAddressFields";
 import { useAuth } from "@/lib/auth-context";
 import { properties as propertiesApi, inquiries as inquiriesApi, loanEnquiries as loanEnqApi, favorites as favoritesApi, bankLoanRatesApi, agentSlidesApi, profile as profileApi, type Property, type Inquiry, type LoanEnquiry, type AgentSlide } from "@/lib/api";
 import { getSaved } from "@/lib/saved-properties";
@@ -131,6 +132,7 @@ export default function AgentDashboard() {
   const [phoneDialCode, setPhoneDialCode] = useState("+94");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [suburb, setSuburb] = useState("");
+  const [district, setDistrict] = useState("");
   const [userState, setUserState] = useState("");
   const [postcode, setPostcode] = useState("");
   const [country, setCountry] = useState("");
@@ -218,6 +220,7 @@ export default function AgentDashboard() {
       setPhoneNumber(number);
     }
     setSuburb(user.suburb ?? "");
+    setDistrict((user as any).district ?? "");
     setUserState(user.state ?? "");
     setPostcode(user.postcode ?? "");
     setCountry(user.country ?? "");
@@ -374,6 +377,7 @@ export default function AgentDashboard() {
         name, email,
         phone:    rawNumber ? `${phoneDialCode}${rawNumber}` : null,
         suburb:   suburb    || null,
+        district: district  || null,
         state:    userState || null,
         postcode: postcode  || null,
         country:  country   || null,
@@ -981,14 +985,15 @@ export default function AgentDashboard() {
                   </div>
                 </div>
 
+                {/* Section: Location */}
                 <div className="px-6 py-3.5 border-y border-gray-100 bg-gray-50/60 flex items-center gap-2">
                   <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
                     <MapPin size={13} className="text-blue-600" />
                   </div>
                   <h3 className="font-bold text-gray-800 text-sm">Location</h3>
                 </div>
-                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                  <div className="lg:col-span-2">
+                <div className="p-6 space-y-4">
+                  <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Country</label>
                     <div className="relative">
                       <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white appearance-none pr-9 cursor-pointer" value={country} onChange={(e) => setCountry(e.target.value)}>
@@ -998,18 +1003,16 @@ export default function AgentDashboard() {
                       <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">State / Region</label>
-                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={userState} onChange={(e) => setUserState(e.target.value)} placeholder="e.g. Western" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Postcode</label>
-                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="e.g. 10100" maxLength={10} />
-                  </div>
-                  <div className="lg:col-span-4">
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Suburb / City</label>
-                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Colombo 03" />
-                  </div>
+                  <SriLankaAddressFields
+                    province={userState}
+                    district={district}
+                    city={suburb}
+                    postcode={postcode}
+                    onProvinceChange={setUserState}
+                    onDistrictChange={setDistrict}
+                    onCityChange={setSuburb}
+                    onPostcodeChange={setPostcode}
+                  />
                 </div>
 
                 <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">

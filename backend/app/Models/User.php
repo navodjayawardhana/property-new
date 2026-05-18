@@ -24,6 +24,7 @@ class User extends Authenticatable
         'avatar',
         'is_blocked',
         'suburb',
+        'district',
         'state',
         'postcode',
         'country',
