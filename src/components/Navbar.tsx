@@ -239,7 +239,7 @@ export default function Navbar() {
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <Link href={`/dashboard/${user.role}`} className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
+            <Link href={`/dashboard/${user.role}?tab=profile`} className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
               Complete profile →
             </Link>
             <button onClick={() => setBannerDismissed(true)} className="text-amber-500 hover:text-amber-700 transition-colors">

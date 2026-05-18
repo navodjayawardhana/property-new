@@ -114,6 +114,11 @@ export default function BuyerDashboard() {
   useEffect(() => { setContentPage(1); }, [tab]);
 
   useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("tab");
+    if (p && ["saved","inquiries","loans","profile","settings"].includes(p)) setTab(p as typeof tab);
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) router.replace("/signin");
   }, [loading, user, router]);
 

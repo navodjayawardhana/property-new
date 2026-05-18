@@ -106,6 +106,11 @@ export default function AgentDashboard() {
 
   useEffect(() => { setContentPage(1); }, [tab]);
 
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get("tab");
+    if (p && ["listings","saved","inquiries","loans","profile","settings"].includes(p)) setTab(p as typeof tab);
+  }, []);
+
   // Profile & Branding tab
   const [slides, setSlides] = useState<AgentSlide[]>([]);
   const [slidesLoaded, setSlidesLoaded] = useState(false);
@@ -482,7 +487,7 @@ export default function AgentDashboard() {
             <Link href="/dashboard/properties/new" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
               <Plus size={16} className="shrink-0" /> Add Listing
             </Link>
-            <Link href="/agents" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+            <Link href={`/agents/${user.slug ?? user.id}`} onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
               <ExternalLink size={16} className="shrink-0" /> My Public Profile
             </Link>
             <button onClick={() => { logout(); setSidebarOpen(false); }}

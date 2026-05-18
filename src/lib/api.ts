@@ -51,6 +51,7 @@ export type User = {
   phone: string | null;
   role: 'buyer' | 'seller' | 'agent' | 'admin';
   avatar: string | null;
+  slug: string | null;
   is_blocked: boolean;
   suburb: string | null;
   state: string | null;
