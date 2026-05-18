@@ -126,27 +126,27 @@ export default function HomeLoansPage() {
       <ExploreSection />
 
       {/* ── Calculator card ───────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 pt-8 w-full">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+      <div className="max-w-5xl mx-auto px-4 pt-8 w-full overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 items-end">
 
             {/* Loan amount */}
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Loan Amount (LKR)</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold pointer-events-none">LKR</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold pointer-events-none">LKR</span>
                 <input
                   type="text" inputMode="numeric"
                   value={numStr(amtStr)}
                   onChange={(e) => setAmtStr(e.target.value.replace(/\D/g, ""))}
-                  className="w-full border-2 border-gray-200 focus:border-[#16a34a] rounded-xl pl-12 pr-4 py-3 text-sm font-bold outline-none transition-colors"
+                  className="w-full min-w-0 border-2 border-gray-200 focus:border-[#16a34a] rounded-xl pl-10 pr-3 py-3 text-sm font-bold outline-none transition-colors"
                 />
               </div>
               <input type="range" min={500000} max={50000000} step={100000}
                 value={loanAmt} onChange={(e) => setAmtStr(e.target.value)}
                 className="w-full mt-2 h-1.5 accent-[#16a34a] cursor-pointer" />
               <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-                <span>LKR 500K</span><span>LKR 50M</span>
+                <span>500K</span><span>50M</span>
               </div>
             </div>
 
@@ -189,17 +189,17 @@ export default function HomeLoansPage() {
       {/* ── Summary stats ─────────────────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 pt-6 w-full">
         {!loading && best && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             {[
-              { label: "Lowest Interest Rate",   value: `${best.interest_rate.toFixed(2)}%`, sub: best.bank_name },
-              { label: "Lowest Monthly Payment", value: LKR(best.monthly),                  sub: `${best.bank_name}` },
-              { label: "Your Loan Amount",        value: LKR(loanAmt),                       sub: `Over ${term} years` },
-              { label: "Banks Compared",          value: String(results.length),             sub: "Active offers" },
+              { label: "Best Rate",       value: `${best.interest_rate.toFixed(2)}%`, sub: best.bank_name },
+              { label: "Monthly Payment", value: LKR(best.monthly),                  sub: best.bank_name },
+              { label: "Loan Amount",     value: LKR(loanAmt),                       sub: `${term} years` },
+              { label: "Banks",           value: String(results.length),             sub: "Compared" },
             ].map((s) => (
-              <div key={s.label} className="bg-white rounded-xl border border-gray-100 px-4 py-3">
-                <p className="text-xs text-gray-400 font-medium">{s.label}</p>
-                <p className="text-lg font-black text-[#16a34a] mt-0.5">{s.value}</p>
-                <p className="text-xs text-gray-400 truncate">{s.sub}</p>
+              <div key={s.label} className="bg-white rounded-xl border border-gray-100 px-3 py-3 overflow-hidden">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-medium truncate">{s.label}</p>
+                <p className="text-sm sm:text-lg font-black text-[#16a34a] mt-0.5 truncate">{s.value}</p>
+                <p className="text-[10px] sm:text-xs text-gray-400 truncate">{s.sub}</p>
               </div>
             ))}
           </div>
@@ -207,18 +207,18 @@ export default function HomeLoansPage() {
       </div>
 
       {/* ── Comparison table ──────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 py-6 w-full">
+      <div className="max-w-5xl mx-auto px-4 py-6 w-full overflow-hidden">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
           {/* Table header */}
-          <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <h2 className="font-black text-gray-900">Housing Loan Comparison</h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {loading ? <span className="inline-block h-3 w-52 bg-gray-200 rounded animate-pulse" /> : `${results.length} loan offer${results.length !== 1 ? "s" : ""} · ${LKR(loanAmt)} over ${term} years`}
+          <div className="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h2 className="font-black text-gray-900 text-sm sm:text-base">Housing Loan Comparison</h2>
+              <p className="text-xs text-gray-400 mt-0.5 truncate">
+                {loading ? <span className="inline-block h-3 w-52 bg-gray-200 rounded animate-pulse" /> : `${results.length} offer${results.length !== 1 ? "s" : ""} · ${LKR(loanAmt)} · ${term} yrs`}
               </p>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs text-gray-400 shrink-0">
               <Info size={12} /> Sort by clicking column headers
             </div>
           </div>
@@ -347,51 +347,53 @@ export default function HomeLoansPage() {
 
                     {/* Mobile card */}
                     <div className="md:hidden px-4 py-4 space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
+                      {/* Bank header */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
                             i === 0 ? "bg-[#16a34a] text-white" : "bg-gray-100 text-gray-500"
                           }`}>
-                            {i === 0 ? <Trophy size={13} /> : i + 1}
+                            {i === 0 ? <Trophy size={11} /> : i + 1}
                           </div>
-                          <div className="w-9 h-9 rounded-xl border border-gray-100 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+                          <div className="w-8 h-8 rounded-xl border border-gray-100 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                             {b.logo_url
                               ? <img src={b.logo_url} alt={b.bank_name} className="w-full h-full object-contain p-0.5" />
                               : <span className="font-black text-gray-400 text-xs">{b.bank_name.charAt(0)}</span>}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="font-black text-gray-900 text-sm">{b.bank_name}</span>
-                              {i === 0 && <span className="text-xs font-bold bg-[#16a34a] text-white px-1.5 py-0.5 rounded-full">Best</span>}
+                              <span className="font-black text-gray-900 text-sm leading-tight">{b.bank_name}</span>
+                              {i === 0 && <span className="text-xs font-bold bg-[#16a34a] text-white px-1.5 py-0.5 rounded-full shrink-0">Best</span>}
                             </div>
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border mt-0.5 inline-block ${LOAN_TYPE_COLORS[b.loan_type] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
+                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full border mt-0.5 inline-block ${LOAN_TYPE_COLORS[b.loan_type] ?? "bg-gray-100 text-gray-600 border-gray-200"}`}>
                               {LOAN_TYPE_LABELS[b.loan_type] ?? b.loan_type}
                             </span>
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className={`font-black text-xl ${i === 0 ? "text-[#16a34a]" : "text-gray-900"}`}>{b.interest_rate.toFixed(2)}%</p>
+                          <p className={`font-black text-xl leading-tight ${i === 0 ? "text-[#16a34a]" : "text-gray-900"}`}>{b.interest_rate.toFixed(2)}%</p>
                           <p className="text-xs text-gray-400">p.a.</p>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 bg-gray-50 rounded-xl p-3 text-center">
-                        <div>
-                          <p className="text-xs text-gray-400">Monthly</p>
-                          <p className={`font-black text-sm mt-0.5 ${i === 0 ? "text-[#16a34a]" : "text-gray-900"}`}>{LKR(b.monthly)}</p>
+                      {/* Key-value stats */}
+                      <div className="bg-gray-50 rounded-xl px-3 py-2 space-y-0 divide-y divide-gray-100">
+                        <div className="flex items-center justify-between py-2">
+                          <span className="text-xs text-gray-500">Monthly Payment</span>
+                          <span className={`text-sm font-black ${i === 0 ? "text-[#16a34a]" : "text-gray-900"}`}>{LKR(b.monthly)}</span>
                         </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Total Interest</p>
-                          <p className="font-bold text-sm text-gray-900 mt-0.5">{LKR(b.totalInterest)}</p>
+                        <div className="flex items-center justify-between py-2">
+                          <span className="text-xs text-gray-500">Total Interest</span>
+                          <span className="text-sm font-semibold text-gray-700">{LKR(b.totalInterest)}</span>
                         </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Total</p>
-                          <p className="font-bold text-sm text-gray-900 mt-0.5">{LKR(b.totalPaid)}</p>
+                        <div className="flex items-center justify-between py-2">
+                          <span className="text-xs text-gray-500">Total Repayment</span>
+                          <span className="text-sm font-semibold text-gray-700">{LKR(b.totalPaid)}</span>
                         </div>
                       </div>
 
                       {b.features && b.features.length > 0 && (
-                        <p className="text-xs text-gray-400">{b.features.join(" · ")}</p>
+                        <p className="text-xs text-gray-400 leading-relaxed">{b.features.join(" · ")}</p>
                       )}
 
                       <Link

@@ -149,7 +149,7 @@ function CommercialContent() {
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
         <div className="space-y-2 pb-5 border-b border-gray-200">
-          {/* Row 1 — count + listing type + sort */}
+          {/* Row 1 — count + listing type + sort (sort hidden on mobile) */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold text-gray-700">
               {loading ? (
@@ -178,7 +178,7 @@ function CommercialContent() {
                 );
               })}
             </div>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto hidden sm:flex items-center gap-2">
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
@@ -189,8 +189,8 @@ function CommercialContent() {
             </div>
           </div>
 
-          {/* Row 2 — property type */}
-          <div className="flex gap-2 flex-wrap">
+          {/* Row 2 — property type + sort on mobile */}
+          <div className="flex gap-2 flex-wrap items-center">
             {PROPERTY_TYPES.map((type) => {
               const active = activeType === type || (type === "Any" && !activeType);
               return (
@@ -205,6 +205,15 @@ function CommercialContent() {
                 </button>
               );
             })}
+            <div className="ml-auto sm:hidden">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-600 bg-white"
+              >
+                {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 
