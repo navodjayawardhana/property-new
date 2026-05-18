@@ -68,6 +68,7 @@ function SortIcon({ col, sort }: { col: string; sort: { col: string; dir: "asc" 
 export default function HomeLoansPage() {
   const [banks, setBanks]     = useState<BankLoanRate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   // Calculator inputs
   const [amtStr,     setAmtStr]     = useState("5000000");
@@ -78,12 +79,16 @@ export default function HomeLoansPage() {
   const loanAmt = parseInt(amtStr.replace(/\D/g, "") || "5000000");
   const term    = Math.min(30, Math.max(1, parseInt(termStr || "20")));
 
+  const INITIAL_LIMIT = 5;
+
   useEffect(() => {
     bankLoanRatesApi.list()
       .then(setBanks)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { setShowAll(false); }, [typeFilter, loanAmt, term]);
 
   const loanTypes = useMemo(() => Array.from(new Set(banks.map((b) => b.loan_type))), [banks]);
 
@@ -276,7 +281,7 @@ export default function HomeLoansPage() {
               </div>
 
               <div className="divide-y divide-gray-50">
-                {results.map((b, i) => (
+                {(showAll ? results : results.slice(0, INITIAL_LIMIT)).map((b, i) => (
                   <div key={b.id}
                     className={`transition-colors ${i === 0 ? "bg-[#16a34a]/[0.02]" : "hover:bg-gray-50/60"}`}>
 
@@ -414,6 +419,31 @@ export default function HomeLoansPage() {
                   </div>
                 ))}
               </div>
+
+              {/* View more / less */}
+              {results.length > INITIAL_LIMIT && (
+                <div className="px-5 py-4 border-t border-gray-100 text-center">
+                  {!showAll ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 max-w-xs mx-auto">
+                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#16a34a] rounded-full" style={{ width: `${(INITIAL_LIMIT / results.length) * 100}%` }} />
+                        </div>
+                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{INITIAL_LIMIT} of {results.length}</span>
+                      </div>
+                      <button onClick={() => setShowAll(true)}
+                        className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm px-7 py-3 rounded-xl transition-colors shadow-md">
+                        View {results.length - INITIAL_LIMIT} more
+                      </button>
+                    </div>
+                  ) : (
+                    <button onClick={() => { setShowAll(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      className="inline-flex items-center gap-2 border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-sm px-7 py-3 rounded-xl transition-colors">
+                      View less
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Footer note */}
               <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center gap-2">
