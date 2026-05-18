@@ -50,7 +50,7 @@ export default function Navbar() {
     !!user &&
     user.role !== 'admin' &&
     !bannerDismissed &&
-    pathname !== '/profile' &&
+    !pathname.startsWith('/dashboard') &&
     (!user.phone || !user.country || !user.suburb);
 
   useEffect(() => {
@@ -178,21 +178,9 @@ export default function Navbar() {
                     </div>
 
                     <Link href={`/dashboard/${user.role}`}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors font-semibold"
                       onClick={() => setMenuOpen(false)}>
-                      <UserIcon size={14} /> Dashboard
-                    </Link>
-                    {user.role === "admin" && (
-                      <Link href="/dashboard/admin"
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-semibold"
-                        onClick={() => setMenuOpen(false)}>
-                        <Shield size={14} /> Admin Panel
-                      </Link>
-                    )}
-                    <Link href="/profile"
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setMenuOpen(false)}>
-                      <UserIcon size={14} /> My Profile
+                      <UserIcon size={14} /> My Dashboard
                     </Link>
                     <div className="border-t border-gray-100 mt-1 pt-1">
                       <button
@@ -251,7 +239,7 @@ export default function Navbar() {
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <Link href="/profile" className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
+            <Link href={`/dashboard/${user.role}`} className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
               Complete profile →
             </Link>
             <button onClick={() => setBannerDismissed(true)} className="text-amber-500 hover:text-amber-700 transition-colors">

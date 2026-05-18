@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import { getSaved } from "@/lib/saved-properties";
-import { inquiries as inquiriesApi, favorites as favoritesApi, loanEnquiries as loanEnqApi, bankLoanRatesApi, type Inquiry, type Property, type LoanEnquiry } from "@/lib/api";
+import { inquiries as inquiriesApi, favorites as favoritesApi, loanEnquiries as loanEnqApi, bankLoanRatesApi, profile as profileApi, type Inquiry, type Property, type LoanEnquiry } from "@/lib/api";
+import { COUNTRY_CODES, parsePhone } from "@/lib/countries";
 import {
   Heart, MessageSquare, Home, ExternalLink, Search, ArrowRight, RefreshCw, Building2,
+  Camera, Trash2, Check, Eye, EyeOff, Shield, ChevronDown, Loader2, MapPin, Mail, User as UserIcon, Clock, Settings, LogOut,
 } from "lucide-react";
 
 const LOAN_STATUS_COLOR: Record<string, string> = {
@@ -43,9 +46,30 @@ const INQUIRY_TYPE_COLOR: Record<string, string> = {
 };
 
 export default function BuyerDashboard() {
-  const { user, token, loading } = useAuth();
+  const { user, token, loading, updateUser, logout } = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState<"saved" | "inquiries" | "loans">("saved");
+  const [tab, setTab] = useState<"saved" | "inquiries" | "loans" | "profile" | "settings">("saved");
+
+  // Profile state
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneDialCode, setPhoneDialCode] = useState("+94");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [suburb, setSuburb] = useState("");
+  const [userState, setUserState] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [country, setCountry] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
+  const [pwMsg, setPwMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [myLoans, setMyLoans] = useState<LoanEnquiry[]>([]);
   const [loadingLoans, setLoadingLoans] = useState(false);
   const [bankLogoMap, setBankLogoMap] = useState<Record<string, string | null>>({});
@@ -96,75 +120,244 @@ export default function BuyerDashboard() {
     }
   }, [tab, token]);
 
+  useEffect(() => {
+    if (!user) return;
+    setName(user.name);
+    setEmail(user.email ?? "");
+    if (user.phone) {
+      const { dialCode, number } = parsePhone(user.phone);
+      setPhoneDialCode(dialCode);
+      setPhoneNumber(number);
+    }
+    setSuburb(user.suburb ?? "");
+    setUserState(user.state ?? "");
+    setPostcode(user.postcode ?? "");
+    setCountry(user.country ?? "");
+  }, [user]);
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setAvatarLoading(true);
+    setAvatarPreview(URL.createObjectURL(file));
+    try {
+      const fd = new FormData();
+      fd.append("avatar", file);
+      updateUser(await profileApi.uploadAvatar(fd, token));
+      setAvatarPreview(null);
+    } catch (err: unknown) {
+      setAvatarPreview(null);
+      alert((err as Error).message ?? "Upload failed");
+    } finally {
+      setAvatarLoading(false);
+      if (avatarRef.current) avatarRef.current.value = "";
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    if (!token || !user?.avatar) return;
+    if (!confirm("Remove your profile photo?")) return;
+    setAvatarLoading(true);
+    try { updateUser(await profileApi.deleteAvatar(token)); }
+    catch { /* ignore */ }
+    finally { setAvatarLoading(false); }
+  }
+
+  async function handleSaveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    setSavingProfile(true);
+    setProfileMsg(null);
+    const rawNumber = phoneNumber.trim().replace(/^0+/, "");
+    try {
+      updateUser(await profileApi.update({
+        name, email,
+        phone:    rawNumber ? `${phoneDialCode}${rawNumber}` : null,
+        suburb:   suburb    || null,
+        state:    userState || null,
+        postcode: postcode  || null,
+        country:  country   || null,
+      }, token));
+      setProfileMsg({ type: "ok", text: "Profile updated successfully." });
+    } catch (err: unknown) {
+      const e = err as Error & { errors?: Record<string, string[]> };
+      setProfileMsg({ type: "err", text: e.errors ? Object.values(e.errors).flat().join(" · ") : (e.message ?? "Update failed") });
+    } finally { setSavingProfile(false); }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!token) return;
+    if (newPw !== confirmPw) { setPwMsg({ type: "err", text: "New passwords do not match." }); return; }
+    setSavingPw(true);
+    setPwMsg(null);
+    try {
+      await profileApi.updatePassword({ current_password: currentPw, password: newPw, password_confirmation: confirmPw }, token);
+      setPwMsg({ type: "ok", text: "Password changed successfully." });
+      setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    } catch (err: unknown) {
+      const e = err as Error & { errors?: Record<string, string[]> };
+      setPwMsg({ type: "err", text: e.errors ? Object.values(e.errors).flat().join(" · ") : (e.message ?? "Failed to change password") });
+    } finally { setSavingPw(false); }
+  }
+
   if (loading || !user) return null;
 
   const pendingInquiries = myInquiries.filter((i) => i.status === "pending").length;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Buyer Dashboard</p>
-            <h1 className="text-2xl font-black text-gray-900 mt-0.5">
-              Welcome back, {user.name.split(" ")[0]}
-            </h1>
-          </div>
-          <div className="flex gap-2">
-            <Link href="/buy"
-              className="flex items-center gap-2 border border-gray-200 bg-white text-gray-700 text-sm font-semibold px-4 py-2 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
-              <Search size={14} /> Browse properties
-            </Link>
-            <Link href="/agents"
-              className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#15803d] transition-colors">
-              <ArrowRight size={14} /> Find an agent
-            </Link>
-          </div>
-        </div>
+      <div className="flex flex-1">
 
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {[
-            { label: "Saved Properties", value: saved.length, icon: Heart, color: "text-red-500", bg: "bg-red-50" },
-            { label: "My Inquiries", value: myInquiries.length, icon: MessageSquare, color: "text-blue-600", bg: "bg-blue-50" },
-          ].map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="bg-white rounded-xl p-4 border border-gray-100">
-              <div className={`w-9 h-9 ${bg} rounded-lg flex items-center justify-center mb-3`}>
-                <Icon size={16} className={color} />
-              </div>
-              <p className="text-2xl font-black text-gray-900">{value}</p>
-              <p className="text-xs text-gray-400 font-medium mt-0.5">{label}</p>
+        {/* ── Sidebar ── */}
+        <aside className="w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full">
+          {/* User card */}
+          <div className="px-5 py-6 border-b border-white/10 text-center">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center mx-auto mb-3">
+              <UserAvatar src={user.avatar ?? null} name={user.name} avatarBg="bg-[#16a34a]" textSize="text-xl" />
             </div>
-          ))}
-        </div>
+            <p className="text-white font-bold text-sm leading-tight">{user.name}</p>
+            <span className="text-xs text-green-400 font-semibold capitalize mt-0.5 block">{user.role}</span>
+          </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-gray-200 mb-6">
-          <button onClick={() => setTab("saved")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "saved" ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-            <Heart size={14} /> Saved Properties
-            {saved.length > 0 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-[#16a34a] text-white">{saved.length}</span>
-            )}
-          </button>
-          <button onClick={() => setTab("inquiries")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "inquiries" ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-            <MessageSquare size={14} /> My Inquiries
-            {pendingInquiries > 0 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-orange-500 text-white">{pendingInquiries}</span>
-            )}
-          </button>
-          <button onClick={() => setTab("loans")}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${tab === "loans" ? "border-[#16a34a] text-[#16a34a]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-            <Building2 size={14} /> Loan Applications
-            {myLoans.length > 0 && (
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold bg-[#16a34a] text-white">{myLoans.length}</span>
-            )}
-          </button>
-        </div>
+          {/* Nav items */}
+          <nav className="flex-1 px-3 py-4 space-y-0.5">
+            <button
+              onClick={() => setTab("saved")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                tab === "saved" ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Heart size={16} className="shrink-0" />
+              <span className="flex-1 text-left">Saved Properties</span>
+              {saved.length > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${tab === "saved" ? "bg-white/20 text-white" : "bg-slate-600 text-slate-300"}`}>
+                  {saved.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setTab("inquiries")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                tab === "inquiries" ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <MessageSquare size={16} className="shrink-0" />
+              <span className="flex-1 text-left">My Inquiries</span>
+              {pendingInquiries > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${tab === "inquiries" ? "bg-white/20 text-white" : "bg-slate-600 text-slate-300"}`}>
+                  {pendingInquiries}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setTab("loans")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                tab === "loans" ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Building2 size={16} className="shrink-0" />
+              <span className="flex-1 text-left">Loan Applications</span>
+              {myLoans.length > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${tab === "loans" ? "bg-white/20 text-white" : "bg-slate-600 text-slate-300"}`}>
+                  {myLoans.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setTab("profile")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                tab === "profile" ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <UserIcon size={16} className="shrink-0" />
+              <span className="flex-1 text-left">Profile</span>
+            </button>
+            <button
+              onClick={() => setTab("settings")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                tab === "settings" ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <Settings size={16} className="shrink-0" />
+              <span className="flex-1 text-left">Settings</span>
+            </button>
+          </nav>
+
+          {/* Bottom links */}
+          <div className="px-3 pb-5 border-t border-white/10 pt-4 space-y-0.5">
+            <Link href="/buy" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+              <Search size={16} className="shrink-0" /> Browse Properties
+            </Link>
+            <Link href="/home-loans" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+              <Building2 size={16} className="shrink-0" /> Compare Loans
+            </Link>
+            <button onClick={logout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+              <LogOut size={16} className="shrink-0" /> Sign out
+            </button>
+          </div>
+        </aside>
+
+        {/* ── Main ── */}
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Top bar */}
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">Buyer Dashboard</p>
+              <h1 className="text-xl font-black text-gray-900 mt-0.5">Welcome, {user.name.split(" ")[0]}</h1>
+            </div>
+            <Link href="/agents" className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-bold px-4 py-2 rounded-xl hover:bg-[#15803d] transition-colors shrink-0">
+              <ArrowRight size={14} /> Find an Agent
+            </Link>
+          </div>
+
+          <div className="p-6 flex-1">
+            {/* Stat cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
+                    <Heart size={18} className="text-red-500" />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">All time</span>
+                </div>
+                <p className="text-2xl font-black text-gray-900">{saved.length}</p>
+                <p className="text-xs text-gray-500 font-medium mt-0.5">Saved Properties</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                    <MessageSquare size={18} className="text-blue-600" />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">All time</span>
+                </div>
+                <p className="text-2xl font-black text-gray-900">{myInquiries.length}</p>
+                <p className="text-xs text-gray-500 font-medium mt-0.5">My Inquiries</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                    <Clock size={18} className="text-orange-500" />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">All time</span>
+                </div>
+                <p className="text-2xl font-black text-gray-900">{pendingInquiries}</p>
+                <p className="text-xs text-gray-500 font-medium mt-0.5">Pending</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                    <Building2 size={18} className="text-[#16a34a]" />
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">All time</span>
+                </div>
+                <p className="text-2xl font-black text-gray-900">{myLoans.length}</p>
+                <p className="text-xs text-gray-500 font-medium mt-0.5">Loan Apps</p>
+              </div>
+            </div>
 
         {/* ── Saved tab ─────────────────────────────────────────────────────── */}
         {tab === "saved" && (
@@ -359,6 +552,185 @@ export default function BuyerDashboard() {
             </div>
           )
         )}
+
+        {/* ── Profile tab ── */}
+        {tab === "profile" && (
+          <div className="space-y-5">
+            {/* Avatar banner card */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="h-28 bg-gradient-to-r from-[#16a34a] to-[#15803d]" />
+              <div className="px-6 pb-5">
+                {/* Avatar + action buttons row */}
+                <div className="flex items-start justify-between -mt-10 mb-3">
+                  <div className="relative shrink-0">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#16a34a] border-4 border-white shadow-lg flex items-center justify-center">
+                      <UserAvatar src={avatarPreview ?? user.avatar} name={user.name} avatarBg="bg-[#16a34a]" textSize="text-2xl" />
+                    </div>
+                    {avatarLoading && (
+                      <div className="absolute inset-0 rounded-2xl bg-black/40 flex items-center justify-center">
+                        <Loader2 size={18} className="animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-12">
+                    <button type="button" onClick={() => avatarRef.current?.click()} disabled={avatarLoading}
+                      className="flex items-center gap-1.5 text-xs font-semibold bg-[#16a34a] text-white px-3 py-2 rounded-lg hover:bg-[#15803d] transition-colors disabled:opacity-50">
+                      <Camera size={13} /> Change photo
+                    </button>
+                    {user.avatar && (
+                      <button type="button" onClick={handleRemoveAvatar} disabled={avatarLoading}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-red-500 border border-red-200 px-3 py-2 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50">
+                        <Trash2 size={13} /> Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {/* Name + role below avatar */}
+                <p className="font-black text-gray-900 text-lg leading-tight">{user.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs font-bold text-[#16a34a] bg-green-50 border border-green-100 px-2.5 py-0.5 rounded-full capitalize">{user.role}</span>
+                  {user.email && <span className="text-xs text-gray-400">{user.email}</span>}
+                </div>
+              </div>
+              <input ref={avatarRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp" className="hidden" onChange={handleAvatarChange} />
+            </div>
+
+            {/* Personal info + Location form */}
+            <form onSubmit={handleSaveProfile}>
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                {/* Section: Personal Info */}
+                <div className="px-6 py-3.5 border-b border-gray-100 bg-gray-50/60 flex items-center gap-2">
+                  <div className="w-7 h-7 bg-[#16a34a]/10 rounded-lg flex items-center justify-center shrink-0">
+                    <UserIcon size={13} className="text-[#16a34a]" />
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-sm">Personal Information</h3>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
+                    <div className="relative">
+                      <UserIcon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <input required className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
+                    <div className="relative">
+                      <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      <input required type="email" className="w-full border border-gray-200 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Phone Number</label>
+                    <div className="flex gap-2">
+                      <div className="relative shrink-0">
+                        <select value={phoneDialCode} onChange={(e) => setPhoneDialCode(e.target.value)}
+                          className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer" style={{ minWidth: "88px" }}>
+                          {COUNTRY_CODES.map((c) => <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>)}
+                        </select>
+                        <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      </div>
+                      <input type="tel" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="400 000 000" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Location */}
+                <div className="px-6 py-3.5 border-y border-gray-100 bg-gray-50/60 flex items-center gap-2">
+                  <div className="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
+                    <MapPin size={13} className="text-blue-600" />
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-sm">Location</h3>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  <div className="lg:col-span-2">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Country</label>
+                    <div className="relative">
+                      <select className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white appearance-none pr-9 cursor-pointer" value={country} onChange={(e) => setCountry(e.target.value)}>
+                        <option value="">Select country</option>
+                        {COUNTRY_CODES.map((c) => <option key={c.code} value={c.name}>{c.flag} {c.name}</option>)}
+                      </select>
+                      <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">State / Region</label>
+                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={userState} onChange={(e) => setUserState(e.target.value)} placeholder="e.g. Western" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Postcode</label>
+                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={postcode} onChange={(e) => setPostcode(e.target.value)} placeholder="e.g. 10100" maxLength={10} />
+                  </div>
+                  <div className="lg:col-span-4">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Suburb / City</label>
+                    <input className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={suburb} onChange={(e) => setSuburb(e.target.value)} placeholder="e.g. Colombo 03" />
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">
+                  {profileMsg ? (
+                    <p className={`text-sm font-medium ${profileMsg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{profileMsg.text}</p>
+                  ) : <span />}
+                  <button type="submit" disabled={savingProfile}
+                    className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shrink-0">
+                    {savingProfile ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Save changes
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ── Settings tab ── */}
+        {tab === "settings" && (
+          <div>
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/60 flex items-center gap-3">
+                <div className="w-9 h-9 bg-[#16a34a]/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Shield size={16} className="text-[#16a34a]" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-sm">Change Password</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Use a strong password you don&apos;t use elsewhere</p>
+                </div>
+              </div>
+              <form onSubmit={handleChangePassword}>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Current Password</label>
+                    <div className="relative">
+                      <input required type={showPw ? "text" : "password"} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white pr-10" value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} placeholder="Current password" />
+                      <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                        {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">New Password</label>
+                    <input required type={showPw ? "text" : "password"} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="Min 8 characters" minLength={8} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Confirm New Password</label>
+                    <input required type={showPw ? "text" : "password"} className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-[#16a34a]/10 transition-all bg-white" value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} placeholder="Repeat new password" />
+                  </div>
+                </div>
+                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 flex items-center justify-between gap-4">
+                  {pwMsg ? (
+                    <p className={`text-sm font-medium ${pwMsg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{pwMsg.text}</p>
+                  ) : <span />}
+                  <button type="submit" disabled={savingPw}
+                    className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-200 disabled:cursor-not-allowed text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-colors shrink-0">
+                    {savingPw ? <Loader2 size={14} className="animate-spin" /> : <Shield size={14} />} Update password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+          </div>
+        </main>
 
       </div>
 

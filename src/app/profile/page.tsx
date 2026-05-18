@@ -155,11 +155,19 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
 
-      <div className="max-w-2xl mx-auto px-4 py-8 w-full flex-1">
-        <div className="mb-6">
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Settings</p>
-          <h1 className="text-2xl font-black text-gray-900 mt-0.5">My Profile</h1>
+      <div className="bg-[#16a34a] py-8 px-4">
+        <div className="max-w-2xl mx-auto flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 flex items-center justify-center shrink-0">
+            <UserIcon size={20} className="text-white" />
+          </div>
+          <div>
+            <p className="text-green-300 text-xs font-bold uppercase tracking-widest">Settings</p>
+            <h1 className="text-white font-black text-2xl mt-0.5">My Profile</h1>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-8 w-full flex-1">
 
         {/* ── Avatar card (always visible) ── */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">

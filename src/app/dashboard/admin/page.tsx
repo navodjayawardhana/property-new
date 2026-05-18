@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import {
   admin as adminApi,
@@ -33,7 +34,7 @@ import {
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
   Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
   ImagePlay, Upload, Video, Building2, CreditCard, Calendar, MapPin, Briefcase,
-  Phone, Mail, FileText,
+  Phone, Mail, FileText, LogOut,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -1465,7 +1466,7 @@ function SlidesTab({ token }: { token: string }) {
     setPreview(URL.createObjectURL(f));
   }
 
-  async function handleAdd() {
+  async function handleAdd(onSuccess?: () => void) {
     if (!file) return;
     setSaving(true);
     try {
@@ -1478,6 +1479,7 @@ function SlidesTab({ token }: { token: string }) {
       setTitle(""); setSubtitle("");
       if (fileRef.current) fileRef.current.value = "";
       load();
+      onSuccess?.();
     } catch (e: unknown) { alert((e as Error).message); }
     finally { setSaving(false); }
   }
@@ -1497,8 +1499,16 @@ function SlidesTab({ token }: { token: string }) {
     } catch (e: unknown) { alert((e as Error).message); }
   }
 
+  const [showAddModal, setShowAddModal] = useState(false);
   const canAdd = slides.length < MAX_SLIDES;
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
+
+  function openAddModal() {
+    setFile(null); setPreview(null); setIsVideo(false);
+    setTitle(""); setSubtitle("");
+    if (fileRef.current) fileRef.current.value = "";
+    setShowAddModal(true);
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -1508,9 +1518,15 @@ function SlidesTab({ token }: { token: string }) {
           <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
             <ImagePlay size={16} className="text-[#16a34a]" /> Homepage Slides
           </h3>
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${slides.length >= MAX_SLIDES ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
-            {slides.length} / {MAX_SLIDES} slides
-          </span>
+          <div className="flex items-center gap-3">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${slides.length >= MAX_SLIDES ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}>
+              {slides.length} / {MAX_SLIDES} slides
+            </span>
+            <button onClick={openAddModal} disabled={!canAdd}
+              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors">
+              <Plus size={13} /> Add Slide
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -1567,53 +1583,64 @@ function SlidesTab({ token }: { token: string }) {
         )}
       </div>
 
-      {/* Add new slide */}
-      {canAdd ? (
-        <div className="bg-white rounded-2xl border border-gray-100 p-5">
-          <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2"><Upload size={14} /> Add New Slide</h3>
-          <div className="space-y-3">
-            {/* Media picker */}
-            <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#16a34a] transition-colors bg-gray-50 overflow-hidden min-h-[120px]">
-              {preview ? (
-                isVideo ? (
-                  <video src={preview} className="w-full max-h-48 object-contain" controls muted />
-                ) : (
-                  <img src={preview} alt="" className="w-full max-h-48 object-cover" />
-                )
-              ) : (
-                <div className="flex flex-col items-center py-6 text-gray-400">
-                  <ImagePlay size={24} className="mb-2" />
-                  <span className="text-xs font-medium">Click to upload image or video</span>
-                  <span className="text-xs mt-0.5 text-gray-300">JPG, PNG, WEBP, MP4, MOV · max 50 MB</span>
-                </div>
-              )}
-              <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4,video/mov,video/webm" className="hidden" onChange={handleFilePick} />
-            </label>
-            {preview && (
-              <button onClick={() => { setFile(null); setPreview(null); setIsVideo(false); if (fileRef.current) fileRef.current.value = ""; }}
-                className="text-xs text-red-500 hover:text-red-700 font-medium">Remove media</button>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-gray-600 block mb-1">Title (optional)</label>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Find Your Dream Home" className={inp} maxLength={100} />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-600 block mb-1">Subtitle (optional)</label>
-                <input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="e.g. Search across Sri Lanka" className={inp} maxLength={200} />
-              </div>
-            </div>
-
-            <button onClick={handleAdd} disabled={!file || saving}
-              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
-              {saving ? <><Loader2 size={14} className="animate-spin" /> Uploading…</> : <><Plus size={14} /> Add Slide</>}
-            </button>
-          </div>
-        </div>
-      ) : (
+      {!canAdd && (
         <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700 font-medium">
           Maximum of {MAX_SLIDES} slides reached. Delete a slide to add a new one.
+        </div>
+      )}
+
+      {/* Add slide modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+              <h3 className="font-black text-gray-900 flex items-center gap-2"><Upload size={15} /> Add New Slide</h3>
+              <button onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Media picker */}
+              <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#16a34a] transition-colors bg-gray-50 overflow-hidden min-h-[140px]">
+                {preview ? (
+                  isVideo
+                    ? <video src={preview} className="w-full max-h-52 object-contain" controls muted />
+                    : <img src={preview} alt="" className="w-full max-h-52 object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center py-8 text-gray-400">
+                    <ImagePlay size={28} className="mb-2" />
+                    <span className="text-sm font-medium">Click to upload image or video</span>
+                    <span className="text-xs mt-1 text-gray-300">JPG, PNG, WEBP, MP4, MOV · max 50 MB</span>
+                  </div>
+                )}
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4,video/mov,video/webm" className="hidden" onChange={handleFilePick} />
+              </label>
+              {preview && (
+                <button onClick={() => { setFile(null); setPreview(null); setIsVideo(false); if (fileRef.current) fileRef.current.value = ""; }}
+                  className="text-xs text-red-500 hover:text-red-700 font-medium">Remove media</button>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">Title (optional)</label>
+                  <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Find Your Dream Home" className={inp} maxLength={100} />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 block mb-1.5">Subtitle (optional)</label>
+                  <input value={subtitle} onChange={(e) => setSubtitle(e.target.value)} placeholder="e.g. Search across Sri Lanka" className={inp} maxLength={200} />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+              <button onClick={() => setShowAddModal(false)}
+                className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => handleAdd(() => setShowAddModal(false))} disabled={!file || saving}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Uploading…</> : <><Plus size={14} /> Add Slide</>}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -1754,100 +1781,109 @@ function BankRatesTab({ token }: { token: string }) {
         </button>
       </div>
 
-      {/* Add / Edit form */}
+      {/* Add / Edit modal */}
       {showForm && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-          <h3 className="text-sm font-black text-gray-900">{editId !== null ? "Edit Bank Rate" : "Add New Bank"}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={lbl}>Bank Name *</label>
-              <input className={inp} value={form.bank_name}
-                onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g. Bank of Ceylon" />
-            </div>
-            <div>
-              <label className={lbl}>Loan Type *</label>
-              <select className={inp} value={form.loan_type}
-                onChange={(e) => setForm({ ...form, loan_type: e.target.value as BankLoanRateInput["loan_type"] })}>
-                {LOAN_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className={lbl}>Interest Rate (% p.a.) *</label>
-              <input type="number" min={0} max={100} step={0.01} className={inp}
-                value={form.interest_rate}
-                onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })} />
-            </div>
-            <div>
-              <label className={lbl}>Max Term (years) *</label>
-              <input type="number" min={1} max={30} className={inp}
-                value={form.max_term}
-                onChange={(e) => setForm({ ...form, max_term: parseInt(e.target.value) || 30 })} />
-            </div>
-            <div>
-              <label className={lbl}>Min Loan (LKR) *</label>
-              <input type="number" min={0} step={100000} className={inp}
-                value={form.min_loan}
-                onChange={(e) => setForm({ ...form, min_loan: parseInt(e.target.value) || 0 })} />
-            </div>
-            <div>
-              <label className={lbl}>Max Loan (LKR) *</label>
-              <input type="number" min={0} step={1000000} className={inp}
-                value={form.max_loan}
-                onChange={(e) => setForm({ ...form, max_loan: parseInt(e.target.value) || 0 })} />
-            </div>
-            <div>
-              <label className={lbl}>Sort Order</label>
-              <input type="number" min={0} className={inp}
-                value={form.sort_order}
-                onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
-            </div>
-            <div className="flex items-center gap-3 pt-5">
-              <label className="text-xs font-semibold text-gray-600">Active</label>
-              <button type="button" onClick={() => setForm({ ...form, is_active: !form.is_active })}
-                className={`w-10 h-5 rounded-full transition-colors relative ${form.is_active ? "bg-[#16a34a]" : "bg-gray-200"}`}>
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${form.is_active ? "translate-x-5" : "translate-x-0.5"}`} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+              <h3 className="font-black text-gray-900">{editId !== null ? "Edit Bank Rate" : "Add New Bank"}</h3>
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+                <X size={16} />
               </button>
             </div>
-          </div>
-          <div>
-            <label className={lbl}>Bank Logo (optional)</label>
-            <div className="flex items-center gap-3">
-              {logoPreview && !removeLogo ? (
-                <div className="relative w-16 h-16 rounded-xl border border-gray-200 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center">
-                  <img src={logoPreview} alt="logo preview" className="w-full h-full object-contain p-1" />
-                  <button type="button" onClick={() => { setRemoveLogo(true); setLogoPreview(null); setLogoFile(null); }}
-                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center">
-                    <X size={10} />
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={lbl}>Bank Name *</label>
+                  <input className={inp} value={form.bank_name}
+                    onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g. Bank of Ceylon" />
+                </div>
+                <div>
+                  <label className={lbl}>Loan Type *</label>
+                  <select className={inp} value={form.loan_type}
+                    onChange={(e) => setForm({ ...form, loan_type: e.target.value as BankLoanRateInput["loan_type"] })}>
+                    {LOAN_TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={lbl}>Interest Rate (% p.a.) *</label>
+                  <input type="number" min={0} max={100} step={0.01} className={inp}
+                    value={form.interest_rate}
+                    onChange={(e) => setForm({ ...form, interest_rate: parseFloat(e.target.value) || 0 })} />
+                </div>
+                <div>
+                  <label className={lbl}>Max Term (years) *</label>
+                  <input type="number" min={1} max={30} className={inp}
+                    value={form.max_term}
+                    onChange={(e) => setForm({ ...form, max_term: parseInt(e.target.value) || 30 })} />
+                </div>
+                <div>
+                  <label className={lbl}>Min Loan (LKR) *</label>
+                  <input type="number" min={0} step={100000} className={inp}
+                    value={form.min_loan}
+                    onChange={(e) => setForm({ ...form, min_loan: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div>
+                  <label className={lbl}>Max Loan (LKR) *</label>
+                  <input type="number" min={0} step={1000000} className={inp}
+                    value={form.max_loan}
+                    onChange={(e) => setForm({ ...form, max_loan: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div>
+                  <label className={lbl}>Sort Order</label>
+                  <input type="number" min={0} className={inp}
+                    value={form.sort_order}
+                    onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
+                </div>
+                <div className="flex items-center gap-3 pt-5">
+                  <label className="text-xs font-semibold text-gray-600">Active</label>
+                  <button type="button" onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                    className={`w-10 h-5 rounded-full transition-colors relative ${form.is_active ? "bg-[#16a34a]" : "bg-gray-200"}`}>
+                    <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${form.is_active ? "translate-x-5" : "translate-x-0.5"}`} />
                   </button>
                 </div>
-              ) : (
-                <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 shrink-0">
-                  <Building2 size={20} className="text-gray-300" />
+              </div>
+              <div>
+                <label className={lbl}>Bank Logo (optional)</label>
+                <div className="flex items-center gap-3">
+                  {logoPreview && !removeLogo ? (
+                    <div className="relative w-16 h-16 rounded-xl border border-gray-200 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center">
+                      <img src={logoPreview} alt="logo preview" className="w-full h-full object-contain p-1" />
+                      <button type="button" onClick={() => { setRemoveLogo(true); setLogoPreview(null); setLogoFile(null); }}
+                        className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center">
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 shrink-0">
+                      <Building2 size={20} className="text-gray-300" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input type="file" accept="image/*" onChange={handleLogoChange}
+                      className="w-full text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#16a34a]/10 file:text-[#16a34a] hover:file:bg-[#16a34a]/20 cursor-pointer" />
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP — max 2 MB</p>
+                  </div>
                 </div>
-              )}
-              <div className="flex-1">
-                <input type="file" accept="image/*" onChange={handleLogoChange}
-                  className="w-full text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#16a34a]/10 file:text-[#16a34a] hover:file:bg-[#16a34a]/20 cursor-pointer" />
-                <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP — max 2 MB</p>
+              </div>
+              <div>
+                <label className={lbl}>Features (comma-separated)</label>
+                <input className={inp} value={featuresText}
+                  onChange={(e) => setFeaturesText(e.target.value)}
+                  placeholder="e.g. Offset account, Redraw facility, Extra repayments" />
+                <p className="text-xs text-gray-400 mt-1">Separate features with commas</p>
               </div>
             </div>
-          </div>
-          <div>
-            <label className={lbl}>Features (comma-separated)</label>
-            <input className={inp} value={featuresText}
-              onChange={(e) => setFeaturesText(e.target.value)}
-              placeholder="e.g. Offset account, Redraw facility, Extra repayments" />
-            <p className="text-xs text-gray-400 mt-1">Separate features with commas</p>
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button onClick={handleSave} disabled={saving || !form.bank_name}
-              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
-              {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Check size={14} /> {editId !== null ? "Update" : "Create"}</>}
-            </button>
-            <button onClick={() => setShowForm(false)}
-              className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+              <button onClick={() => setShowForm(false)}
+                className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleSave} disabled={saving || !form.bank_name}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Check size={14} /> {editId !== null ? "Update" : "Save"}</>}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -2062,7 +2098,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
 ];
 
 export default function AdminPage() {
-  const { user, token, loading } = useAuth();
+  const { user, token, loading, logout } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("overview");
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -2082,54 +2118,97 @@ export default function AdminPage() {
   if (loading || !user || user.role !== "admin") return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
       <Navbar />
+      <div className="flex flex-1">
 
-      <div className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide flex items-center gap-1.5">
-              <Shield size={11} /> Admin
-            </p>
-            <h1 className="text-2xl font-black text-gray-900 mt-0.5">Site Management</h1>
+        {/* ── Sidebar ── */}
+        <aside className="w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full">
+          {/* User card */}
+          <div className="px-5 py-6 border-b border-white/10 text-center">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-red-600 flex items-center justify-center mx-auto mb-3">
+              <UserAvatar src={(user as any).avatar ?? null} name={user.name} avatarBg="bg-red-600" textSize="text-xl" />
+            </div>
+            <p className="text-white font-bold text-sm leading-tight">{user.name}</p>
+            <span className="text-xs text-red-400 font-semibold mt-0.5 block">Administrator</span>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <div className="w-2 h-2 rounded-full bg-green-400" />
-            All systems operational
-          </div>
-        </div>
 
-        {/* Tab nav */}
-        <div className="flex gap-1 mb-6 bg-white border border-gray-100 rounded-2xl p-1.5 w-fit">
-          {NAV.map((n) => (
-            <button key={n.id} onClick={() => setTab(n.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${tab === n.id ? "bg-[#16a34a] text-white shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"}`}>
-              {n.icon}{n.label}
+          {/* Nav */}
+          <nav className="flex-1 px-3 py-4 space-y-0.5">
+            {NAV.map((n) => (
+              <button key={n.id} onClick={() => setTab(n.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  tab === n.id ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
+                }`}>
+                <span className="shrink-0">{n.icon}</span>
+                <span className="flex-1 text-left">{n.label}</span>
+              </button>
+            ))}
+          </nav>
+
+          {/* Status + logout */}
+          <div className="px-3 pb-5 border-t border-white/10 pt-4 space-y-0.5">
+            <div className="flex items-center gap-2 px-3 py-2 text-xs text-slate-500">
+              <div className="w-2 h-2 rounded-full bg-green-400 shrink-0 animate-pulse" />
+              All systems operational
+            </div>
+            <button onClick={logout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+              <LogOut size={16} className="shrink-0" /> Sign out
             </button>
-          ))}
-        </div>
+          </div>
+        </aside>
 
-        {/* Content */}
-        {tab === "overview" && (
-          stats
-            ? <OverviewTab stats={stats} />
-            : <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse h-28" />
+        {/* ── Main ── */}
+        <main className="flex-1 flex flex-col min-w-0">
+          {/* Top bar */}
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+            <div>
+              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium flex items-center gap-1.5">
+                <Shield size={11} /> Admin Dashboard
+              </p>
+              <h1 className="text-xl font-black text-gray-900 mt-0.5">Site Management</h1>
+            </div>
+            {stats && (
+              <div className="flex items-center gap-6">
+                {[
+                  { label: "Users",      value: fmt(stats.users.total),       color: "text-blue-600"   },
+                  { label: "Properties", value: fmt(stats.properties.total),  color: "text-green-600"  },
+                  { label: "Inquiries",  value: fmt(stats.inquiries.total),   color: "text-purple-600" },
+                  { label: "Featured",   value: fmt(stats.properties.featured), color: "text-yellow-600" },
+                ].map((s) => (
+                  <div key={s.label} className="text-center hidden sm:block">
+                    <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-gray-400 font-medium">{s.label}</p>
+                  </div>
                 ))}
               </div>
-        )}
-        {tab === "users"       && token && <UsersTab token={token} />}
-        {tab === "properties"  && token && <PropertiesTab token={token} />}
-        {tab === "inquiries"   && token && <InquiriesTab token={token} />}
-        {tab === "news"        && token && <NewsTab token={token} />}
-        {tab === "loans"       && token && <LoanEnquiriesTab token={token} />}
-        {tab === "banks"       && token && <BankRatesTab token={token} />}
-        {tab === "slides"      && token && <SlidesTab token={token} />}
-        {tab === "pricing"     && token && <PricingTab token={token} />}
-      </div>
+            )}
+          </div>
 
+          {/* Content */}
+          <div className="p-6 flex-1">
+            {tab === "overview" && (
+              stats
+                ? <OverviewTab stats={stats} />
+                : <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse h-28" />
+                    ))}
+                  </div>
+            )}
+            {tab === "users"      && token && <UsersTab token={token} />}
+            {tab === "properties" && token && <PropertiesTab token={token} />}
+            {tab === "inquiries"  && token && <InquiriesTab token={token} />}
+            {tab === "news"       && token && <NewsTab token={token} />}
+            {tab === "loans"      && token && <LoanEnquiriesTab token={token} />}
+            {tab === "banks"      && token && <BankRatesTab token={token} />}
+            {tab === "slides"     && token && <SlidesTab token={token} />}
+            {tab === "pricing"    && token && <PricingTab token={token} />}
+          </div>
+        </main>
+
+      </div>
       <Footer />
     </div>
   );
