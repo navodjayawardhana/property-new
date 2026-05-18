@@ -20,7 +20,7 @@ const PROPERTY_TYPES = [
   "Land",
   "Rural",
 ];
-const LISTING_TYPES = ["Any", "For Sale", "For Rent", "Sold"];
+const LISTING_TYPES = ["Any", "Sale", "Rent", "Sold"];
 const SORT_OPTIONS = [
   "Most recent",
   "Price (low → high)",

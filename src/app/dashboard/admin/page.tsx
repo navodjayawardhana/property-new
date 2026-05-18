@@ -34,7 +34,7 @@ import {
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
   Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
   ImagePlay, Upload, Video, Building2, CreditCard, Calendar, MapPin, Briefcase,
-  Phone, Mail, FileText, LogOut,
+  Phone, Mail, FileText, LogOut, Menu,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -2101,6 +2101,7 @@ export default function AdminPage() {
   const { user, token, loading, logout } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState<AdminStats | null>(null);
 
   useEffect(() => {
@@ -2122,8 +2123,17 @@ export default function AdminPage() {
       <Navbar />
       <div className="flex flex-1">
 
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* ── Sidebar ── */}
-        <aside className="w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full">
+        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          {/* Mobile close button */}
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10">
+            <X size={18} />
+          </button>
           {/* User card */}
           <div className="px-5 py-6 border-b border-white/10 text-center">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-red-600 flex items-center justify-center mx-auto mb-3">
@@ -2136,7 +2146,7 @@ export default function AdminPage() {
           {/* Nav */}
           <nav className="flex-1 px-3 py-4 space-y-0.5">
             {NAV.map((n) => (
-              <button key={n.id} onClick={() => setTab(n.id)}
+              <button key={n.id} onClick={() => { setTab(n.id); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   tab === n.id ? "bg-[#16a34a] text-white" : "text-slate-400 hover:bg-white/5 hover:text-white"
                 }`}>
@@ -2152,7 +2162,7 @@ export default function AdminPage() {
               <div className="w-2 h-2 rounded-full bg-green-400 shrink-0 animate-pulse" />
               All systems operational
             </div>
-            <button onClick={logout}
+            <button onClick={() => { logout(); setSidebarOpen(false); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
               <LogOut size={16} className="shrink-0" /> Sign out
             </button>
@@ -2162,12 +2172,17 @@ export default function AdminPage() {
         {/* ── Main ── */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Top bar */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4 shrink-0">
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium flex items-center gap-1.5">
-                <Shield size={11} /> Admin Dashboard
-              </p>
-              <h1 className="text-xl font-black text-gray-900 mt-0.5">Site Management</h1>
+          <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-700">
+                <Menu size={20} />
+              </button>
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-widest font-medium flex items-center gap-1.5">
+                  <Shield size={11} /> Admin Dashboard
+                </p>
+                <h1 className="text-xl font-black text-gray-900 mt-0.5">Site Management</h1>
+              </div>
             </div>
             {stats && (
               <div className="flex items-center gap-6">
@@ -2187,7 +2202,7 @@ export default function AdminPage() {
           </div>
 
           {/* Content */}
-          <div className="p-6 flex-1">
+          <div className="p-4 lg:p-6 flex-1">
             {tab === "overview" && (
               stats
                 ? <OverviewTab stats={stats} />

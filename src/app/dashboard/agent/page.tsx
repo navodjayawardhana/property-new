@@ -15,7 +15,7 @@ import { COUNTRY_CODES, parsePhone } from "@/lib/countries";
 import {
   Plus, Edit2, Trash2, Loader2, Home, TrendingUp, MessageSquare,
   ChevronDown, ChevronUp, ExternalLink, Phone, Mail, RefreshCw,
-  ChevronLeft, ChevronRight, Building2, Heart, User, Upload, X,
+  ChevronLeft, ChevronRight, Building2, Heart, User, Upload, X, Menu,
   Globe, MessageCircle, Save, Camera, Check, Eye, EyeOff, Shield, MapPin, Settings, LogOut,
 } from "lucide-react";
 
@@ -81,6 +81,7 @@ export default function AgentDashboard() {
   const router = useRouter();
 
   const [tab, setTab] = useState<'listings' | 'saved' | 'inquiries' | 'loans' | 'profile' | 'settings'>('listings');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [myLoans, setMyLoans] = useState<LoanEnquiry[]>([]);
   const [loadingLoans, setLoadingLoans] = useState(false);
   const [bankLogoMap, setBankLogoMap] = useState<Record<string, string | null>>({});
@@ -373,8 +374,17 @@ export default function AgentDashboard() {
 
       <div className="flex flex-1">
 
+        {/* Mobile sidebar overlay */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
+
         {/* ── Sidebar ── */}
-        <aside className="w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full">
+        <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-60 bg-[#1e293b] flex flex-col shrink-0 min-h-full transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          {/* Mobile close button */}
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10">
+            <X size={18} />
+          </button>
           {/* User card */}
           <div className="px-5 py-6 border-b border-white/10 text-center">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center mx-auto mb-3">
@@ -387,7 +397,7 @@ export default function AgentDashboard() {
           {/* Nav items */}
           <nav className="flex-1 px-3 py-4 space-y-0.5">
             <button
-              onClick={() => setTab('listings')}
+              onClick={() => { setTab('listings'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'listings' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -401,7 +411,7 @@ export default function AgentDashboard() {
               )}
             </button>
             <button
-              onClick={() => setTab('inquiries')}
+              onClick={() => { setTab('inquiries'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'inquiries' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -415,7 +425,7 @@ export default function AgentDashboard() {
               )}
             </button>
             <button
-              onClick={() => setTab('saved')}
+              onClick={() => { setTab('saved'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'saved' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -429,7 +439,7 @@ export default function AgentDashboard() {
               )}
             </button>
             <button
-              onClick={() => setTab('loans')}
+              onClick={() => { setTab('loans'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'loans' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -443,7 +453,7 @@ export default function AgentDashboard() {
               )}
             </button>
             <button
-              onClick={() => setTab('profile')}
+              onClick={() => { setTab('profile'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'profile' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -452,7 +462,7 @@ export default function AgentDashboard() {
               <span className="flex-1 text-left">Profile & Branding</span>
             </button>
             <button
-              onClick={() => setTab('settings')}
+              onClick={() => { setTab('settings'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 tab === 'settings' ? 'bg-[#16a34a] text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'
               }`}
@@ -464,13 +474,13 @@ export default function AgentDashboard() {
 
           {/* Bottom links */}
           <div className="px-3 pb-5 border-t border-white/10 pt-4 space-y-0.5">
-            <Link href="/dashboard/properties/new" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+            <Link href="/dashboard/properties/new" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
               <Plus size={16} className="shrink-0" /> Add Listing
             </Link>
-            <Link href="/agents" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+            <Link href="/agents" onClick={() => setSidebarOpen(false)} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all">
               <ExternalLink size={16} className="shrink-0" /> My Public Profile
             </Link>
-            <button onClick={logout}
+            <button onClick={() => { logout(); setSidebarOpen(false); }}
               className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
               <LogOut size={16} className="shrink-0" /> Sign out
             </button>
@@ -480,17 +490,22 @@ export default function AgentDashboard() {
         {/* ── Main ── */}
         <main className="flex-1 flex flex-col min-w-0">
           {/* Top bar */}
-          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between gap-4 shrink-0">
-            <div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">Agent Dashboard</p>
-              <h1 className="text-xl font-black text-gray-900 mt-0.5">Welcome, {user.name.split(' ')[0]}</h1>
+          <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 transition-colors text-gray-700">
+                <Menu size={20} />
+              </button>
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">Agent Dashboard</p>
+                <h1 className="text-xl font-black text-gray-900 mt-0.5">Welcome, {user.name.split(' ')[0]}</h1>
+              </div>
             </div>
             <Link href="/dashboard/properties/new" className="flex items-center gap-2 bg-[#16a34a] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#15803d] transition-colors shrink-0">
               <Plus size={16} /> Add Listing
             </Link>
           </div>
 
-          <div className="p-6 flex-1">
+          <div className="p-4 lg:p-6 flex-1">
             {/* Stat cards */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">

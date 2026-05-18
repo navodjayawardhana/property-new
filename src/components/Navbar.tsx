@@ -271,11 +271,17 @@ export default function Navbar() {
             );
           })}
           {user ? (
-            <button
-              onClick={() => { logout(); setOpen(false); }}
-              className="mt-4 w-full border border-red-200 text-red-600 font-semibold text-sm py-2.5 rounded-xl hover:bg-red-50 transition-colors">
-              Sign out
-            </button>
+            <div className="mt-4 space-y-2">
+              <Link href={`/dashboard/${user.role}`} onClick={() => setOpen(false)}
+                className="w-full flex items-center gap-2 justify-center bg-[#16a34a] text-white font-bold text-sm py-2.5 rounded-xl hover:bg-[#15803d] transition-colors">
+                <UserIcon size={15} /> My Dashboard
+              </Link>
+              <button
+                onClick={() => { logout(); setOpen(false); }}
+                className="w-full border border-red-200 text-red-600 font-semibold text-sm py-2.5 rounded-xl hover:bg-red-50 transition-colors">
+                Sign out
+              </button>
+            </div>
           ) : (
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="p-[1.5px] rounded-full bg-gradient-to-r from-violet-400 to-indigo-500">
