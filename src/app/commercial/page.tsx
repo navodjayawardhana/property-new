@@ -82,13 +82,13 @@ function CommercialContent() {
     const p = new URLSearchParams(searchParams.toString());
     if (value && value !== "Any") p.set(key, value);
     else p.delete(key);
-    router.push(`/commercial?${p.toString()}`);
+    router.push(`/commercial?${p.toString()}`, { scroll: false });
   }
 
   function clearParam(key: string) {
     const p = new URLSearchParams(searchParams.toString());
     p.delete(key);
-    router.push(`/commercial?${p.toString()}`);
+    router.push(`/commercial?${p.toString()}`, { scroll: false });
   }
 
   const activeType = searchParams.get("property_type") ?? "Any";
@@ -160,105 +160,63 @@ function CommercialContent() {
 
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
-        <div className="space-y-3 pb-5 border-b border-gray-200">
-          {/* Row 1 — Listing type as segmented control + sort */}
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                Listing type
-              </p>
-              <div className="inline-flex bg-gray-100 p-1 rounded-xl gap-1">
-                {LISTING_TYPES.map((lt) => {
-                  const val = listingMap[lt];
-                  const active =
-                    lt === "Any"
-                      ? !activeListing || activeListing === "Any"
-                      : activeListing === val;
-                  return (
-                    <button
-                      key={lt}
-                      onClick={() => setParam("listing_type", val ?? null)}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                        active
-                          ? "bg-[#16a34a] text-white shadow-sm"
-                          : "text-gray-500 hover:text-gray-800"
-                      }`}
-                    >
-                      {lt}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm text-gray-500">
-                {loading ? (
-                  <svg
-                    className="w-4 h-4 animate-spin text-gray-400 inline-block"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                ) : (
-                  <>
-                    <span className="font-bold text-gray-900">{total}</span>{" "}
-                    propert{total !== 1 ? "ies" : "y"}
-                  </>
-                )}
-              </span>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] text-gray-600 bg-white"
-              >
-                {SORT_OPTIONS.map((o) => (
-                  <option key={o}>{o}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Row 2 — Property type as chips */}
-          <div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-              Property type
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              {PROPERTY_TYPES.map((type) => {
-                const active =
-                  activeType === type || (type === "Any" && !activeType);
+        <div className="space-y-2 pb-5 border-b border-gray-200">
+          {/* Row 1 — count + listing type + sort */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700">
+              {loading ? (
+                <svg className="w-4 h-4 animate-spin text-gray-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <>{total} propert{total !== 1 ? "ies" : "y"}</>
+              )}
+            </span>
+            <div className="flex gap-2 flex-wrap ml-2">
+              {LISTING_TYPES.map((lt) => {
+                const val = listingMap[lt];
+                const active = lt === "Any" ? !activeListing || activeListing === "Any" : activeListing === val;
                 return (
                   <button
-                    key={type}
-                    onClick={() =>
-                      setParam("property_type", type === "Any" ? null : type)
-                    }
-                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                      active
-                        ? "bg-[#16a34a] text-white border-[#16a34a]"
-                        : "text-gray-600 border-gray-200 bg-white hover:border-[#16a34a] hover:text-[#16a34a]"
+                    key={lt}
+                    onClick={() => setParam("listing_type", val ?? null)}
+                    className={`text-sm px-3 py-1 rounded-full border transition-colors ${
+                      active ? "bg-gray-900 text-white border-gray-900" : "text-gray-600 border-gray-300 hover:border-gray-500"
                     }`}
                   >
-                    {type}
+                    {lt}
                   </button>
                 );
               })}
             </div>
+            <div className="ml-auto flex items-center gap-2">
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-600 bg-white"
+              >
+                {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Row 2 — property type */}
+          <div className="flex gap-2 flex-wrap">
+            {PROPERTY_TYPES.map((type) => {
+              const active = activeType === type || (type === "Any" && !activeType);
+              return (
+                <button
+                  key={type}
+                  onClick={() => setParam("property_type", type === "Any" ? null : type)}
+                  className={`text-sm px-3 py-1 rounded-full border transition-colors ${
+                    active ? "bg-gray-900 text-white border-gray-900" : "text-gray-600 border-gray-300 hover:border-gray-500"
+                  }`}
+                >
+                  {type}
+                </button>
+              );
+            })}
           </div>
         </div>
 

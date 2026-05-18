@@ -131,13 +131,13 @@ function RentContent() {
     const p = new URLSearchParams(searchParams.toString());
     if (value && value !== "Any") p.set(key, value);
     else p.delete(key);
-    router.push(`/rent?${p.toString()}`);
+    router.push(`/rent?${p.toString()}`, { scroll: false });
   }
 
   function clearParam(key: string) {
     const p = new URLSearchParams(searchParams.toString());
     p.delete(key);
-    router.push(`/rent?${p.toString()}`);
+    router.push(`/rent?${p.toString()}`, { scroll: false });
   }
 
   const activeType = searchParams.get("property_type") ?? "Any";

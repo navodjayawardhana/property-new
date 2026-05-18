@@ -147,13 +147,13 @@ function BuyContent() {
     const p = new URLSearchParams(searchParams.toString());
     if (value && value !== "Any") p.set(key, value);
     else p.delete(key);
-    router.push(`/buy?${p.toString()}`);
+    router.push(`/buy?${p.toString()}`, { scroll: false });
   }
 
   function clearParam(key: string) {
     const p = new URLSearchParams(searchParams.toString());
     p.delete(key);
-    router.push(`/buy?${p.toString()}`);
+    router.push(`/buy?${p.toString()}`, { scroll: false });
   }
 
   const activeType = searchParams.get("property_type") ?? "Any";
