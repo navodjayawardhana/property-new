@@ -118,6 +118,7 @@ export default function AgentDashboard() {
   const [deletingSlideId, setDeletingSlideId] = useState<number | null>(null);
   const slideFileRef = useRef<HTMLInputElement>(null);
   const [profileForm, setProfileForm] = useState({ bio: '', facebook: '', instagram: '', linkedin: '', whatsapp: '', twitter: '', website: '' });
+  const [whatsappDialCode, setWhatsappDialCode] = useState('+94');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
@@ -191,14 +192,18 @@ export default function AgentDashboard() {
 
   useEffect(() => {
     if (user) {
+      const u = user as unknown as Record<string, string>;
+      const rawWa = u.whatsapp ?? '';
+      const { dialCode: waDialCode, number: waNumber } = parsePhone(rawWa.startsWith('+') ? rawWa : '');
+      setWhatsappDialCode(rawWa.startsWith('+') ? waDialCode : '+94');
       setProfileForm({
-        bio:       (user as unknown as Record<string, string>).bio       ?? '',
-        facebook:  (user as unknown as Record<string, string>).facebook  ?? '',
-        instagram: (user as unknown as Record<string, string>).instagram ?? '',
-        linkedin:  (user as unknown as Record<string, string>).linkedin  ?? '',
-        whatsapp:  (user as unknown as Record<string, string>).whatsapp  ?? '',
-        twitter:   (user as unknown as Record<string, string>).twitter   ?? '',
-        website:   (user as unknown as Record<string, string>).website   ?? '',
+        bio:       u.bio       ?? '',
+        facebook:  u.facebook  ?? '',
+        instagram: u.instagram ?? '',
+        linkedin:  u.linkedin  ?? '',
+        whatsapp:  rawWa.startsWith('+') ? waNumber : rawWa,
+        twitter:   u.twitter   ?? '',
+        website:   u.website   ?? '',
       });
     }
   }, [user]);
@@ -280,15 +285,51 @@ export default function AgentDashboard() {
     setSlides((prev) => prev.map((s) => s.id === slide.id ? updated : s));
   }
 
+  function normaliseLink(key: string, val: string): string | null {
+    const v = val.trim();
+    if (!v) return null;
+    // website must be a full URL
+    if (key === 'website') {
+      return /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    }
+    // facebook / instagram / linkedin / twitter — add https:// if looks like a bare URL
+    if (['facebook', 'instagram', 'linkedin', 'twitter'].includes(key)) {
+      if (v.includes('.') && !/^https?:\/\//i.test(v)) return `https://${v}`;
+    }
+    // whatsapp — strip any URL prefix, keep only the phone number
+    if (key === 'whatsapp') {
+      return v.replace(/^https?:\/\/(wa\.me\/)?/i, '').replace(/[^0-9+]/g, '') || null;
+    }
+    return v;
+  }
+
   async function handleProfileSave() {
     if (!token) return;
     setProfileSaving(true);
+    const waNumber = profileForm.whatsapp.trim().replace(/^0+/, '');
+    const social = {
+      ...Object.fromEntries(
+        Object.entries(profileForm)
+          .filter(([k]) => k !== 'whatsapp')
+          .map(([k, v]) => [k, normaliseLink(k, v)])
+      ),
+      whatsapp: waNumber ? `${whatsappDialCode}${waNumber}` : null,
+    };
+    const payload = {
+      name: user!.name,
+      email: user!.email ?? undefined,
+      ...social,
+    };
     try {
-      await profileApi.update(profileForm, token);
+      await profileApi.update(payload, token);
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 3000);
     } catch (e: unknown) {
-      alert((e as Error).message ?? 'Save failed');
+      const err = e as Error & { errors?: Record<string, string[]> };
+      const msg = err.errors
+        ? Object.values(err.errors).flat().join('\n')
+        : (err.message ?? 'Save failed');
+      alert(msg);
     } finally {
       setProfileSaving(false);
     }
@@ -1051,12 +1092,11 @@ export default function AgentDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { key: 'facebook',  icon: FbIcon,        label: 'Facebook',  placeholder: 'username or full URL' },
-                    { key: 'instagram', icon: IgIcon,        label: 'Instagram', placeholder: 'username or full URL' },
-                    { key: 'linkedin',  icon: LiIcon,        label: 'LinkedIn',  placeholder: 'username or full URL' },
-                    { key: 'twitter',   icon: TwIcon,        label: 'Twitter/X', placeholder: 'username or full URL' },
-                    { key: 'whatsapp',  icon: MessageCircle, label: 'WhatsApp',  placeholder: 'Phone number with country code' },
-                    { key: 'website',   icon: Globe,         label: 'Website',   placeholder: 'https://yoursite.com' },
+                    { key: 'facebook',  icon: FbIcon, label: 'Facebook',  placeholder: 'username or full URL' },
+                    { key: 'instagram', icon: IgIcon, label: 'Instagram', placeholder: 'username or full URL' },
+                    { key: 'linkedin',  icon: LiIcon, label: 'LinkedIn',  placeholder: 'username or full URL' },
+                    { key: 'twitter',   icon: TwIcon, label: 'Twitter/X', placeholder: 'username or full URL' },
+                    { key: 'website',   icon: Globe,  label: 'Website',   placeholder: 'https://yoursite.com' },
                   ].map(({ key, icon: Icon, label, placeholder }) => (
                     <div key={key}>
                       <label className="block text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1.5">
@@ -1070,6 +1110,35 @@ export default function AgentDashboard() {
                       />
                     </div>
                   ))}
+
+                  {/* WhatsApp with country code */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 flex items-center gap-1.5">
+                      <MessageCircle size={12} /> WhatsApp
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="relative shrink-0">
+                        <select
+                          value={whatsappDialCode}
+                          onChange={(e) => setWhatsappDialCode(e.target.value)}
+                          className="h-full pl-2 pr-6 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
+                          style={{ minWidth: '80px' }}
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+                          ))}
+                        </select>
+                        <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                      </div>
+                      <input
+                        type="tel"
+                        value={profileForm.whatsapp}
+                        onChange={(e) => setProfileForm((f) => ({ ...f, whatsapp: e.target.value }))}
+                        placeholder="771234567"
+                        className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
