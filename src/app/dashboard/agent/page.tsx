@@ -101,6 +101,11 @@ export default function AgentDashboard() {
   const [fetchingInq, setFetchingInq] = useState(false);
   const [inqLoaded, setInqLoaded] = useState(false);
 
+  const PAGE_SIZE = 5;
+  const [contentPage, setContentPage] = useState(1);
+
+  useEffect(() => { setContentPage(1); }, [tab]);
+
   // Profile & Branding tab
   const [slides, setSlides] = useState<AgentSlide[]>([]);
   const [slidesLoaded, setSlidesLoaded] = useState(false);
@@ -695,9 +700,18 @@ export default function AgentDashboard() {
                   <RefreshCw size={11} /> Sync
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {saved.map((p) => <PropertyCard key={p.id} property={p} />)}
-              </div>
+              {(() => {
+                const pagedSaved = saved.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalSavedPages = Math.ceil(saved.length / PAGE_SIZE);
+                return (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {pagedSaved.map((p) => <PropertyCard key={p.id} property={p} />)}
+                    </div>
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalSavedPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </>
           )
         )}
@@ -727,7 +741,12 @@ export default function AgentDashboard() {
                   <RefreshCw size={12} /> Refresh
                 </button>
               </div>
-              {received.map((inq) => (
+              {(() => {
+                const pagedReceived = received.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalReceivedPages = Math.ceil(received.length / PAGE_SIZE);
+                return (
+                  <>
+                    {pagedReceived.map((inq) => (
                 <div key={inq.id} className="bg-white rounded-xl border border-gray-100 p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
@@ -773,7 +792,11 @@ export default function AgentDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+                    ))}
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalReceivedPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </div>
           )
         )}
@@ -790,7 +813,12 @@ export default function AgentDashboard() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-gray-500 font-medium mb-2">{myLoans.length} application{myLoans.length !== 1 ? "s" : ""}</p>
-              {myLoans.map((loan) => {
+              {(() => {
+                const pagedLoans = myLoans.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalLoanPages = Math.ceil(myLoans.length / PAGE_SIZE);
+                return (
+                  <>
+                    {pagedLoans.map((loan) => {
                 const logo = loan.selected_bank ? bankLogoMap[loan.selected_bank] : null;
                 return (
                   <div key={loan.id} className="bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow overflow-hidden">
@@ -817,7 +845,11 @@ export default function AgentDashboard() {
                     </div>
                   </div>
                 );
-              })}
+                    })}
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalLoanPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </div>
           )
         )}

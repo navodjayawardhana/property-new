@@ -13,7 +13,7 @@ import { inquiries as inquiriesApi, favorites as favoritesApi, loanEnquiries as 
 import { COUNTRY_CODES, parsePhone } from "@/lib/countries";
 import {
   Heart, MessageSquare, Home, ExternalLink, Search, ArrowRight, RefreshCw, Building2,
-  Camera, Trash2, Check, Eye, EyeOff, Shield, ChevronDown, Loader2, MapPin, Mail, User as UserIcon, Clock, Settings, LogOut, Menu, X,
+  Camera, Trash2, Check, Eye, EyeOff, Shield, ChevronDown, ChevronLeft, ChevronRight, Loader2, MapPin, Mail, User as UserIcon, Clock, Settings, LogOut, Menu, X,
 } from "lucide-react";
 
 const LOAN_STATUS_COLOR: Record<string, string> = {
@@ -44,6 +44,33 @@ const INQUIRY_TYPE_COLOR: Record<string, string> = {
   buying: "bg-blue-100 text-blue-700",
   renting: "bg-teal-100 text-teal-700",
 };
+
+function Pagination({ current, last, onChange }: { current: number; last: number; onChange: (p: number) => void }) {
+  if (last <= 1) return null;
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-5">
+      <button onClick={() => onChange(current - 1)} disabled={current === 1}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronLeft size={14} />
+      </button>
+      {Array.from({ length: last }, (_, i) => i + 1)
+        .filter(p => p === 1 || p === last || Math.abs(p - current) <= 1)
+        .reduce<(number | "…")[]>((acc, p, i, arr) => {
+          if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push("…");
+          acc.push(p); return acc;
+        }, [])
+        .map((p, i) => p === "…"
+          ? <span key={`e${i}`} className="px-1 text-gray-400 text-sm">…</span>
+          : <button key={p} onClick={() => onChange(p as number)}
+              className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${current === p ? "bg-[#16a34a] text-white" : "border border-gray-200 text-gray-700 hover:border-[#16a34a]"}`}>{p}</button>
+        )}
+      <button onClick={() => onChange(current + 1)} disabled={current === last}
+        className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#16a34a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+        <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
 
 export default function BuyerDashboard() {
   const { user, token, loading, updateUser, logout } = useAuth();
@@ -80,6 +107,11 @@ export default function BuyerDashboard() {
 
   const [myInquiries, setMyInquiries] = useState<Inquiry[]>([]);
   const [loadingInquiries, setLoadingInquiries] = useState(false);
+
+  const PAGE_SIZE = 5;
+  const [contentPage, setContentPage] = useState(1);
+
+  useEffect(() => { setContentPage(1); }, [tab]);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/signin");
@@ -413,9 +445,18 @@ export default function BuyerDashboard() {
                   <RefreshCw size={11} /> Sync
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {saved.map((p) => <PropertyCard key={p.id} property={p} />)}
-              </div>
+              {(() => {
+                const pagedSaved = saved.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalSavedPages = Math.ceil(saved.length / PAGE_SIZE);
+                return (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {pagedSaved.map((p) => <PropertyCard key={p.id} property={p} />)}
+                    </div>
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalSavedPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </>
           )
         )}
@@ -450,7 +491,12 @@ export default function BuyerDashboard() {
               <p className="text-sm text-gray-500 font-medium mb-4">
                 {myInquiries.length} {myInquiries.length === 1 ? "inquiry" : "inquiries"} sent
               </p>
-              {myInquiries.map((inq) => (
+              {(() => {
+                const pagedInquiries = myInquiries.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalInquiryPages = Math.ceil(myInquiries.length / PAGE_SIZE);
+                return (
+                  <>
+                    {pagedInquiries.map((inq) => (
                 <div key={inq.id} className="bg-white rounded-xl border border-gray-100 p-4 flex items-start gap-4 hover:shadow-sm transition-shadow">
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                     {(inq.property as (typeof inq.property & { images?: { url: string }[] }))?.images?.[0] ? (
@@ -500,6 +546,10 @@ export default function BuyerDashboard() {
                   </div>
                 </div>
               ))}
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalInquiryPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </div>
           )
         )}
@@ -522,7 +572,12 @@ export default function BuyerDashboard() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-gray-500 font-medium mb-2">{myLoans.length} application{myLoans.length !== 1 ? "s" : ""}</p>
-              {myLoans.map((loan) => {
+              {(() => {
+                const pagedLoans = myLoans.slice((contentPage - 1) * PAGE_SIZE, contentPage * PAGE_SIZE);
+                const totalLoanPages = Math.ceil(myLoans.length / PAGE_SIZE);
+                return (
+                  <>
+                    {pagedLoans.map((loan) => {
                 const logo = loan.selected_bank ? bankLogoMap[loan.selected_bank] : null;
                 return (
                   <div key={loan.id} className="bg-white rounded-xl border border-gray-100 hover:shadow-sm transition-shadow overflow-hidden">
@@ -563,7 +618,11 @@ export default function BuyerDashboard() {
                     </div>
                   </div>
                 );
-              })}
+                    })}
+                    <div className="px-5 pb-5"><Pagination current={contentPage} last={totalLoanPages} onChange={setContentPage} /></div>
+                  </>
+                );
+              })()}
             </div>
           )
         )}

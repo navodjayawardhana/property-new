@@ -257,7 +257,7 @@ function UsersTab({ token }: { token: string }) {
   const load = useCallback(async (p = page, s = search, r = roleFilter) => {
     setLoading(true);
     try {
-      const res = await adminApi.users({ search: s, role: r, page: p }, token);
+      const res = await adminApi.users({ search: s, role: r, page: p, per_page: 5 } as any, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
@@ -472,7 +472,7 @@ function PropertiesTab({ token }: { token: string }) {
   const load = useCallback(async (p = page, s = search, st = statusFilter, lt = typeFilter) => {
     setLoading(true);
     try {
-      const res = await adminApi.properties({ search: s, status: st, listing_type: lt, page: p }, token);
+      const res = await adminApi.properties({ search: s, status: st, listing_type: lt, page: p, per_page: 5 } as any, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
@@ -688,7 +688,7 @@ function InquiriesTab({ token }: { token: string }) {
   const load = useCallback(async (p = page, s = search, st = statusFilter, it = typeFilter) => {
     setLoading(true);
     try {
-      const res = await adminApi.inquiries({ search: s, status: st, inquiry_type: it, page: p }, token);
+      const res = await adminApi.inquiries({ search: s, status: st, inquiry_type: it, page: p, per_page: 5 } as any, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
@@ -790,10 +790,28 @@ function InquiriesTab({ token }: { token: string }) {
                         {expanded === inq.id ? "Show less" : "Show more"}
                       </button>
                     )}
+                    {/* Mobile-only status + actions */}
+                    <div className="flex items-center gap-2 mt-2 sm:hidden">
+                      <select value={inq.status} onChange={(e) => handleStatusChange(inq, e.target.value)}
+                        className="flex-1 text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 outline-none bg-white text-gray-700 focus:border-[#16a34a] transition-colors">
+                        <option value="pending">Pending</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="resolved">Resolved</option>
+                      </select>
+                      <a href={`mailto:${inq.email}`}
+                        className="text-[#16a34a] hover:text-[#15803d] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                        <TrendingUp size={14} />
+                      </a>
+                      <button onClick={() => setConfirm({ id: inq.id, name: inq.name })}
+                        className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  {/* Desktop-only right actions — unchanged */}
+                  <div className="hidden sm:flex items-center gap-2 shrink-0">
                     <select value={inq.status} onChange={(e) => handleStatusChange(inq, e.target.value)}
-                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none bg-white text-gray-700 hidden sm:block">
+                      className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none bg-white text-gray-700">
                       <option value="pending">Pending</option>
                       <option value="contacted">Contacted</option>
                       <option value="resolved">Resolved</option>
@@ -836,12 +854,15 @@ const emptyForm: Partial<NewsArticleApi> = {
   title: "", excerpt: "", category: "News", tag: "", image_url: "", read_time: "3 min read", is_published: true,
 };
 
+const NEWS_PAGE_SIZE = 5;
+
 function NewsTab({ token }: { token: string }) {
   const [data, setData] = useState<PaginatedNews | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
+  const [newsPage, setNewsPage] = useState(1);
   const [confirm, setConfirm] = useState<{ id: number; title: string } | null>(null);
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [form, setForm] = useState<Partial<NewsArticleApi>>(emptyForm);
@@ -851,8 +872,9 @@ function NewsTab({ token }: { token: string }) {
 
   const load = useCallback(async (p = page, s = search, st = statusFilter) => {
     setLoading(true);
+    setNewsPage(1);
     try {
-      const res = await newsApi.adminList({ search: s, is_published: st, page: p }, token);
+      const res = await newsApi.adminList({ search: s, is_published: st, page: p, per_page: 100 } as any, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
@@ -976,7 +998,7 @@ function NewsTab({ token }: { token: string }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {data.data.map((a) => (
+                {data.data.slice((newsPage - 1) * NEWS_PAGE_SIZE, newsPage * NEWS_PAGE_SIZE).map((a) => (
                   <tr key={a.id} className="hover:bg-gray-50/30 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
@@ -1023,7 +1045,15 @@ function NewsTab({ token }: { token: string }) {
           </div>
         )}
 
-        {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p); }} /></div>}
+        {data && data.data.length > NEWS_PAGE_SIZE && (
+          <div className="px-5 pb-5">
+            <Pagination
+              current={newsPage}
+              last={Math.ceil(data.data.length / NEWS_PAGE_SIZE)}
+              onChange={setNewsPage}
+            />
+          </div>
+        )}
       </div>
 
       {/* Create/Edit modal */}
@@ -1289,7 +1319,7 @@ function LoanEnquiriesTab({ token }: { token: string }) {
   const load = useCallback(async (p = page, s = search, st = statusFilter) => {
     setLoading(true);
     try {
-      const res = await adminApi.loanEnquiries({ search: s, status: st, page: p }, token);
+      const res = await adminApi.loanEnquiries({ search: s, status: st, page: p, per_page: 5 } as any, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
@@ -1447,11 +1477,13 @@ function SlidesTab({ token }: { token: string }) {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [slidePage, setSlidePage] = useState(1);
+  const SLIDE_PAGE_SIZE = 5;
 
   const load = () => {
     setLoading(true);
     slidesApi.adminList(token)
-      .then(setSlides)
+      .then((data) => { setSlides(data); setSlidePage(1); })
       .catch(() => {})
       .finally(() => setLoading(false));
   };
@@ -1510,6 +1542,9 @@ function SlidesTab({ token }: { token: string }) {
     setShowAddModal(true);
   }
 
+  const pagedSlides = slides.slice((slidePage - 1) * SLIDE_PAGE_SIZE, slidePage * SLIDE_PAGE_SIZE);
+  const totalSlidePages = Math.ceil(slides.length / SLIDE_PAGE_SIZE);
+
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Existing slides */}
@@ -1547,7 +1582,7 @@ function SlidesTab({ token }: { token: string }) {
           <div className="p-8 text-center text-gray-400 text-sm">No slides yet — default homepage images are displayed.</div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {slides.map((s, i) => (
+            {pagedSlides.map((s, i) => (
               <div key={s.id} className="flex items-center gap-4 px-5 py-3">
                 <span className="text-xs text-gray-400 font-bold w-4 shrink-0">{i + 1}</span>
                 <div className="w-20 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
@@ -1579,6 +1614,9 @@ function SlidesTab({ token }: { token: string }) {
                 </div>
               </div>
             ))}
+            <div className="px-5 pb-5">
+              <Pagination current={slidePage} last={totalSlidePages} onChange={setSlidePage} />
+            </div>
           </div>
         )}
       </div>
@@ -1689,9 +1727,15 @@ function BankRatesTab({ token }: { token: string }) {
   const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
   const [showForm, setShowForm] = useState(false);
 
+  const [bankPage, setBankPage] = useState(1);
+  const BANK_PAGE_SIZE = 5;
+
   const load = useCallback(async () => {
     setLoading(true);
-    try { setBanks(await bankLoanRatesApi.adminList(token)); }
+    try {
+      setBanks(await bankLoanRatesApi.adminList(token));
+      setBankPage(1);
+    }
     catch { /* ignore */ }
     finally { setLoading(false); }
   }, [token]);
@@ -1769,6 +1813,9 @@ function BankRatesTab({ token }: { token: string }) {
 
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+  const pagedBanks = banks.slice((bankPage - 1) * BANK_PAGE_SIZE, bankPage * BANK_PAGE_SIZE);
+  const totalBankPages = Math.ceil(banks.length / BANK_PAGE_SIZE);
 
   return (
     <div className="space-y-5">
@@ -1916,50 +1963,80 @@ function BankRatesTab({ token }: { token: string }) {
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
-            {banks.map((b) => (
-              <div key={b.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50/40 transition-colors">
-                {/* Logo */}
-                <div className="w-10 h-10 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
-                  {b.logo_url
-                    ? <img src={b.logo_url} alt={b.bank_name} className="w-full h-full object-contain p-0.5" />
-                    : <Building2 size={16} className="text-gray-300" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                    <span className="font-semibold text-sm text-gray-900">{b.bank_name}</span>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${LOAN_TYPE_COLORS[b.loan_type] ?? "bg-gray-100 text-gray-600"}`}>
-                      {LOAN_TYPE_LABELS[b.loan_type] ?? b.loan_type}
-                    </span>
-                    {!b.is_active && <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">Inactive</span>}
+            {pagedBanks.map((b) => (
+              <div key={b.id} className="px-5 py-4 hover:bg-gray-50/40 transition-colors">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                  {/* Logo */}
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-gray-100 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden mt-0.5 sm:mt-0">
+                    {b.logo_url
+                      ? <img src={b.logo_url} alt={b.bank_name} className="w-full h-full object-contain p-0.5" />
+                      : <Building2 size={16} className="text-gray-300" />}
                   </div>
-                  <p className="text-xs text-gray-400">
-                    {b.interest_rate.toFixed(2)}% p.a. · Max {b.max_term} yrs ·
-                    LKR {(b.min_loan / 1000000).toFixed(1)}M – {(b.max_loan / 1000000).toFixed(0)}M
-                  </p>
-                  {b.features && b.features.length > 0 && (
-                    <p className="text-xs text-gray-400 truncate mt-0.5">{b.features.join(" · ")}</p>
-                  )}
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-black text-[#16a34a]">{b.interest_rate.toFixed(2)}%</p>
-                  <p className="text-xs text-gray-400">p.a.</p>
-                </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button onClick={() => handleToggleActive(b)} title={b.is_active ? "Deactivate" : "Activate"}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
-                    {b.is_active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
-                  </button>
-                  <button onClick={() => openEdit(b)} title="Edit"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
-                    <Edit2 size={13} />
-                  </button>
-                  <button onClick={() => setConfirm({ id: b.id, name: b.bank_name })} title="Delete"
-                    className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-red-300 text-gray-400 hover:text-red-500 transition-colors">
-                    <Trash2 size={13} />
-                  </button>
+
+                  {/* Bank info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <span className="font-semibold text-sm text-gray-900">{b.bank_name}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${LOAN_TYPE_COLORS[b.loan_type] ?? "bg-gray-100 text-gray-600"}`}>
+                        {LOAN_TYPE_LABELS[b.loan_type] ?? b.loan_type}
+                      </span>
+                      {!b.is_active && <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-400">Inactive</span>}
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      {b.interest_rate.toFixed(2)}% p.a. · Max {b.max_term} yrs ·
+                      LKR {(b.min_loan / 1000000).toFixed(1)}M – {(b.max_loan / 1000000).toFixed(0)}M
+                    </p>
+                    {b.features && b.features.length > 0 && (
+                      <p className="text-xs text-gray-400 truncate mt-0.5">{b.features.join(" · ")}</p>
+                    )}
+
+                    {/* Mobile-only: rate + actions row */}
+                    <div className="flex items-center gap-2 mt-2 sm:hidden">
+                      <span className="text-sm font-black text-[#16a34a]">{b.interest_rate.toFixed(2)}% <span className="text-xs font-medium text-gray-400">p.a.</span></span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <button onClick={() => handleToggleActive(b)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                          {b.is_active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                        </button>
+                        <button onClick={() => openEdit(b)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                          <Edit2 size={13} />
+                        </button>
+                        <button onClick={() => setConfirm({ id: b.id, name: b.bank_name })}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-red-300 text-gray-400 hover:text-red-500 transition-colors">
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop-only: rate */}
+                  <div className="hidden sm:block text-right shrink-0">
+                    <p className="text-sm font-black text-[#16a34a]">{b.interest_rate.toFixed(2)}%</p>
+                    <p className="text-xs text-gray-400">p.a.</p>
+                  </div>
+
+                  {/* Desktop-only: action buttons */}
+                  <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                    <button onClick={() => handleToggleActive(b)} title={b.is_active ? "Deactivate" : "Activate"}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                      {b.is_active ? <ToggleRight size={15} /> : <ToggleLeft size={15} />}
+                    </button>
+                    <button onClick={() => openEdit(b)} title="Edit"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-[#16a34a] text-gray-400 hover:text-[#16a34a] transition-colors">
+                      <Edit2 size={13} />
+                    </button>
+                    <button onClick={() => setConfirm({ id: b.id, name: b.bank_name })} title="Delete"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center border border-gray-200 hover:border-red-300 text-gray-400 hover:text-red-500 transition-colors">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
+            <div className="px-5 pb-5">
+              <Pagination current={bankPage} last={totalBankPages} onChange={setBankPage} />
+            </div>
           </div>
         )}
       </div>
