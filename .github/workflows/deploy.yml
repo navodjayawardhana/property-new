@@ -36,8 +36,9 @@ jobs:
 
             echo ">>> Deploying backend..."
             cd ~/property-new/backend
-            composer install --no-dev --optimize-autoloader
-            php artisan migrate --force
-            php artisan optimize
+            PHP82=/opt/cpanel/ea-php82/root/usr/bin/php
+            $PHP82 $(which composer) install --no-dev --optimize-autoloader
+            $PHP82 artisan migrate --force
+            $PHP82 artisan optimize
 
             echo ">>> Deploy complete!"
