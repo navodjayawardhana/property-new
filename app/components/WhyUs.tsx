@@ -33,7 +33,7 @@ export default function WhyUs() {
       <div className="max-w-7xl mx-auto">
 
         <div className="text-center mb-10">
-          <span className="section-label">Why Serendib</span>
+          <span className="section-label">Why GreenBrick</span>
           <h2 className="text-3xl sm:text-4xl font-black text-gray-900">The Smarter Way to Find Property</h2>
         </div>
 

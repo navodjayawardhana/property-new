@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --brand: #C8102E;
-  --brand-dark: #9b0d22;
+  --brand: #4CD137;
+  --brand-dark: #3da82d;
+  --brand-navy: #1a1a5e;
 }
 
 body {
@@ -13,7 +14,7 @@ body {
 }
 
 .hero-bg {
-  background: linear-gradient(160deg, #0d0d1a 0%, #1a0a10 50%, #0d0d1a 100%);
+  background: linear-gradient(160deg, #2d8a23 0%, #4CD137 50%, #2d8a23 100%);
 }
 
 .glass {
@@ -31,7 +32,7 @@ body {
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #ff4d6d, #C8102E);
+  background: linear-gradient(90deg, #6dd455, #4CD137);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -42,7 +43,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: #C8102E;
+  color: #4CD137;
   display: block;
   margin-bottom: 8px;
 }

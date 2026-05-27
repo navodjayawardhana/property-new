@@ -90,9 +90,9 @@ export default function HeroSearch() {
 
       {/* Subtle radial glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-[#C8102E]/10 rounded-full blur-[120px]"/>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-[#4CD137]/10 rounded-full blur-[120px]"/>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-900/20 rounded-full blur-[80px]"/>
-        <div className="absolute top-10 right-0 w-64 h-64 bg-[#C8102E]/8 rounded-full blur-[80px]"/>
+        <div className="absolute top-10 right-0 w-64 h-64 bg-[#4CD137]/8 rounded-full blur-[80px]"/>
       </div>
 
       <div className="relative max-w-4xl mx-auto w-full px-5 sm:px-8 pt-24 pb-16 flex flex-col items-center text-center gap-6">
@@ -126,12 +126,12 @@ export default function HeroSearch() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-3 text-sm font-bold transition-colors relative ${
-                  activeTab === tab ? "bg-white text-[#C8102E]" : "text-gray-400 hover:text-gray-600"
+                  activeTab === tab ? "bg-white text-[#4CD137]" : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 {tab}
                 {activeTab === tab && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-[#C8102E] rounded-full"/>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-[#4CD137] rounded-full"/>
                 )}
               </button>
             ))}
@@ -140,8 +140,8 @@ export default function HeroSearch() {
           {/* Inputs Row */}
           <div className="p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row gap-3">
-              <label className="flex-1 flex items-center gap-2.5 border-2 border-gray-150 focus-within:border-[#C8102E] rounded-xl px-4 py-3 transition-colors bg-gray-50 focus-within:bg-white">
-                <MapPin className="w-4 h-4 text-[#C8102E] shrink-0"/>
+              <label className="flex-1 flex items-center gap-2.5 border-2 border-gray-150 focus-within:border-[#4CD137] rounded-xl px-4 py-3 transition-colors bg-gray-50 focus-within:bg-white">
+                <MapPin className="w-4 h-4 text-[#4CD137] shrink-0"/>
                 <input
                   type="text"
                   placeholder="City, suburb or country..."
@@ -149,7 +149,7 @@ export default function HeroSearch() {
                 />
               </label>
 
-              <select className="sm:w-36 border-2 border-gray-150 focus:border-[#C8102E] rounded-xl px-3 py-3 text-sm text-gray-600 outline-none bg-gray-50">
+              <select className="sm:w-36 border-2 border-gray-150 focus:border-[#4CD137] rounded-xl px-3 py-3 text-sm text-gray-600 outline-none bg-gray-50">
                 <option>Any Price</option>
                 <option>Under $500K</option>
                 <option>$500K–$1M</option>
@@ -157,7 +157,7 @@ export default function HeroSearch() {
                 <option>$2M+</option>
               </select>
 
-              <select className="sm:w-28 border-2 border-gray-150 focus:border-[#C8102E] rounded-xl px-3 py-3 text-sm text-gray-600 outline-none bg-gray-50">
+              <select className="sm:w-28 border-2 border-gray-150 focus:border-[#4CD137] rounded-xl px-3 py-3 text-sm text-gray-600 outline-none bg-gray-50">
                 <option>Any Beds</option>
                 <option>1+ Bed</option>
                 <option>2+ Beds</option>
@@ -165,14 +165,14 @@ export default function HeroSearch() {
                 <option>4+ Beds</option>
               </select>
 
-              <button className="flex items-center justify-center gap-2 bg-[#C8102E] hover:bg-[#9b0d22] text-white font-bold px-6 py-3 rounded-xl transition-colors whitespace-nowrap">
+              <button className="flex items-center justify-center gap-2 bg-[#4CD137] hover:bg-[#3da82d] text-white font-bold px-6 py-3 rounded-xl transition-colors whitespace-nowrap">
                 <Search className="w-4 h-4"/>
                 Search
               </button>
             </div>
 
             <div className="flex items-center justify-between mt-3">
-              <button className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#C8102E] font-semibold transition-colors">
+              <button className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#4CD137] font-semibold transition-colors">
                 <SlidersHorizontal className="w-3.5 h-3.5"/>
                 Advanced Filters
               </button>
@@ -191,7 +191,7 @@ export default function HeroSearch() {
                 onClick={() => setActiveType(pt.label)}
                 className={`flex flex-col items-center gap-2 py-3.5 px-2 rounded-xl border transition-all duration-200 ${
                   activeType === pt.label
-                    ? "bg-[#C8102E] border-[#C8102E] text-white scale-[1.04] shadow-lg shadow-red-900/40"
+                    ? "bg-[#4CD137] border-[#4CD137] text-white scale-[1.04] shadow-lg shadow-green-900/40"
                     : "glass border-white/10 text-white/60 hover:text-white hover:border-white/25"
                 }`}
               >
