@@ -26,16 +26,17 @@ jobs:
             git pull origin master
 
             echo ">>> Installing frontend dependencies..."
+            cd ~/property-new/frontend
             npm ci
 
             echo ">>> Clearing stale build artifacts..."
-            rm -rf .next
-            rm -rf app
+            rm -rf .next app
 
             echo ">>> Building frontend..."
             npm run build
 
             echo ">>> Restarting frontend (PM2)..."
+            cd ~/property-new
             pm2 restart property-next || pm2 start ecosystem.config.js --env production
 
             echo ">>> Deploying backend..."

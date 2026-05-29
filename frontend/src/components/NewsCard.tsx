@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function NewsCard({ article, large }: { article: NewsArticleApi; large?: boolean }) {
   const date = article.published_at
-    ? new Date(article.published_at).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" })
+    ? new Date(article.published_at).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Colombo" })
     : "";
 
   return (
