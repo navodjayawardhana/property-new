@@ -13,37 +13,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-
-            cd ~/property-new
-
-            echo ">>> Pulling latest code..."
-            git pull origin master
-
-            echo ">>> Installing frontend dependencies..."
-            cd ~/property-new/frontend
-            npm ci
-
-            echo ">>> Clearing stale build artifacts..."
-            rm -rf .next app
-
-            echo ">>> Building frontend..."
-            npm run build
-
-            echo ">>> Restarting frontend (PM2)..."
-            cd ~/property-new
-            pm2 restart property-next || pm2 start ecosystem.config.js --env production
-
-            echo ">>> Deploying backend..."
-            cd ~/property-new/backend
-            PHP82=/opt/cpanel/ea-php82/root/usr/bin/php
-            $PHP82 $(which composer) install --no-dev --optimize-autoloader
-            $PHP82 artisan migrate --force
-            $PHP82 artisan optimize
-
-            echo ">>> Deploy complete!"
+          host: 94.72.96.17
+          username: root
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: bash /var/www/deploy-greenbricks.sh

@@ -37,7 +37,7 @@ const ACTIONS = [
   },
   {
     key: "post",
-    href: "/post-ad",
+    href: "/dashboard/properties/new",
     title: "Post your ad",
     desc: "Post your property advertisement",
     Icon: PlusCircle,
