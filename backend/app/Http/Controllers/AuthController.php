@@ -330,12 +330,21 @@ class AuthController extends Controller
             'message'   => "Your Greenbrick.net login code is: {$otp}. Valid for 10 minutes.",
         ]);
 
-        if ($smsResponse->failed() || ($smsResponse->json('status') !== 'success')) {
+        $smsFailed = $smsResponse->failed() || ($smsResponse->json('status') !== 'success');
+
+        if ($smsFailed) {
             Log::error('notify.lk send failed', [
                 'status' => $smsResponse->status(),
                 'body'   => $smsResponse->body(),
                 'to'     => $sendTo,
             ]);
+
+            // In production, tell the user so they aren't left waiting
+            if (! app()->isLocal()) {
+                return response()->json([
+                    'message' => 'Failed to send OTP to your phone number. Please check the number and try again, or use email login.',
+                ], 422);
+            }
         }
 
         $masked = $this->maskPhone($user->phone);

@@ -43,3 +43,10 @@ next-env.d.ts
 # IDE & local tooling
 .idea/
 .claude/
+.vscode/
+
+# frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.vercel/

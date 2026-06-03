@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
@@ -160,10 +161,7 @@ export default function JoinPage() {
     >
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-[#16a34a] rounded-full flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-          </div>
-          <span className="text-white font-semibold text-sm">Greenbrick.net</span>
+          <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">
@@ -346,7 +344,7 @@ export default function JoinPage() {
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone (optional)</label>
                 <div className="flex gap-2">
                   <div className="relative shrink-0">
-                    <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}
+                    <select value={countryCode} onChange={(e) => { setCountryCode(e.target.value); update("phone", ""); }}
                       className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
                       style={{ minWidth: "90px" }}>
                       {COUNTRY_CODES.map((c) => (
@@ -357,9 +355,14 @@ export default function JoinPage() {
                   </div>
                   <div className="relative flex-1">
                     <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)}
-                      placeholder="400 000 000"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => update("phone", e.target.value.replace(/\D/g, "").slice(0, countryCode === "+94" ? 9 : 15))}
+                      placeholder={countryCode === "+94" ? "712345678" : "Phone number"}
+                      maxLength={countryCode === "+94" ? 9 : 15}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                    />
                   </div>
                 </div>
               </div>

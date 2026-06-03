@@ -83,6 +83,112 @@ function parsePrice(p: string): number | null {
   return isNaN(n) ? null : n;
 }
 
+function shortPrice(p: string): string {
+  if (p === "Any") return "Any";
+  const digits = p.replace(/[^0-9]/g, "");
+  if (!digits) return p;
+  const n = parseInt(digits, 10);
+  const plus = p.includes("+") ? "+" : "";
+  const mo = p.includes("/mo") ? "/mo" : "";
+  if (n >= 1_000_000) return `${n / 1_000_000}M${plus}`;
+  if (n >= 1_000) return `${n / 1_000}K${mo}${plus}`;
+  return p;
+}
+
+function PriceRangeSlider({ minValue, maxValue, onMinChange, onMaxChange, options }: {
+  minValue: string; maxValue: string;
+  onMinChange: (v: string) => void; onMaxChange: (v: string) => void;
+  options: string[];
+}) {
+  const last = options.length - 1;
+  const minIdx = options.indexOf(minValue) < 0 ? 0 : options.indexOf(minValue);
+  const maxIdx = (maxValue === "Any" || options.indexOf(maxValue) < 0) ? last : options.indexOf(maxValue);
+  const minPct = (minIdx / last) * 100;
+  const maxPct = (maxIdx / last) * 100;
+
+  const trackRef = useRef<HTMLDivElement>(null);
+  // stateRef lets event listeners always read fresh values without re-registering
+  const s = useRef({ minIdx, maxIdx, onMinChange, onMaxChange, last, options, dragging: null as 'min' | 'max' | null });
+  s.current = { ...s.current, minIdx, maxIdx, onMinChange, onMaxChange, last, options };
+
+  function getIdx(clientX: number) {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const { left, width } = el.getBoundingClientRect();
+    return Math.round(Math.max(0, Math.min(1, (clientX - left) / width)) * s.current.last);
+  }
+
+  function move(clientX: number) {
+    const { dragging, minIdx, maxIdx, last, options, onMinChange, onMaxChange } = s.current;
+    if (!dragging) return;
+    const idx = getIdx(clientX);
+    if (dragging === 'min' && idx < maxIdx) onMinChange(options[idx]);
+    if (dragging === 'max' && idx > minIdx) onMaxChange(idx === last ? 'Any' : options[idx]);
+  }
+
+  function start(clientX: number) {
+    const idx = getIdx(clientX);
+    const { minIdx, maxIdx } = s.current;
+    s.current.dragging = Math.abs(idx - minIdx) <= Math.abs(idx - maxIdx) ? 'min' : 'max';
+    move(clientX);
+  }
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => move(e.clientX);
+    const onTouch = (e: TouchEvent) => move(e.touches[0].clientX);
+    const onEnd = () => { s.current.dragging = null; };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onTouch, { passive: true });
+    document.addEventListener('touchend', onEnd);
+    return () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+      document.removeEventListener('touchmove', onTouch);
+      document.removeEventListener('touchend', onEnd);
+    };
+  }, []);
+
+  return (
+    <div>
+      {/* Inline min / max values */}
+      <div className="flex justify-between items-center mb-3">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-center min-w-[80px]">
+          <p className="text-[9px] text-gray-400 font-semibold uppercase tracking-wide leading-none mb-0.5">Min</p>
+          <p className="text-xs font-bold text-gray-800">{shortPrice(options[minIdx])}</p>
+        </div>
+        <div className="flex-1 mx-2 h-px bg-gray-200" />
+        <div className="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-center min-w-[80px]">
+          <p className="text-[9px] text-gray-400 font-semibold uppercase tracking-wide leading-none mb-0.5">Max</p>
+          <p className="text-xs font-bold text-gray-800">{maxIdx === last ? 'No limit' : shortPrice(options[maxIdx])}</p>
+        </div>
+      </div>
+
+      {/* Track */}
+      <div
+        ref={trackRef}
+        className="relative py-2.5 cursor-pointer select-none"
+        onMouseDown={(e) => { e.preventDefault(); start(e.clientX); }}
+        onTouchStart={(e) => start(e.touches[0].clientX)}
+      >
+        <div className="h-1.5 bg-gray-200 rounded-full" />
+        <div className="absolute h-1.5 bg-[#16a34a] rounded-full pointer-events-none"
+          style={{ top: '50%', transform: 'translateY(-50%)', left: `${minPct}%`, right: `${100 - maxPct}%` }} />
+        <div className="absolute w-4 h-4 bg-white border-2 border-[#16a34a] rounded-full shadow-md pointer-events-none"
+          style={{ top: '50%', left: `${minPct}%`, transform: 'translate(-50%,-50%)' }} />
+        <div className="absolute w-4 h-4 bg-white border-2 border-[#16a34a] rounded-full shadow-md pointer-events-none"
+          style={{ top: '50%', left: `${maxPct}%`, transform: 'translate(-50%,-50%)' }} />
+      </div>
+
+      {/* Bound labels */}
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-gray-400">{shortPrice(options[0])}</span>
+        <span className="text-[10px] text-gray-400">{shortPrice(options[last])}</span>
+      </div>
+    </div>
+  );
+}
+
 type Props = { defaultTab?: SearchTab; title?: string };
 
 export default function SearchHero({ defaultTab = "Buy", title }: Props) {
@@ -250,10 +356,10 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
           <div className="w-full max-w-3xl mt-32 sm:mt-28">
             <div className="bg-white rounded-2xl shadow-2xl">
               {/* Tabs */}
-              <div className="flex border-b border-gray-100 px-2 pt-2">
+              <div className="flex border-b border-gray-100 px-2 pt-2 overflow-x-auto scrollbar-none">
                 {(["Buy","Rent","Sold","Address","Agents"] as SearchTab[]).map((t) => (
                   <button key={t} onClick={() => setTab(t)}
-                    className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-colors -mb-px ${
+                    className={`pb-3 px-3 sm:px-4 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap ${
                       tab === t
                         ? "border-[#16a34a] text-[#16a34a]"
                         : "border-transparent text-gray-500 hover:text-gray-700"
@@ -264,9 +370,9 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               </div>
 
               {/* Input row */}
-              <div className="flex items-center gap-3 px-5 py-4">
+              <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-4">
                 <MapPin size={17} className="text-gray-400 shrink-0" />
-                <div className="relative flex-1">
+                <div className="relative flex-1 min-w-0">
                   <input
                     type="text" value={query}
                     onChange={(e) => { setQuery(e.target.value); setShowSugs(e.target.value.length > 0); }}
@@ -288,7 +394,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   )}
                 </div>
                 {query && (
-                  <button onClick={() => { setQuery(""); setShowSugs(false); }} className="text-gray-300 hover:text-gray-500 transition-colors">
+                  <button onClick={() => { setQuery(""); setShowSugs(false); }} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
                     <X size={15} />
                   </button>
                 )}
@@ -296,13 +402,13 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   <>
                     <div className="w-px h-5 bg-gray-200 shrink-0" />
                     <button onClick={() => setShowModal(true)}
-                      className={`flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg border transition-colors shrink-0 ${
+                      className={`flex items-center gap-1.5 text-sm font-medium px-2 sm:px-3 py-2 rounded-lg border transition-colors shrink-0 ${
                         activeFilterCount > 0
                           ? "bg-green-50 border-[#16a34a] text-[#16a34a]"
                           : "border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
                       }`}>
                       <SlidersHorizontal size={14} />
-                      Filters
+                      <span className="hidden sm:inline">Filters</span>
                       {activeFilterCount > 0 && (
                         <span className="bg-[#16a34a] text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
                           {activeFilterCount}
@@ -312,17 +418,17 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   </>
                 )}
                 <button onClick={handleSearch}
-                  className="bg-[#16a34a] hover:bg-[#15803d] active:scale-95 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-2">
+                  className="bg-[#16a34a] hover:bg-[#15803d] active:scale-95 text-white text-sm font-bold px-3 sm:px-6 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-2">
                   <Search size={15} />
-                  Search
+                  <span className="hidden sm:inline">Search</span>
                 </button>
               </div>
             </div>
 
             {/* Stats row */}
-            <div className="mt-5 grid grid-cols-4 gap-3">
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
               {STATS.map((s) => (
-                <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-3 text-center">
+                <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 sm:px-4 py-3 text-center">
                   <p className="text-white font-black text-lg leading-none">{s.value}</p>
                   <p className="text-white/65 text-xs mt-1 font-medium">{s.label}</p>
                 </div>
@@ -354,72 +460,70 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
-              <h2 className="text-base font-bold text-gray-900">Search filters</h2>
+
+          <div className="relative bg-white w-full max-w-sm sm:max-w-lg rounded-2xl shadow-2xl">
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-100">
+              <h2 className="text-sm font-bold text-gray-900">Search filters</h2>
               <button onClick={() => setShowModal(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
-                <X size={18} />
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                <X size={16} />
               </button>
             </div>
 
-            <div className="px-6 py-5 space-y-6">
+            {/* Content */}
+            <div className="px-4 pt-3 pb-2 space-y-3">
+
               {/* Price range */}
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Price range</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {[["Minimum", minPrice, setMinPrice], ["Maximum", maxPrice, setMaxPrice]].map(([label, val, setter]) => (
-                    <div key={label as string}>
-                      <label className="text-xs text-gray-500 mb-1.5 block font-medium">{label as string}</label>
-                      <div className="relative">
-                        <select value={val as string} onChange={(e) => (setter as (v: string) => void)(e.target.value)}
-                          className="w-full appearance-none text-sm border border-gray-200 rounded-xl px-3 py-2.5 outline-none focus:border-[#16a34a] bg-white text-gray-700 cursor-pointer">
-                          {priceRanges.map((p) => <option key={p}>{p}</option>)}
-                        </select>
-                        <ChevronDown size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">Price range</h3>
+                <PriceRangeSlider
+                  minValue={minPrice}
+                  maxValue={maxPrice}
+                  onMinChange={setMinPrice}
+                  onMaxChange={setMaxPrice}
+                  options={priceRanges}
+                />
               </div>
 
-              {/* Beds */}
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Bedrooms (min)</h3>
-                <div className="flex gap-2">
-                  {bedroomOptions.map((b) => (
-                    <button key={b} onClick={() => setMinBeds(b)}
-                      className={`flex-1 text-sm py-2.5 rounded-xl border font-semibold transition-colors ${minBeds === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
-                      {b}
-                    </button>
-                  ))}
+              {/* Beds + Baths side by side */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Bedrooms</h3>
+                  <div className="grid grid-cols-3 gap-1">
+                    {bedroomOptions.map((b) => (
+                      <button key={b} onClick={() => setMinBeds(b)}
+                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors ${minBeds === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                        {b}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Baths */}
-              <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Bathrooms (min)</h3>
-                <div className="flex gap-2">
-                  {bedroomOptions.map((b) => (
-                    <button key={b} onClick={() => setMinBaths(b)}
-                      className={`flex-1 text-sm py-2.5 rounded-xl border font-semibold transition-colors ${minBaths === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
-                      {b}
-                    </button>
-                  ))}
+                <div>
+                  <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Bathrooms</h3>
+                  <div className="grid grid-cols-3 gap-1">
+                    {bedroomOptions.map((b) => (
+                      <button key={b} onClick={() => setMinBaths(b)}
+                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors ${minBaths === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                        {b}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Property type */}
               <div>
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Property type</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-1.5">Property type</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                   {propertyTypes.map((type) => (
                     <button key={type} onClick={() => toggleType(type)}
-                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-200 text-gray-700 hover:border-gray-300 bg-white"}`}>
-                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300"}`}>
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border text-xs font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-200 text-gray-700 hover:border-gray-300 bg-white"}`}>
+                      <div className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300"}`}>
                         {selectedTypes.includes(type) && (
-                          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                            <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <svg width="8" height="6" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                           </svg>
                         )}
                       </div>
@@ -430,12 +534,13 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
-              <button onClick={clearAll} className="text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors underline underline-offset-2">
+            {/* Footer */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100 rounded-b-2xl">
+              <button onClick={clearAll} className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors underline underline-offset-2">
                 Clear all
               </button>
               <button onClick={() => { setShowModal(false); handleSearch(); }}
-                className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-8 py-2.5 rounded-xl transition-colors">
+                className="bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-6 py-2 rounded-xl transition-colors">
                 {activeFilterCount > 0 ? `Show results (${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""})` : "Show results"}
               </button>
             </div>

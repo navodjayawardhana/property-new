@@ -4,8 +4,6 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { properties as propertiesApi, type PaymentReceiptData } from "@/lib/api";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Loader2, CheckCircle, XCircle, Printer, ArrowRight } from "lucide-react";
 
 type PageStatus = "verifying" | "completed" | "failed" | "cancelled";
@@ -215,7 +213,6 @@ export default function PaymentReturnPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col print:bg-white">
       {/* Hide nav/footer when printing */}
-      <div className="print:hidden"><Navbar /></div>
 
       <Suspense fallback={
         <div className="flex-1 flex items-center justify-center print:hidden">
@@ -225,7 +222,6 @@ export default function PaymentReturnPage() {
         <PaymentReturnContent />
       </Suspense>
 
-      <div className="print:hidden"><Footer /></div>
     </div>
   );
 }

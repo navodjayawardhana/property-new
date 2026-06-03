@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -2199,7 +2197,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      <Navbar />
       <div className="flex flex-1">
 
         {/* Mobile sidebar overlay */}
@@ -2303,7 +2300,6 @@ export default function AdminPage() {
         </main>
 
       </div>
-      <Footer />
     </div>
   );
 }

@@ -92,20 +92,22 @@ export default function PropertyCard({ property }: { property: Property }) {
 
           {/* Specs */}
           <div className="flex items-center gap-3.5 mt-3 pt-3 border-t border-gray-100">
-            <span className="flex items-center gap-1.5 text-gray-700 text-sm font-semibold">
-              <Bed size={14} className="text-gray-400" /> {property.beds}
+            <span className="flex items-center gap-1.5 text-sm font-semibold">
+              <Bed size={14} className="text-gray-400" />
+              {property.beds ? <span className="text-gray-700">{property.beds}</span> : <span className="text-gray-400 text-xs">N/A</span>}
             </span>
-            <span className="flex items-center gap-1.5 text-gray-700 text-sm font-semibold">
-              <Bath size={14} className="text-gray-400" /> {property.baths}
+            <span className="flex items-center gap-1.5 text-sm font-semibold">
+              <Bath size={14} className="text-gray-400" />
+              {property.baths ? <span className="text-gray-700">{property.baths}</span> : <span className="text-gray-400 text-xs">N/A</span>}
             </span>
-            <span className="flex items-center gap-1.5 text-gray-700 text-sm font-semibold">
-              <Car size={14} className="text-gray-400" /> {property.cars}
+            <span className="flex items-center gap-1.5 text-sm font-semibold">
+              <Car size={14} className="text-gray-400" />
+              {property.cars ? <span className="text-gray-700">{property.cars}</span> : <span className="text-gray-400 text-xs">N/A</span>}
             </span>
-            {property.land_size && (
-              <span className="flex items-center gap-1 text-gray-500 text-xs font-medium ml-auto">
-                <Ruler size={11} className="text-gray-400" /> {property.land_size}
-              </span>
-            )}
+            <span className="flex items-center gap-1 text-xs font-medium ml-auto">
+              <Ruler size={11} className="text-gray-400" />
+              {property.land_size ? <span className="text-gray-500">{property.land_size}</span> : <span className="text-gray-400">N/A</span>}
+            </span>
           </div>
 
           <p className="text-xs text-gray-400 mt-2.5 truncate font-medium">{property.agency_name}</p>

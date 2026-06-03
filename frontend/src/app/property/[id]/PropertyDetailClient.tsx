@@ -209,19 +209,25 @@ export default function PropertyDetailPage() {
 
             <div className="flex items-center gap-6 py-4 border-y border-gray-200 text-gray-700">
               <span className="flex items-center gap-2">
-                <Bed size={19} className="text-gray-400" /><span className="font-bold">{property.beds}</span><span className="text-sm text-gray-500">Beds</span>
+                <Bed size={19} className="text-gray-400" />
+                {property.beds ? <span className="font-bold">{property.beds}</span> : <span className="text-gray-400 text-sm">N/A</span>}
+                <span className="text-sm text-gray-500">Beds</span>
               </span>
               <span className="flex items-center gap-2">
-                <Bath size={19} className="text-gray-400" /><span className="font-bold">{property.baths}</span><span className="text-sm text-gray-500">Baths</span>
+                <Bath size={19} className="text-gray-400" />
+                {property.baths ? <span className="font-bold">{property.baths}</span> : <span className="text-gray-400 text-sm">N/A</span>}
+                <span className="text-sm text-gray-500">Baths</span>
               </span>
               <span className="flex items-center gap-2">
-                <Car size={19} className="text-gray-400" /><span className="font-bold">{property.cars}</span><span className="text-sm text-gray-500">Cars</span>
+                <Car size={19} className="text-gray-400" />
+                {property.cars ? <span className="font-bold">{property.cars}</span> : <span className="text-gray-400 text-sm">N/A</span>}
+                <span className="text-sm text-gray-500">Cars</span>
               </span>
-              {property.land_size && (
-                <span className="flex items-center gap-2">
-                  <Ruler size={19} className="text-gray-400" /><span className="font-bold">{property.land_size}</span><span className="text-sm text-gray-500">Land</span>
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                <Ruler size={19} className="text-gray-400" />
+                {property.land_size ? <span className="font-bold">{property.land_size}</span> : <span className="text-gray-400 text-sm">N/A</span>}
+                <span className="text-sm text-gray-500">Land</span>
+              </span>
             </div>
 
             <div className="mt-4 flex gap-2 flex-wrap">

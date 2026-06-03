@@ -2,14 +2,46 @@
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck,
-  Home, TrendingUp, Briefcase, ShieldAlert, Phone, ChevronDown, KeyRound, CheckCircle2,
+  Home, TrendingUp, Briefcase, ShieldAlert, Phone, ChevronDown, KeyRound, CheckCircle2, AlertCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { auth } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
+
+function parseApiError(err: unknown, fallback: string): string {
+  const e = err as { errors?: Record<string, string[]>; message?: string };
+  if (e.errors) {
+    const msgs = Object.values(e.errors).flat();
+    if (msgs.length) return msgs.join(" ");
+  }
+  const msg = (e.message ?? fallback).trim();
+  const l = msg.toLowerCase();
+  if (l.includes("credentials do not match") || l.includes("invalid credentials") || l.includes("wrong password"))
+    return "Incorrect email or password. Please try again.";
+  if (l.includes("not found") && (l.includes("user") || l.includes("account")))
+    return "No account found with this email address.";
+  if ((l.includes("otp") || l.includes("code")) && (l.includes("invalid") || l.includes("incorrect")))
+    return "Incorrect verification code. Please try again.";
+  if ((l.includes("otp") || l.includes("code")) && l.includes("expir"))
+    return "This code has expired. Please request a new one.";
+  if (l.includes("too many") || l.includes("throttle") || l.includes("rate limit"))
+    return "Too many attempts. Please wait a moment and try again.";
+  if (l.includes("already been taken") || l.includes("already registered") || l.includes("already exists"))
+    return "This email is already registered. Try signing in instead.";
+  if (l.includes("phone") && l.includes("taken"))
+    return "This phone number is already registered.";
+  if (l.includes("unauthenticated") || l.includes("unauthorized"))
+    return "Session expired. Please sign in again.";
+  if (l.includes("network") || l.includes("failed to fetch"))
+    return "Connection error. Please check your internet and try again.";
+  if (l.includes("server error") || l.includes("500"))
+    return "Server error. Please try again in a moment.";
+  return msg || fallback;
+}
 
 function toGbCountry(isoCode: string): string {
   if (isoCode === "AU") return "AU";
@@ -127,9 +159,7 @@ export default function SignInPage() {
         resetDigits(); setScreen("verify");
       }
     } catch (err: unknown) {
-      const e = err as { errors?: Record<string, string[]>; message?: string };
-      const first = e.errors ? Object.values(e.errors)[0]?.[0] : undefined;
-      setError(first ?? e.message ?? "Sign in failed.");
+      setError(parseApiError(err, "Sign in failed. Please check your credentials and try again."));
     } finally { setLoading(false); }
   };
 
@@ -142,7 +172,7 @@ export default function SignInPage() {
       await verifyOtp(otp);
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+      setError(parseApiError(err, "Incorrect verification code. Please try again.")); resetDigits();
     } finally { setLoading(false); }
   };
 
@@ -156,7 +186,7 @@ export default function SignInPage() {
       await verifyEmail(verifyData.email, otp);
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Invalid code."); resetDigits();
+      setError(parseApiError(err, "Incorrect verification code. Please try again.")); resetDigits();
     } finally { setLoading(false); }
   };
 
@@ -169,10 +199,16 @@ export default function SignInPage() {
 
   // ── phone login ───────────────────────────────────────────────────────────────
 
+  const isSriLanka = phoneDialCode === "+94";
+  const phoneMaxLength = isSriLanka ? 9 : 15;
+
   const handleSendPhoneOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phoneNumber.trim()) { setError("Please enter your phone number."); return; }
-    const fullPhone = `${phoneDialCode}${phoneNumber.trim().replace(/^0+/, "")}`;
+    const digits = phoneNumber.replace(/\D/g, "");
+    if (!digits) { setError("Please enter your phone number."); return; }
+    if (isSriLanka && digits.length !== 9) { setError("Sri Lankan numbers must be exactly 9 digits (e.g. 712345678)."); return; }
+    if (!isSriLanka && digits.length < 6) { setError("Please enter a valid phone number."); return; }
+    const fullPhone = `${phoneDialCode}${digits.replace(/^0+/, "")}`;
     setError(""); setLoading(true);
     try {
       const res = await auth.sendPhoneOtp(fullPhone, role);
@@ -185,9 +221,7 @@ export default function SignInPage() {
       }
       setScreen("phone-otp");
     } catch (err: unknown) {
-      const e2 = err as { errors?: Record<string, string[]>; message?: string };
-      const first = e2.errors ? Object.values(e2.errors)[0]?.[0] : undefined;
-      setError(first ?? e2.message ?? "Failed to send OTP.");
+      setError(parseApiError(err, "Failed to send OTP. Please check your phone number and try again."));
     } finally { setLoading(false); }
   };
 
@@ -209,9 +243,7 @@ export default function SignInPage() {
       await loginWithToken(res.token);
       router.push("/");
     } catch (err: unknown) {
-      const e = err as { errors?: Record<string, string[]>; message?: string };
-      const first = e.errors ? Object.values(e.errors)[0]?.[0] : undefined;
-      setError(first ?? e.message ?? "Invalid code."); resetDigits();
+      setError(parseApiError(err, "Incorrect verification code. Please try again.")); resetDigits();
     } finally { setLoading(false); }
   };
 
@@ -234,7 +266,7 @@ export default function SignInPage() {
       resetDigits();
       setScreen("reset");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to send reset code.");
+      setError(parseApiError(err, "Failed to send reset code. Please check your email address."));
     } finally { setLoading(false); }
   };
 
@@ -254,7 +286,7 @@ export default function SignInPage() {
       });
       setResetDone(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Reset failed. Check your code and try again.");
+      setError(parseApiError(err, "Password reset failed. Please check your code and try again."));
       resetDigits();
     } finally { setLoading(false); }
   };
@@ -282,10 +314,7 @@ export default function SignInPage() {
       style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}>
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-[#16a34a] rounded-full flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-          </div>
-          <span className="text-white font-semibold text-sm">Greenbrick.net</span>
+          <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">Find your next<br />dream home.</h2>
@@ -305,10 +334,7 @@ export default function SignInPage() {
 
   const logo = (
     <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-      <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-      </div>
-      <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
+      <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
     </Link>
   );
 
@@ -359,7 +385,12 @@ export default function SignInPage() {
               It expires in 10 minutes.
             </p>
             <form onSubmit={handleEmailOtp} className="space-y-6">
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-2.5 items-start">
+                  <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700 leading-snug">{error}</p>
+                </div>
+              )}
               {digitInputs}
               <button type="submit" disabled={loading}
                 className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
@@ -390,7 +421,12 @@ export default function SignInPage() {
             </p>
             <p className="text-gray-400 text-xs mb-8 text-center">Enter it below to verify and sign in.</p>
             <form onSubmit={handleVerify} className="space-y-6">
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-2.5 items-start">
+                  <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700 leading-snug">{error}</p>
+                </div>
+              )}
               {digitInputs}
               <button type="submit" disabled={loading}
                 className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:opacity-60 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
@@ -431,7 +467,10 @@ export default function SignInPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>
+                  <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-2.5 items-start">
+                    <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700 leading-snug">{error}</p>
+                  </div>
                 )
               )}
               {digitInputs}
@@ -467,7 +506,12 @@ export default function SignInPage() {
             <h1 className="text-3xl font-black text-gray-900 mb-1 text-center">Forgot password?</h1>
             <p className="text-gray-500 text-sm mb-8 text-center">Enter your email and we'll send a 6-digit reset code.</p>
             <form onSubmit={handleForgotSubmit} className="space-y-4">
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-2.5 items-start">
+                  <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700 leading-snug">{error}</p>
+                </div>
+              )}
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
                 <div className="relative">
@@ -528,7 +572,12 @@ export default function SignInPage() {
             </p>
             <p className="text-gray-400 text-xs mb-6 text-center">Enter it below along with your new password.</p>
             <form onSubmit={handleResetSubmit} className="space-y-4">
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex gap-2.5 items-start">
+                  <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700 leading-snug">{error}</p>
+                </div>
+              )}
               {digitInputs}
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1.5 block">New password</label>
@@ -624,13 +673,14 @@ export default function SignInPage() {
                 <ShieldAlert size={18} className="text-orange-500 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-orange-800">Account Blocked</p>
-                  <p className="text-xs text-orange-700 mt-0.5">
-                    Your account has been blocked. Contact us for more information.
-                  </p>
+                  <p className="text-xs text-orange-700 mt-0.5">Your account has been blocked. Contact us for more information.</p>
                 </div>
               </div>
             ) : (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 flex gap-2.5 items-start">
+                <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
+                <p className="text-sm text-red-700 leading-snug">{error}</p>
+              </div>
             )
           )}
 
@@ -676,7 +726,7 @@ export default function SignInPage() {
                   <div className="relative shrink-0">
                     <select
                       value={phoneDialCode}
-                      onChange={(e) => setPhoneDialCode(e.target.value)}
+                      onChange={(e) => { setPhoneDialCode(e.target.value); setPhoneNumber(""); setError(""); }}
                       className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
                       style={{ minWidth: "90px" }}
                     >
@@ -688,9 +738,14 @@ export default function SignInPage() {
                   </div>
                   <div className="relative flex-1">
                     <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="71 234 5678"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, phoneMaxLength))}
+                      placeholder={isSriLanka ? "712345678" : "Phone number"}
+                      maxLength={phoneMaxLength}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                    />
                   </div>
                 </div>
               </div>

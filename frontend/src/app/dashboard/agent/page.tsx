@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { UserAvatar } from "@/components/UserAvatar";
 import SriLankaAddressFields from "@/components/SriLankaAddressFields";
 import { useAuth } from "@/lib/auth-context";
@@ -425,7 +423,6 @@ export default function AgentDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      <Navbar />
 
       <div className="flex flex-1">
 
@@ -1214,7 +1211,6 @@ export default function AgentDashboard() {
 
       </div>
 
-      <Footer />
     </div>
   );
 }

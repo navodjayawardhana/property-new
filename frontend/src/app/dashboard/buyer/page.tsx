@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
 import { UserAvatar } from "@/components/UserAvatar";
 import SriLankaAddressFields from "@/components/SriLankaAddressFields";
@@ -249,7 +247,6 @@ export default function BuyerDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      <Navbar />
 
       <div className="flex flex-1">
 
@@ -818,7 +815,6 @@ export default function BuyerDashboard() {
 
       </div>
 
-      <Footer />
     </div>
   );
 }
