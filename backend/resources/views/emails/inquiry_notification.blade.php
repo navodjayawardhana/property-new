@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Inquiry – Greenbrick.net</title>
 </head>
-<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<body style="margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5f7;padding:32px 0;">
     <tr>
       <td align="center">
@@ -13,9 +13,18 @@
 
           <!-- Header -->
           <tr>
-            <td style="background:#121e80;padding:28px 32px;">
-              <p style="margin:0;color:#ffffff;font-size:20px;font-weight:800;letter-spacing:-0.3px;">Greenbrick.net</p>
-              <p style="margin:6px 0 0;color:#a8b3e8;font-size:13px;">Property Inquiry Notification</p>
+            <td style="background:#16a34a;padding:24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <img src="{{ env('FRONTEND_URL','https://greenbrick.net') }}/GreenBrickLogo.png"
+                         alt="Greenbrick.net" height="38" style="display:block;" />
+                  </td>
+                  <td align="right">
+                    <span style="background:rgba(255,255,255,0.2);color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.8px;padding:4px 12px;border-radius:20px;text-transform:uppercase;">Property Inquiry</span>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
 
@@ -29,120 +38,95 @@
               </h1>
 
               <!-- Property summary box -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
                 <tr>
                   <td style="padding:16px;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="color:#6b7280;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;padding-bottom:6px;">Property</td>
-                      </tr>
-                      <tr>
-                        <td style="color:#111827;font-size:14px;font-weight:700;">{{ $property->title }}</td>
-                      </tr>
-                      <tr>
-                        <td style="color:#6b7280;font-size:13px;padding-top:4px;">
-                          {{ ucfirst($property->listing_type) }} · {{ $property->property_type }} · ${{ number_format($property->price) }}
-                        </td>
-                      </tr>
-                    </table>
+                    <p style="margin:0 0 8px;color:#15803d;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;">Property</p>
+                    <p style="margin:0 0 4px;color:#111827;font-size:14px;font-weight:700;">{{ $property->title }}</p>
+                    <p style="margin:0;color:#6b7280;font-size:13px;">
+                      {{ ucfirst($property->listing_type) }} &middot; {{ $property->property_type }} &middot; Rs {{ number_format($property->price) }}
+                    </p>
                   </td>
                 </tr>
               </table>
 
               <!-- Inquiry details -->
               <p style="margin:0 0 12px;color:#111827;font-size:14px;font-weight:700;">Inquiry Details</p>
-
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">From</td>
-                        <td style="color:#111827;font-size:13px;font-weight:600;">{{ $inquiry->name }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">From</td>
+                      <td style="color:#111827;font-size:13px;font-weight:600;">{{ $inquiry->name }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Email</td>
-                        <td style="font-size:13px;"><a href="mailto:{{ $inquiry->email }}" style="color:#121e80;font-weight:600;text-decoration:none;">{{ $inquiry->email }}</a></td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Email</td>
+                      <td style="font-size:13px;"><a href="mailto:{{ $inquiry->email }}" style="color:#16a34a;font-weight:600;text-decoration:none;">{{ $inquiry->email }}</a></td>
+                    </tr></table>
                   </td>
                 </tr>
                 @if($inquiry->phone)
                 <tr>
                   <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Phone</td>
-                        <td style="font-size:13px;"><a href="tel:{{ $inquiry->phone }}" style="color:#121e80;font-weight:600;text-decoration:none;">{{ $inquiry->phone }}</a></td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Phone</td>
+                      <td style="font-size:13px;"><a href="tel:{{ $inquiry->phone }}" style="color:#16a34a;font-weight:600;text-decoration:none;">{{ $inquiry->phone }}</a></td>
+                    </tr></table>
                   </td>
                 </tr>
                 @endif
                 <tr>
                   <td style="padding:11px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Inquiry type</td>
-                        <td style="color:#111827;font-size:13px;font-weight:600;text-transform:capitalize;">{{ $inquiry->inquiry_type }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;">Inquiry type</td>
+                      <td style="color:#111827;font-size:13px;font-weight:600;text-transform:capitalize;">{{ $inquiry->inquiry_type }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:11px 0;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;padding-top:2px;">Received</td>
-                        <td style="color:#111827;font-size:13px;">{{ $inquiry->created_at->format('d M Y, g:i A') }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="130" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;padding-top:2px;">Received</td>
+                      <td style="color:#111827;font-size:13px;">{{ $inquiry->created_at->format('d M Y, g:i A') }}</td>
+                    </tr></table>
                   </td>
                 </tr>
               </table>
 
-              <!-- Message box -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f3ff;border-left:3px solid #121e80;border-radius:0 8px 8px 0;margin-bottom:24px;">
+              <!-- Message -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-left:3px solid #16a34a;border-radius:0 8px 8px 0;margin-bottom:24px;">
                 <tr>
                   <td style="padding:16px;">
-                    <p style="margin:0 0 6px;color:#121e80;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Message</p>
+                    <p style="margin:0 0 6px;color:#15803d;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Message</p>
                     <p style="margin:0;color:#374151;font-size:14px;line-height:1.6;">{{ $inquiry->message }}</p>
                   </td>
                 </tr>
               </table>
 
               <!-- CTA -->
-              <table width="100%" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <a href="mailto:{{ $inquiry->email }}"
-                       style="display:inline-block;background:#121e80;color:#ffffff;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;text-decoration:none;margin-right:8px;">
-                      Reply to {{ $inquiry->name }}
-                    </a>
-                    @if($inquiry->phone)
-                    <a href="tel:{{ $inquiry->phone }}"
-                       style="display:inline-block;background:#f3f4f6;color:#374151;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;text-decoration:none;">
-                      Call {{ $inquiry->phone }}
-                    </a>
-                    @endif
-                  </td>
-                </tr>
-              </table>
+              <a href="mailto:{{ $inquiry->email }}"
+                 style="display:inline-block;background:#16a34a;color:#ffffff;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;text-decoration:none;margin-right:8px;">
+                Reply to {{ $inquiry->name }}
+              </a>
+              @if($inquiry->phone)
+              <a href="tel:{{ $inquiry->phone }}"
+                 style="display:inline-block;background:#f3f4f6;color:#374151;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;text-decoration:none;">
+                Call {{ $inquiry->phone }}
+              </a>
+              @endif
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 32px;">
-              <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.5;">
-                This email was sent by <strong>Greenbrick.net</strong> because someone submitted an inquiry on your listing.<br />
-                You are receiving this as the listing owner.
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:18px 32px;">
+              <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;text-align:center;">
+                &copy; {{ date('Y') }} <strong style="color:#6b7280;">Greenbrick.net</strong> &mdash; Sri Lanka&rsquo;s #1 Property Platform<br />
+                You received this because someone submitted an inquiry on your listing.
               </p>
             </td>
           </tr>

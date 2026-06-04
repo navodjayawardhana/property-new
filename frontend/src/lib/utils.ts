@@ -12,6 +12,18 @@ export function getPrimaryImageUrl(property: Property): string {
   return primary?.url ?? property.images[0]?.url ?? "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80";
 }
 
+export function formatLandSize(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  const match = trimmed.match(/^([\d,\.]+)\s*([a-zA-Z].*)?$/);
+  if (!match) return trimmed;
+  const num = parseFloat(match[1].replace(/,/g, ""));
+  if (isNaN(num)) return trimmed;
+  const unit = match[2]?.trim() || "sqft";
+  const formatted = num.toLocaleString("en-US");
+  return `${formatted} ${unit}`;
+}
+
 export function getImageUrls(property: Property): string[] {
   if (property.images.length === 0) {
     return ["https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80"];

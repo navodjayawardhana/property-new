@@ -9,7 +9,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { properties as propertiesApi, inquiries as inquiriesApi, type Property } from "@/lib/api";
-import { formatPrice, getImageUrls } from "@/lib/utils";
+import { formatPrice, getImageUrls, formatLandSize } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { isSaved, toggleSaved } from "@/lib/saved-properties";
 
@@ -225,7 +225,7 @@ export default function PropertyDetailPage() {
               </span>
               <span className="flex items-center gap-2">
                 <Ruler size={19} className="text-gray-400" />
-                {property.land_size ? <span className="font-bold">{property.land_size}</span> : <span className="text-gray-400 text-sm">N/A</span>}
+                {formatLandSize(property.land_size) ? <span className="font-bold">{formatLandSize(property.land_size)}</span> : <span className="text-gray-400 text-sm">N/A</span>}
                 <span className="text-sm text-gray-500">Land</span>
               </span>
             </div>

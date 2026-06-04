@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,10 +13,10 @@ import { X } from "lucide-react";
 
 const SORT_OPTIONS = [
   "Most recent",
-  "Price (low → high)",
-  "Price (high → low)",
+  "Price (low â†’ high)",
+  "Price (high â†’ low)",
 ];
-const INITIAL_LIMIT = 9;
+const INITIAL_LIMIT = 12;
 
 function ActiveFilters({
   searchParams,
@@ -116,8 +116,8 @@ function SoldContent() {
   }
 
   const sorted = [...items].sort((a, b) => {
-    if (sort === "Price (low → high)") return a.price - b.price;
-    if (sort === "Price (high → low)") return b.price - a.price;
+    if (sort === "Price (low â†’ high)") return a.price - b.price;
+    if (sort === "Price (high â†’ low)") return b.price - a.price;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
@@ -171,7 +171,7 @@ function SoldContent() {
 
         <div className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <PropertyCardSkeleton key={i} />
               ))}
@@ -190,7 +190,7 @@ function SoldContent() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {(showAll ? sorted : sorted.slice(0, INITIAL_LIMIT)).map((p) => (
                   <PropertyCard key={p.id} property={p} />
                 ))}

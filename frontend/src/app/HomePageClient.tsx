@@ -67,7 +67,7 @@ export default function HomePageClient() {
       <ExploreSection />
 
       {/* Featured for sale */}
-      <section className="max-w-7xl mx-auto px-4 py-10 w-full">
+      <section className="max-w-7xl mx-auto px-4 pt-6 pb-10 w-full">
         <div className="flex items-end justify-between mb-6">
           <div>
             <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Featured listings</p>
@@ -126,22 +126,24 @@ export default function HomePageClient() {
       </section>
 
       {/* News */}
-      <section className="bg-white border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-10 w-full">
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Stay informed</p>
-              <h2 className="text-2xl font-black text-gray-900">Latest property news</h2>
+      {!loading && latestNews.length > 0 && (
+        <section className="bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-6 w-full">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p className="text-xs font-bold text-[#16a34a] uppercase tracking-widest mb-1">Stay informed</p>
+                <h2 className="text-2xl font-black text-gray-900">Latest property news</h2>
+              </div>
+              <Link href="/news" className="text-sm font-semibold text-[#16a34a] hover:underline flex items-center gap-1">
+                All news <ChevronRight size={14} />
+              </Link>
             </div>
-            <Link href="/news" className="text-sm font-semibold text-[#16a34a] hover:underline flex items-center gap-1">
-              All news <ChevronRight size={14} />
-            </Link>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {latestNews.map((a) => <NewsCard key={a.id} article={a} />)}
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {latestNews.map((a) => <NewsCard key={a.id} article={a} />)}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Real estate agents */}
       <section className="border-t border-gray-100 bg-gray-50 pt-8 pb-6">

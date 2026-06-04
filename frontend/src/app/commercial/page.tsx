@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,10 +23,10 @@ const PROPERTY_TYPES = [
 const LISTING_TYPES = ["Any", "For Sale", "For Rent", "Sold"];
 const SORT_OPTIONS = [
   "Most recent",
-  "Price (low → high)",
-  "Price (high → low)",
+  "Price (low â†’ high)",
+  "Price (high â†’ low)",
 ];
-const INITIAL_LIMIT = 9;
+const INITIAL_LIMIT = 12;
 
 const listingMap: Record<string, "buy" | "rent" | "sold"> = {
   "For Sale": "buy",
@@ -100,8 +100,8 @@ function CommercialContent() {
   const activeListing = searchParams.get("listing_type") ?? "Any";
 
   const sorted = [...items].sort((a, b) => {
-    if (sort === "Price (low → high)") return a.price - b.price;
-    if (sort === "Price (high → low)") return b.price - a.price;
+    if (sort === "Price (low â†’ high)") return a.price - b.price;
+    if (sort === "Price (high â†’ low)") return b.price - a.price;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
@@ -149,7 +149,7 @@ function CommercialContent() {
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
         <div className="space-y-2 pb-5 border-b border-gray-200">
-          {/* Row 1 — count + listing type + sort (sort hidden on mobile) */}
+          {/* Row 1 â€” count + listing type + sort (sort hidden on mobile) */}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold text-gray-700">
               {loading ? (
@@ -189,7 +189,7 @@ function CommercialContent() {
             </div>
           </div>
 
-          {/* Row 2 — property type + sort on mobile */}
+          {/* Row 2 â€” property type + sort on mobile */}
           <div className="flex gap-2 flex-wrap items-center">
             {PROPERTY_TYPES.map((type) => {
               const active = activeType === type || (type === "Any" && !activeType);
@@ -239,7 +239,7 @@ function CommercialContent() {
 
         <div className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
               {Array.from({ length: 6 }).map((_, i) => (
                 <PropertyCardSkeleton key={i} />
               ))}
@@ -262,7 +262,7 @@ function CommercialContent() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {(showAll ? sorted : sorted.slice(0, INITIAL_LIMIT)).map((p) => (
                   <PropertyCard key={p.id} property={p} />
                 ))}

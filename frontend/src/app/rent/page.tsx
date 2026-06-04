@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,10 +21,10 @@ const PROPERTY_TYPES = [
 ];
 const SORT_OPTIONS = [
   "Most recent",
-  "Price (low → high)",
-  "Price (high → low)",
+  "Price (low â†’ high)",
+  "Price (high â†’ low)",
 ];
-const INITIAL_LIMIT = 9;
+const INITIAL_LIMIT = 12;
 
 function ActiveFilters({
   searchParams,
@@ -148,8 +148,8 @@ function RentContent() {
   const sorted = [...items].sort((a, b) => {
     const pa = a.price_per_week ?? a.price;
     const pb = b.price_per_week ?? b.price;
-    if (sort === "Price (low → high)") return pa - pb;
-    if (sort === "Price (high → low)") return pb - pa;
+    if (sort === "Price (low â†’ high)") return pa - pb;
+    if (sort === "Price (high â†’ low)") return pb - pa;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
@@ -218,7 +218,7 @@ function RentContent() {
 
         <div className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <PropertyCardSkeleton key={i} />
               ))}
@@ -237,7 +237,7 @@ function RentContent() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {(showAll ? sorted : sorted.slice(0, INITIAL_LIMIT)).map((p) => (
                   <PropertyCard key={p.id} property={p} />
                 ))}

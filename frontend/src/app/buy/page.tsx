@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,10 +30,10 @@ const PROPERTY_TYPES = [
 ];
 const SORT_OPTIONS = [
   "Most recent",
-  "Price (low → high)",
-  "Price (high → low)",
+  "Price (low â†’ high)",
+  "Price (high â†’ low)",
 ];
-const INITIAL_LIMIT = 9;
+const INITIAL_LIMIT = 12;
 
 function ActiveFilters({
   searchParams,
@@ -163,8 +163,8 @@ function BuyContent() {
   const activeType = searchParams.get("property_type") ?? "Any";
 
   const sorted = [...items].sort((a, b) => {
-    if (sort === "Price (low → high)") return a.price - b.price;
-    if (sort === "Price (high → low)") return b.price - a.price;
+    if (sort === "Price (low â†’ high)") return a.price - b.price;
+    if (sort === "Price (high â†’ low)") return b.price - a.price;
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
@@ -235,7 +235,7 @@ function BuyContent() {
 
         <div className="mt-6">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
               {Array.from({ length: 6 }).map((_, i) => (
                 <PropertyCardSkeleton key={i} />
               ))}
@@ -254,7 +254,7 @@ function BuyContent() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {(showAll ? sorted : sorted.slice(0, INITIAL_LIMIT)).map((p) => (
                   <PropertyCard key={p.id} property={p} />
                 ))}
@@ -301,18 +301,20 @@ function BuyContent() {
         </div>
       </section>
 
-      <section className="border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-10 w-full">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Latest property news
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {latestNews.map((a) => (
-              <NewsCard key={a.id} article={a} />
-            ))}
+      {latestNews.length > 0 && (
+        <section className="border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-8 w-full">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">
+              Latest property news
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {latestNews.map((a) => (
+                <NewsCard key={a.id} article={a} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </>
   );
 }

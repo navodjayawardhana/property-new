@@ -25,6 +25,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     method,
     headers,
     body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
+    cache: 'no-store',
   });
 
   const data = await res.json().catch(() => ({}));

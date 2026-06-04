@@ -13,12 +13,15 @@
 
           <!-- Header -->
           <tr>
-            <td style="background:#16a34a;padding:28px 32px;">
+            <td style="background:#16a34a;padding:24px 32px;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="color:#ffffff;font-size:20px;font-weight:900;letter-spacing:-0.3px;">Greenbrick.net</td>
+                  <td>
+                    <img src="{{ env('FRONTEND_URL','https://greenbrick.net') }}/GreenBrickLogo.png"
+                         alt="Greenbrick.net" height="38" style="display:block;" />
+                  </td>
                   <td align="right">
-                    <span style="background:rgba(255,255,255,0.2);color:#ffffff;font-size:11px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:20px;text-transform:uppercase;">Payment Receipt</span>
+                    <span style="background:rgba(255,255,255,0.2);color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.8px;padding:4px 12px;border-radius:20px;text-transform:uppercase;">Payment Receipt</span>
                   </td>
                 </tr>
               </table>
@@ -28,7 +31,6 @@
           <!-- Body -->
           <tr>
             <td style="padding:32px;">
-
               <p style="margin:0 0 20px;color:#374151;font-size:14px;line-height:1.6;">
                 Hi <strong>{{ $userName }}</strong>, thank you for your payment. Your listing has been published successfully.
               </p>
@@ -49,27 +51,22 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Name</td>
-                        <td style="color:#111827;font-size:13px;font-weight:600;">{{ $userName }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Name</td>
+                      <td style="color:#111827;font-size:13px;font-weight:600;">{{ $userName }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:10px 0;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Email</td>
-                        <td style="font-size:13px;font-weight:600;color:#111827;">{{ $userEmail }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Email</td>
+                      <td style="font-size:13px;font-weight:600;color:#111827;">{{ $userEmail }}</td>
+                    </tr></table>
                   </td>
                 </tr>
               </table>
 
-              <!-- Divider -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;">
                 <tr><td style="border-top:1px dashed #d1d5db;font-size:0;line-height:0;">&nbsp;</td></tr>
               </table>
@@ -79,37 +76,30 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;">Property</td>
-                        <td style="color:#111827;font-size:13px;font-weight:600;">{{ $listingTitle }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;">Property</td>
+                      <td style="color:#111827;font-size:13px;font-weight:600;">{{ $listingTitle }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;">Address</td>
-                        <td style="color:#111827;font-size:13px;">{{ $listingAddress }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;vertical-align:top;">Address</td>
+                      <td style="color:#111827;font-size:13px;">{{ $listingAddress }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:10px 0;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Listing Price</td>
-                        <td style="color:#111827;font-size:13px;font-weight:600;">LKR {{ number_format($listingPrice) }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td width="140" style="color:#6b7280;font-size:13px;padding-right:20px;">Listing Price</td>
+                      <td style="color:#111827;font-size:13px;font-weight:600;">LKR {{ number_format($listingPrice) }}</td>
+                    </tr></table>
                   </td>
                 </tr>
               </table>
 
-              <!-- Divider -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 20px;">
                 <tr><td style="border-top:1px dashed #d1d5db;font-size:0;line-height:0;">&nbsp;</td></tr>
               </table>
@@ -119,36 +109,30 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;">
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="color:#6b7280;font-size:13px;padding-right:20px;">Listing Fee (Fixed Rate)</td>
-                        <td align="right" style="color:#111827;font-size:13px;font-weight:600;white-space:nowrap;">LKR {{ number_format($listingFee, 2) }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td style="color:#6b7280;font-size:13px;padding-right:20px;">Listing Fee (Fixed Rate)</td>
+                      <td align="right" style="color:#111827;font-size:13px;font-weight:600;white-space:nowrap;">LKR {{ number_format($listingFee, 2) }}</td>
+                    </tr></table>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #f3f4f6;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="color:#6b7280;font-size:13px;padding-right:20px;">Processing Fee (3.3%)</td>
-                        <td align="right" style="color:#111827;font-size:13px;font-weight:600;white-space:nowrap;">LKR {{ number_format($processingFee, 2) }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td style="color:#6b7280;font-size:13px;padding-right:20px;">Processing Fee (3.3%)</td>
+                      <td align="right" style="color:#111827;font-size:13px;font-weight:600;white-space:nowrap;">LKR {{ number_format($processingFee, 2) }}</td>
+                    </tr></table>
                   </td>
                 </tr>
               </table>
 
               <!-- Total -->
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:16px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:16px;">
                 <tr>
                   <td style="padding:14px 18px;">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="color:#374151;font-size:14px;font-weight:700;">Total Paid</td>
-                        <td align="right" style="color:#16a34a;font-size:20px;font-weight:900;white-space:nowrap;">LKR {{ number_format($paymentAmount, 2) }}</td>
-                      </tr>
-                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                      <td style="color:#374151;font-size:14px;font-weight:700;">Total Paid</td>
+                      <td align="right" style="color:#16a34a;font-size:20px;font-weight:900;white-space:nowrap;">LKR {{ number_format($paymentAmount, 2) }}</td>
+                    </tr></table>
                   </td>
                 </tr>
               </table>
@@ -161,16 +145,16 @@
                   </td>
                 </tr>
               </table>
-
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 32px;">
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:18px 32px;">
               <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;text-align:center;">
-                This is an official receipt from <a href="https://greenbrick.net" style="color:#16a34a;text-decoration:none;">Greenbrick.net</a><br />
-                For support, contact <a href="mailto:support@greenbrick.net" style="color:#16a34a;text-decoration:none;">support@greenbrick.net</a>
+                &copy; {{ date('Y') }} <strong style="color:#6b7280;">Greenbrick.net</strong> &mdash; Sri Lanka&rsquo;s #1 Property Platform<br />
+                This is an official receipt from <a href="https://greenbrick.net" style="color:#16a34a;text-decoration:none;">Greenbrick.net</a>.
+                For support contact <a href="mailto:support@greenbrick.net" style="color:#16a34a;text-decoration:none;">support@greenbrick.net</a>
               </p>
             </td>
           </tr>

@@ -429,7 +429,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
 
         <div>
           <label className={lbl}>Land Size</label>
-          <input className={inp} value={form.land_size} onChange={(e) => set('land_size', e.target.value)} placeholder="e.g. 500 sqm" />
+          <input className={inp} value={form.land_size} onChange={(e) => set('land_size', e.target.value)} placeholder="e.g. 500 sqft" />
         </div>
 
         <div>

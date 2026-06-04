@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
@@ -119,7 +119,7 @@ export default function SignInPage() {
       .catch(() => {});
   }, []);
 
-  // ── helpers ──────────────────────────────────────────────────────────────────
+  // â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const resetDigits = () => {
     setDigits(["", "", "", "", "", ""]);
@@ -144,7 +144,7 @@ export default function SignInPage() {
     digitRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  // ── email login ───────────────────────────────────────────────────────────────
+  // â”€â”€ email login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,7 +197,7 @@ export default function SignInPage() {
     finally { setResendLoading(false); }
   };
 
-  // ── phone login ───────────────────────────────────────────────────────────────
+  // â”€â”€ phone login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const isSriLanka = phoneDialCode === "+94";
   const phoneMaxLength = isSriLanka ? 9 : 15;
@@ -254,7 +254,7 @@ export default function SignInPage() {
     finally { setResendLoading(false); }
   };
 
-  // ── forgot / reset password ───────────────────────────────────────────────────
+  // â”€â”€ forgot / reset password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,7 +301,7 @@ export default function SignInPage() {
     finally { setResendLoading(false); }
   };
 
-  // ── shared UI ─────────────────────────────────────────────────────────────────
+  // â”€â”€ shared UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const spinner = (
     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -333,7 +333,7 @@ export default function SignInPage() {
   );
 
   const logo = (
-    <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
+    <Link href="/" className="flex items-center gap-2 mb-6 lg:hidden">
       <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
     </Link>
   );
@@ -361,18 +361,18 @@ export default function SignInPage() {
           Didn&apos;t receive it?{" "}
           <button type="button" disabled={resendLoading} onClick={onResend}
             className="text-[#16a34a] font-semibold hover:underline disabled:opacity-50">
-            {resendLoading ? "Sending…" : "Resend code"}
+            {resendLoading ? "Sendingâ€¦" : "Resend code"}
           </button>
         </p>
       )}
     </div>
   );
 
-  // ── OTP screen (email 2FA) ────────────────────────────────────────────────────
+  // â”€â”€ OTP screen (email 2FA) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (screen === "otp" && otpPending) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
@@ -403,11 +403,11 @@ export default function SignInPage() {
     );
   }
 
-  // ── Email verification screen (unverified account) ────────────────────────────
+  // â”€â”€ Email verification screen (unverified account) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (screen === "verify" && verifyData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
@@ -440,11 +440,11 @@ export default function SignInPage() {
     );
   }
 
-  // ── Phone OTP screen ──────────────────────────────────────────────────────────
+  // â”€â”€ Phone OTP screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (screen === "phone-otp") {
     return (
-      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
@@ -483,7 +483,7 @@ export default function SignInPage() {
             <p className="text-center text-xs text-gray-400 mt-3">
               <button type="button" onClick={() => { setScreen("login"); setError(""); }}
                 className="text-[#16a34a] font-semibold hover:underline">
-                ← Back to sign in
+                â† Back to sign in
               </button>
             </p>
           </div>
@@ -492,11 +492,11 @@ export default function SignInPage() {
     );
   }
 
-  // ── Forgot password screen ────────────────────────────────────────────────────
+  // â”€â”€ Forgot password screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (screen === "forgot") {
     return (
-      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
@@ -528,7 +528,7 @@ export default function SignInPage() {
             </form>
             <p className="text-center text-xs text-gray-400 mt-5">
               <button type="button" onClick={() => { setScreen("login"); setError(""); }}
-                className="text-[#16a34a] font-semibold hover:underline">← Back to sign in</button>
+                className="text-[#16a34a] font-semibold hover:underline">â† Back to sign in</button>
             </p>
           </div>
         </div>
@@ -536,12 +536,12 @@ export default function SignInPage() {
     );
   }
 
-  // ── Reset password screen ─────────────────────────────────────────────────────
+  // â”€â”€ Reset password screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (screen === "reset") {
     if (resetDone) {
       return (
-        <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-          <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="h-screen bg-gray-50 flex">{leftPanel}
+          <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
             <div className="w-full max-w-md text-center">{logo}
               <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle2 size={32} className="text-green-500" />
@@ -558,8 +558,8 @@ export default function SignInPage() {
       );
     }
     return (
-      <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="h-screen bg-gray-50 flex">{leftPanel}
+        <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
           <div className="w-full max-w-md">{logo}
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center">
@@ -609,7 +609,7 @@ export default function SignInPage() {
             {resendCountdown(handleResendReset)}
             <p className="text-center text-xs text-gray-400 mt-3">
               <button type="button" onClick={() => { setScreen("forgot"); setError(""); }}
-                className="text-[#16a34a] font-semibold hover:underline">← Change email</button>
+                className="text-[#16a34a] font-semibold hover:underline">â† Change email</button>
             </p>
           </div>
         </div>
@@ -617,20 +617,20 @@ export default function SignInPage() {
     );
   }
 
-  // ── Login form ────────────────────────────────────────────────────────────────
+  // â”€â”€ Login form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
-    <div className="min-h-screen bg-gray-50 flex">{leftPanel}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+    <div className="h-screen bg-gray-50 flex">{leftPanel}
+      <div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide lg:justify-center">
         <div className="w-full max-w-md">{logo}
 
-          <h1 className="text-3xl font-black text-gray-900 mb-1">Welcome back</h1>
-          <p className="text-gray-500 text-sm mb-6">
+          <h1 className="text-2xl font-black text-gray-900 mb-0.5">Welcome back</h1>
+          <p className="text-gray-500 text-sm mb-4">
             Sign in to your account to continue.{" "}
             <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Create account</Link>
           </p>
 
           {/* Email / Phone toggle */}
-          <div className="flex gap-1 mb-5 bg-gray-100 p-1 rounded-xl">
+          <div className="flex gap-1 mb-3 bg-gray-100 p-1 rounded-xl">
             {([["email", "Email", <Mail key="m" size={14} />], ["phone", "Phone", <Phone key="p" size={14} />]] as const).map(([m, label, icon]) => (
               <button key={m} type="button"
                 onClick={() => { setLoginMethod(m as LoginMethod); setError(""); if (m === "phone" && role === "admin") setRole("buyer"); }}
@@ -640,8 +640,8 @@ export default function SignInPage() {
             ))}
           </div>
 
-          {/* Role tabs — all roles for email, no admin for phone */}
-          <div className="flex gap-2 mb-5 bg-gray-100 p-1 rounded-xl">
+          {/* Role tabs â€” all roles for email, no admin for phone */}
+          <div className="flex gap-2 mb-3 bg-gray-100 p-1 rounded-xl">
             {ROLES.filter((r) => loginMethod === "phone" ? r.key !== "admin" : true).map((r) => (
               <button key={r.key} type="button"
                 onClick={() => { setRole(r.key); setError(""); }}
@@ -655,7 +655,7 @@ export default function SignInPage() {
 
           {/* OTP hint */}
           {loginMethod === "email" && role !== "admin" && (
-            <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs px-3 py-2.5 rounded-xl mb-4">
+            <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 text-xs px-3 py-2.5 rounded-xl mb-3">
               <ShieldCheck size={14} className="shrink-0" />
               <span>A verification code will be sent to your email after sign in.</span>
             </div>
@@ -669,7 +669,7 @@ export default function SignInPage() {
 
           {error && (
             error.toLowerCase().includes("blocked") ? (
-              <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3.5 mb-4 flex gap-3 items-start">
+              <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3.5 mb-3 flex gap-3 items-start">
                 <ShieldAlert size={18} className="text-orange-500 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-orange-800">Account Blocked</p>
@@ -677,7 +677,7 @@ export default function SignInPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 flex gap-2.5 items-start">
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-3 flex gap-2.5 items-start">
                 <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
                 <p className="text-sm text-red-700 leading-snug">{error}</p>
               </div>
@@ -756,10 +756,10 @@ export default function SignInPage() {
             </form>
           )}
 
-          {/* Google + join link — email non-admin only */}
+          {/* Google + join link â€” email non-admin only */}
           {loginMethod === "email" && role !== "admin" && (
             <>
-              <div className="flex items-center gap-3 my-5">
+              <div className="flex items-center gap-3 my-3">
                 <div className="flex-1 h-px bg-gray-200" />
                 <span className="text-xs text-gray-400">or</span>
                 <div className="flex-1 h-px bg-gray-200" />
@@ -774,7 +774,7 @@ export default function SignInPage() {
                 </svg>
                 Continue with Google
               </a>
-              <p className="text-center text-xs text-gray-400 mt-5">
+              <p className="text-center text-xs text-gray-400 mt-3">
                 Don&apos;t have an account?{" "}
                 <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Join for free</Link>
               </p>
@@ -782,7 +782,7 @@ export default function SignInPage() {
           )}
 
           {loginMethod === "phone" && (
-            <p className="text-center text-xs text-gray-400 mt-5">
+            <p className="text-center text-xs text-gray-400 mt-3">
               Don&apos;t have an account?{" "}
               <Link href="/join" className="text-[#16a34a] font-semibold hover:underline">Join for free</Link>
             </p>

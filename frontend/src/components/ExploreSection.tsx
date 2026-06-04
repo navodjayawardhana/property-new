@@ -115,7 +115,7 @@ export default function ExploreSection() {
   };
 
   return (
-    <section className="bg-gray-50 py-10 border-b border-gray-100">
+    <section className="bg-gray-50 pt-8 pb-4 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-900">What would you like to do?</h2>

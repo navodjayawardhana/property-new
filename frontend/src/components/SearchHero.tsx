@@ -354,12 +354,12 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
           {/* Search card */}
           <div className="w-full max-w-3xl mt-32 sm:mt-28">
-            <div className="bg-white rounded-2xl shadow-2xl">
+            <div className="bg-white rounded-2xl shadow-2xl relative z-10 overflow-hidden">
               {/* Tabs */}
               <div className="flex border-b border-gray-100 px-2 pt-2 overflow-x-auto scrollbar-none">
                 {(["Buy","Rent","Sold","Address","Agents"] as SearchTab[]).map((t) => (
                   <button key={t} onClick={() => setTab(t)}
-                    className={`pb-3 px-3 sm:px-4 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap ${
+                    className={`pb-3 px-3 sm:px-4 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap cursor-pointer ${
                       tab === t
                         ? "border-[#16a34a] text-[#16a34a]"
                         : "border-transparent text-gray-500 hover:text-gray-700"
@@ -372,7 +372,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               {/* Input row */}
               <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-4">
                 <MapPin size={17} className="text-gray-400 shrink-0" />
-                <div className="relative flex-1 min-w-0">
+                <div className="flex-1 min-w-0">
                   <input
                     type="text" value={query}
                     onChange={(e) => { setQuery(e.target.value); setShowSugs(e.target.value.length > 0); }}
@@ -382,19 +382,9 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                     placeholder={placeholder}
                     className="w-full text-sm text-gray-800 placeholder-gray-400 outline-none bg-transparent"
                   />
-                  {showSuggestions && filteredSuggestions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                      {filteredSuggestions.slice(0, 6).map((s) => (
-                        <button key={s} onMouseDown={() => { setQuery(s); setShowSugs(false); }}
-                          className="flex items-center gap-2.5 w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 text-left">
-                          <MapPin size={13} className="text-gray-400 shrink-0" /> {s}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
                 {query && (
-                  <button onClick={() => { setQuery(""); setShowSugs(false); }} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
+                  <button onClick={() => { setQuery(""); setShowSugs(false); }} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 cursor-pointer">
                     <X size={15} />
                   </button>
                 )}
@@ -402,7 +392,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   <>
                     <div className="w-px h-5 bg-gray-200 shrink-0" />
                     <button onClick={() => setShowModal(true)}
-                      className={`flex items-center gap-1.5 text-sm font-medium px-2 sm:px-3 py-2 rounded-lg border transition-colors shrink-0 ${
+                      className={`flex items-center gap-1.5 text-sm font-medium px-2 sm:px-3 py-2 rounded-lg border transition-colors shrink-0 cursor-pointer ${
                         activeFilterCount > 0
                           ? "bg-green-50 border-[#16a34a] text-[#16a34a]"
                           : "border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
@@ -418,11 +408,30 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   </>
                 )}
                 <button onClick={handleSearch}
-                  className="bg-[#16a34a] hover:bg-[#15803d] active:scale-95 text-white text-sm font-bold px-3 sm:px-6 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-2">
+                  className="bg-[#16a34a] hover:bg-[#15803d] active:scale-95 text-white text-sm font-bold px-3 sm:px-6 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-2 cursor-pointer">
                   <Search size={15} />
                   <span className="hidden sm:inline">Search</span>
                 </button>
               </div>
+
+              {showSuggestions && filteredSuggestions.length > 0 && (
+                <div className="border-t border-gray-100 bg-gray-50">
+                  <p className="px-5 pt-3 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    Suggested locations
+                  </p>
+                  {filteredSuggestions.slice(0, 6).map((s) => (
+                    <button key={s} onMouseDown={() => { setQuery(s); setShowSugs(false); }}
+                      className="flex items-center gap-3 w-full px-5 py-2.5 text-sm text-gray-700 hover:bg-white hover:text-[#16a34a] transition-colors text-left cursor-pointer group">
+                      <span className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 group-hover:bg-green-50 group-hover:border-[#16a34a] transition-colors">
+                        <MapPin size={12} className="text-gray-400 group-hover:text-[#16a34a] transition-colors" />
+                      </span>
+                      <span className="font-medium">{s}</span>
+                      <span className="ml-auto text-xs text-gray-400 group-hover:text-[#16a34a] transition-colors">Sri Lanka</span>
+                    </button>
+                  ))}
+                  <div className="h-2" />
+                </div>
+              )}
             </div>
 
             {/* Stats row */}
@@ -441,17 +450,17 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           {slides.map((_, i) => (
             <button key={i} onClick={() => goTo(i)}
-              className={`rounded-full transition-all duration-300 ${i === current ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`} />
+              className={`rounded-full transition-all duration-300 cursor-pointer ${i === current ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`} />
           ))}
         </div>
 
         {/* Arrows */}
         <button onClick={prev}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105">
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105 cursor-pointer">
           <ChevronLeft size={20} />
         </button>
         <button onClick={next}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105">
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105 cursor-pointer">
           <ChevronRight size={20} />
         </button>
       </section>
@@ -467,7 +476,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-100">
               <h2 className="text-sm font-bold text-gray-900">Search filters</h2>
               <button onClick={() => setShowModal(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors cursor-pointer">
                 <X size={16} />
               </button>
             </div>
@@ -494,7 +503,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   <div className="grid grid-cols-3 gap-1">
                     {bedroomOptions.map((b) => (
                       <button key={b} onClick={() => setMinBeds(b)}
-                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors ${minBeds === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer ${minBeds === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
                         {b}
                       </button>
                     ))}
@@ -505,7 +514,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   <div className="grid grid-cols-3 gap-1">
                     {bedroomOptions.map((b) => (
                       <button key={b} onClick={() => setMinBaths(b)}
-                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors ${minBaths === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
+                        className={`text-xs py-1.5 rounded-lg border font-semibold transition-colors cursor-pointer ${minBaths === b ? "bg-[#16a34a] text-white border-[#16a34a]" : "border-gray-200 text-gray-600 hover:border-gray-400 bg-white"}`}>
                         {b}
                       </button>
                     ))}
@@ -519,7 +528,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                   {propertyTypes.map((type) => (
                     <button key={type} onClick={() => toggleType(type)}
-                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border text-xs font-medium transition-colors text-left ${selectedTypes.includes(type) ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-200 text-gray-700 hover:border-gray-300 bg-white"}`}>
+                      className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border text-xs font-medium transition-colors text-left cursor-pointer ${selectedTypes.includes(type) ? "bg-green-50 border-[#16a34a] text-[#16a34a]" : "border-gray-200 text-gray-700 hover:border-gray-300 bg-white"}`}>
                       <div className={`w-3.5 h-3.5 rounded border-2 flex items-center justify-center shrink-0 ${selectedTypes.includes(type) ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300"}`}>
                         {selectedTypes.includes(type) && (
                           <svg width="8" height="6" viewBox="0 0 10 8" fill="none">
@@ -536,11 +545,16 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
             {/* Footer */}
             <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-100 rounded-b-2xl">
-              <button onClick={clearAll} className="text-xs font-medium text-gray-500 hover:text-gray-800 transition-colors underline underline-offset-2">
+              <button
+                onClick={clearAll}
+                disabled={activeFilterCount === 0}
+                className="text-xs font-medium transition-colors underline underline-offset-2 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-gray-500 hover:text-gray-800">
                 Clear all
               </button>
-              <button onClick={() => { setShowModal(false); handleSearch(); }}
-                className="bg-[#16a34a] hover:bg-[#15803d] text-white text-xs font-bold px-6 py-2 rounded-xl transition-colors">
+              <button
+                onClick={() => { setShowModal(false); handleSearch(); }}
+                disabled={activeFilterCount === 0}
+                className="text-xs font-bold px-6 py-2 rounded-xl transition-all cursor-pointer disabled:cursor-not-allowed bg-[#16a34a] hover:bg-[#15803d] text-white disabled:bg-gray-200 disabled:text-gray-400">
                 {activeFilterCount > 0 ? `Show results (${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""})` : "Show results"}
               </button>
             </div>

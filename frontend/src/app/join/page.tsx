@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check, ShieldCheck, Globe, ChevronDown, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { COUNTRY_CODES } from "@/lib/countries";
 import SriLankaAddressFields from "@/components/SriLankaAddressFields";
@@ -30,6 +30,7 @@ export default function JoinPage() {
   const [countdown, setCountdown] = useState(60);
   const [countdownKey, setCountdownKey] = useState(0);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const [verifyEmail_, setVerifyEmail_] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
@@ -57,7 +58,10 @@ export default function JoinPage() {
     return () => clearInterval(id);
   }, [step, countdownKey]);
 
-  const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const update = (k: string, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    if (fieldErrors[k]) setFieldErrors((p) => { const n = { ...p }; delete n[k]; return n; });
+  };
 
   const handleDigitChange = (i: number, value: string) => {
     const v = value.replace(/\D/g, "").slice(-1);
@@ -80,13 +84,46 @@ export default function JoinPage() {
     digitRefs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
+  const validateStep2 = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim())
+      errs.name = "Full name is required.";
+    else if (form.name.trim().length < 2)
+      errs.name = "Name must be at least 2 characters.";
+
+    if (!form.email.trim())
+      errs.email = "Email address is required.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+      errs.email = "Please enter a valid email address.";
+
+    if (form.phone.trim()) {
+      const digits = form.phone.replace(/\D/g, "");
+      if (countryCode === "+94" && digits.length !== 9)
+        errs.phone = "Sri Lankan numbers must be exactly 9 digits (e.g. 712345678).";
+      else if (countryCode !== "+94" && digits.length < 6)
+        errs.phone = "Please enter a valid phone number.";
+    }
+
+    if (!form.password)
+      errs.password = "Password is required.";
+    else if (form.password.length < 8)
+      errs.password = "Password must be at least 8 characters.";
+
+    if (!form.confirm)
+      errs.confirm = "Please confirm your password.";
+    else if (form.password !== form.confirm)
+      errs.confirm = "Passwords do not match.";
+
+    if (!agree)
+      errs.agree = "You must accept the terms and privacy policy to continue.";
+
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleNext = async () => {
     if (step === 1) { setStep(2); return; }
-
-    if (!form.name || !form.email || !form.password) { setError("Please fill in all required fields."); return; }
-    if (form.password.length < 8) { setError("Password must be at least 8 characters."); return; }
-    if (form.password !== form.confirm) { setError("Passwords do not match."); return; }
-    if (!agree) { setError("Please accept the terms to continue."); return; }
+    if (!validateStep2()) return;
 
     const rawPhone = form.phone.trim().replace(/^0+/, "");
     const phone = rawPhone ? `${countryCode}${rawPhone}` : undefined;
@@ -190,10 +227,7 @@ export default function JoinPage() {
         <div className="flex-1 flex items-center justify-center px-6 py-12">
           <div className="w-full max-w-md">
             <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-              <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-              </div>
-              <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
+              <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
             </Link>
 
             <div className="flex justify-center mb-6">
@@ -262,10 +296,7 @@ export default function JoinPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 bg-[#16a34a] rounded-full flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
-            </div>
-            <span className="text-gray-900 font-semibold text-sm">Greenbrick.net</span>
+            <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
           </Link>
 
           <div className="flex items-center gap-2 mb-8">
@@ -319,52 +350,56 @@ export default function JoinPage() {
 
               {/* Full name */}
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Full name</label>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Full name <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input type="text" value={form.name} onChange={(e) => update("name", e.target.value)}
+                  <User size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldErrors.name ? "text-red-400" : "text-gray-400"}`} />
+                  <input type="text" value={form.name}
+                    onChange={(e) => update("name", e.target.value.replace(/[^a-zA-Z\s'\-]/g, ""))}
                     placeholder="Jane Smith"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm outline-none transition-all placeholder-gray-400 ${fieldErrors.name ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-50" : "border-gray-200 focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50"}`} />
                 </div>
+                {fieldErrors.name && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.name}</p>}
               </div>
 
               {/* Email */}
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address</label>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Email address <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Mail size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldErrors.email ? "text-red-400" : "text-gray-400"}`} />
                   <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm outline-none transition-all placeholder-gray-400 ${fieldErrors.email ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-50" : "border-gray-200 focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50"}`} />
                 </div>
+                {fieldErrors.email && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.email}</p>}
               </div>
 
               {/* Phone with country code */}
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone (optional)</label>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Phone <span className="text-gray-400 font-normal">(optional)</span></label>
                 <div className="flex gap-2">
                   <div className="relative shrink-0">
                     <select value={countryCode} onChange={(e) => { setCountryCode(e.target.value); update("phone", ""); }}
                       className="h-full pl-3 pr-7 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] bg-white appearance-none cursor-pointer"
                       style={{ minWidth: "90px" }}>
                       {COUNTRY_CODES.map((c) => (
-                        <option key={c.code} value={c.dial}>{c.flag} {c.dial}</option>
+                        <option key={c.code} value={c.dial}>{c.dial}</option>
                       ))}
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                   </div>
                   <div className="relative flex-1">
-                    <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Phone size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldErrors.phone ? "text-red-400" : "text-gray-400"}`} />
                     <input
                       type="tel"
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value.replace(/\D/g, "").slice(0, countryCode === "+94" ? 9 : 15))}
                       placeholder={countryCode === "+94" ? "712345678" : "Phone number"}
                       maxLength={countryCode === "+94" ? 9 : 15}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400"
+                      className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm outline-none transition-all placeholder-gray-400 ${fieldErrors.phone ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-50" : "border-gray-200 focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50"}`}
                     />
                   </div>
                 </div>
+                {fieldErrors.phone && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.phone}</p>}
               </div>
 
               {/* Country */}
@@ -402,43 +437,48 @@ export default function JoinPage() {
 
               {/* Password */}
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Password</label>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Password <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldErrors.password ? "text-red-400" : "text-gray-400"}`} />
                   <input type={showPassword ? "text" : "password"} value={form.password}
                     onChange={(e) => update("password", e.target.value)}
                     placeholder="Minimum 8 characters"
-                    className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className={`w-full pl-10 pr-10 py-3 border rounded-xl text-sm outline-none transition-all placeholder-gray-400 ${fieldErrors.password ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-50" : "border-gray-200 focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50"}`} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
+                {fieldErrors.password && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.password}</p>}
               </div>
 
               {/* Confirm password */}
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Confirm password</label>
+                <label className="text-xs font-semibold text-gray-600 mb-1.5 block">Confirm password <span className="text-red-400">*</span></label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Lock size={15} className={`absolute left-3.5 top-1/2 -translate-y-1/2 ${fieldErrors.confirm ? "text-red-400" : "text-gray-400"}`} />
                   <input type="password" value={form.confirm} onChange={(e) => update("confirm", e.target.value)}
                     placeholder="Re-enter your password"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50 transition-all placeholder-gray-400" />
+                    className={`w-full pl-10 pr-4 py-3 border rounded-xl text-sm outline-none transition-all placeholder-gray-400 ${fieldErrors.confirm ? "border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-50" : "border-gray-200 focus:border-[#16a34a] focus:ring-2 focus:ring-blue-50"}`} />
                 </div>
+                {fieldErrors.confirm && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.confirm}</p>}
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer">
-                <div onClick={() => setAgree(!agree)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${agree ? "bg-[#16a34a] border-[#16a34a]" : "border-gray-300 hover:border-gray-500"}`}>
-                  {agree && <Check size={11} className="text-white" />}
-                </div>
-                <span className="text-xs text-gray-500 leading-relaxed">
-                  I agree to the{" "}
-                  <Link href="/" className="text-[#16a34a] hover:underline font-medium">Terms of Use</Link>
-                  {" "}and{" "}
-                  <Link href="/" className="text-[#16a34a] hover:underline font-medium">Privacy Policy</Link>
-                </span>
-              </label>
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <div onClick={() => { setAgree(!agree); if (fieldErrors.agree) setFieldErrors((p) => { const n = { ...p }; delete n.agree; return n; }); }}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${agree ? "bg-[#16a34a] border-[#16a34a]" : fieldErrors.agree ? "border-red-400" : "border-gray-300 hover:border-gray-500"}`}>
+                    {agree && <Check size={11} className="text-white" />}
+                  </div>
+                  <span className="text-xs text-gray-500 leading-relaxed">
+                    I agree to the{" "}
+                    <Link href="/" className="text-[#16a34a] hover:underline font-medium">Terms of Use</Link>
+                    {" "}and{" "}
+                    <Link href="/" className="text-[#16a34a] hover:underline font-medium">Privacy Policy</Link>
+                  </span>
+                </label>
+                {fieldErrors.agree && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fieldErrors.agree}</p>}
+              </div>
 
               <div className="flex gap-3 pt-1">
                 <button onClick={() => setStep(1)}

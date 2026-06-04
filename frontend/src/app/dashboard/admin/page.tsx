@@ -1057,12 +1057,12 @@ function NewsTab({ token }: { token: string }) {
       {/* Create/Edit modal */}
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
               <h2 className="text-base font-bold text-gray-900">{modal === "create" ? "New Article" : "Edit Article"}</h2>
               <button onClick={() => setModal(null)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="overflow-y-auto flex-1 p-6 space-y-4">
               <div>
                 <label className="text-xs font-semibold text-gray-700 block mb-1">Title *</label>
                 <input value={form.title ?? ""} onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -1126,7 +1126,7 @@ function NewsTab({ token }: { token: string }) {
                 </div>
               </div>
             </div>
-            <div className="flex gap-3 px-6 py-4 border-t border-gray-100">
+            <div className="flex gap-3 px-6 py-4 border-t border-gray-100 shrink-0">
               <button onClick={() => setModal(null)} className="flex-1 border border-gray-200 text-gray-700 text-sm font-semibold py-2 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
               <button onClick={handleSave} disabled={saving}
                 className="flex-1 bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold py-2 rounded-xl transition-colors disabled:opacity-60">
@@ -1629,14 +1629,14 @@ function SlidesTab({ token }: { token: string }) {
       {/* Add slide modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
               <h3 className="font-black text-gray-900 flex items-center gap-2"><Upload size={15} /> Add New Slide</h3>
               <button onClick={() => setShowAddModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
                 <X size={16} />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="overflow-y-auto flex-1 p-6 space-y-4">
               {/* Media picker */}
               <label className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#16a34a] transition-colors bg-gray-50 overflow-hidden min-h-[140px]">
                 {preview ? (
@@ -1667,7 +1667,7 @@ function SlidesTab({ token }: { token: string }) {
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 shrink-0">
               <button onClick={() => setShowAddModal(false)}
                 className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
                 Cancel
@@ -1831,14 +1831,14 @@ function BankRatesTab({ token }: { token: string }) {
       {/* Add / Edit modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
               <h3 className="font-black text-gray-900">{editId !== null ? "Edit Bank Rate" : "Add New Bank"}</h3>
               <button onClick={() => setShowForm(false)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
                 <X size={16} />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="overflow-y-auto flex-1 p-6 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={lbl}>Bank Name *</label>
@@ -1921,7 +1921,7 @@ function BankRatesTab({ token }: { token: string }) {
                 <p className="text-xs text-gray-400 mt-1">Separate features with commas</p>
               </div>
             </div>
-            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white rounded-b-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 shrink-0">
               <button onClick={() => setShowForm(false)}
                 className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
                 Cancel
