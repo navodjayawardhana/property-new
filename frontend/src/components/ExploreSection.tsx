@@ -18,6 +18,7 @@ const ACTIONS = [
     desc: "Find a House, Apartment or Building for sale",
     Icon: Home,
     color: "#dc2626",
+    unit: "listings",
   },
   {
     key: "rent",
@@ -26,6 +27,7 @@ const ACTIONS = [
     desc: "Find a House, Apartment or Building for rent/lease",
     Icon: Key,
     color: "#dc2626",
+    unit: "listings",
   },
   {
     key: "new",
@@ -58,6 +60,7 @@ const ACTIONS = [
     desc: "Discover investment opportunities available for you",
     Icon: TrendingUp,
     color: "#7c3aed",
+    unit: "sold listings",
   },
   {
     key: "agents",
@@ -66,6 +69,7 @@ const ACTIONS = [
     desc: "Connect with verified real estate agents near you",
     Icon: Users,
     color: "#0f766e",
+    unit: "agents",
   },
   {
     key: "calculator",
@@ -123,7 +127,7 @@ export default function ExploreSection() {
         </div>
 
         <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
-          {ACTIONS.map(({ key, href, title, desc, Icon, color }) => (
+          {ACTIONS.map(({ key, href, title, desc, Icon, color, unit }) => (
             <Link
               key={key}
               href={href}
@@ -139,9 +143,9 @@ export default function ExploreSection() {
                 <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">{desc}</p>
               </div>
 
-              {badge[key] && (
+              {badge[key] && unit && (
                 <p className="text-xs font-semibold" style={{ color }}>
-                  {badge[key]} listings
+                  {badge[key]} {unit}
                 </p>
               )}
             </Link>

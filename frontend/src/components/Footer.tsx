@@ -117,8 +117,8 @@ export default function Footer() {
         <div className="border-t border-gray-200 w-full">
           {/* Tab bar — equal-width buttons spanning full width */}
           <div className="w-full border-b border-gray-200">
-            <div className="grid grid-cols-4 w-full">
-              {footerTabs.map((tab) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 w-full">
+                {footerTabs.map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`py-4 text-sm font-semibold text-center whitespace-nowrap border-b-2 transition-colors -mb-px ${
                     activeTab === tab
@@ -137,7 +137,7 @@ export default function Footer() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-2.5 gap-x-6">
               {links.map((link) => (
                 <Link key={link} href="/"
-                  className="text-sm text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 truncate">
+                  className="text-sm text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 break-words">
                   {link}
                 </Link>
               ))}

@@ -22,7 +22,6 @@ const PROPERTY_TYPES = [
 ];
 const LISTING_TYPES = ["Any", "Sale", "Rent", "Sold"];
 const SORT_OPTIONS = [
-  "Most recent",
   "Price (low â†’ high)",
   "Price (high â†’ low)",
 ];
@@ -38,7 +37,7 @@ function NewHomesContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [sort, setSort] = useState("Most recent");
+  const [sort, setSort] = useState("");
   const [items, setItems] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -192,9 +191,10 @@ function NewHomesContent() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-600 bg-white"
+                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-400 bg-white"
               >
-                {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                <option value="" disabled>Sort</option>
+                {SORT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           </div>
@@ -219,9 +219,10 @@ function NewHomesContent() {
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-600 bg-white"
+                className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-400 bg-white"
               >
-                {SORT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                <option value="" disabled>Sort</option>
+                {SORT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
               </select>
             </div>
           </div>
