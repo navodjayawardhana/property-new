@@ -137,7 +137,7 @@ export default function Footer() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-2.5 gap-x-6">
               {links.map((link) => (
                 <Link key={link} href="/"
-                  className="text-sm text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 break-words">
+                  className="text-sm text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 break-words ">
                   {link}
                 </Link>
               ))}
