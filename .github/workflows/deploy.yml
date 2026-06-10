@@ -16,4 +16,7 @@ jobs:
           host: 94.72.96.17
           username: root
           password: ${{ secrets.SSH_PASSWORD }}
-          script: bash /var/www/deploy-greenbricks.sh
+          script: |
+            grep -q "git reset --hard" /var/www/deploy-greenbricks.sh || \
+              sed -i 's/git pull/git reset --hard HEAD \&\& git clean -fd \&\& git pull/' /var/www/deploy-greenbricks.sh
+            bash /var/www/deploy-greenbricks.sh
