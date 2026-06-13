@@ -195,24 +195,14 @@ export default function Navbar() {
               </div>
             );
           })() : (
-            <>
-              <Link href="/signin"
-                className={`text-sm font-semibold px-4 py-2 rounded-lg border transition-colors ${
-                  transparent
-                    ? "border-white/50 text-white hover:bg-white/10"
-                    : "border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
-                }`}>
-                Sign In
-              </Link>
-              <Link href="/join"
-                className={`text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
-                  transparent
-                    ? "bg-white/15 border border-white/40 text-white hover:bg-white/25"
-                    : "bg-gray-900 text-white hover:bg-gray-700"
-                }`}>
-                Sign Up
-              </Link>
-            </>
+            <Link href="/signin"
+              className={`text-sm font-semibold px-4 py-2 rounded-lg border transition-colors ${
+                transparent
+                  ? "border-white/50 text-white hover:bg-white/10"
+                  : "border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+              }`}>
+              Sign In
+            </Link>
           )}
         </div>
 

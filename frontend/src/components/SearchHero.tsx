@@ -354,7 +354,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
 
           {/* Search card */}
           <div className="w-full max-w-3xl mt-32 sm:mt-28">
-            <div className="bg-white rounded-2xl shadow-2xl relative z-10 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl relative z-10">
               {/* Tabs */}
               <div className="flex border-b border-gray-100 px-2 pt-2 overflow-x-auto scrollbar-none">
                 {(["Buy","Rent","Sold","Address","Agents"] as SearchTab[]).map((t) => (
