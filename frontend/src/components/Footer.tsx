@@ -70,16 +70,8 @@ const SOCIAL = [
   { label: "X", path: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" },
   { label: "LinkedIn", path: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" },
   { label: "YouTube", path: "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" },
-  { label: "Pinterest", path: "M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" },
 ];
 
-const NETWORK = [
-  { name: "Greenbrick.net", color: "#16a34a", desc: "Sri Lanka's No.1 Property Site", href: "/" },
-  { name: "PropTrack LK",   color: "#1d4ed8", desc: "Property data & insights",       href: "/buy" },
-  { name: "AgentFinder LK", color: "#7c3aed", desc: "Find the right agent",            href: "/agents" },
-  { name: "MortgageLK",     color: "#0369a1", desc: "Home loan comparison",            href: "/home-loans" },
-  { name: "CommercialLK",   color: "#b45309", desc: "Commercial property",             href: "/commercial" },
-];
 
 export default function Footer() {
   const [activeTab, setActiveTab] = useState<(typeof footerTabs)[number]>("Real estate");
@@ -160,20 +152,20 @@ export default function Footer() {
               ))}
             </div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <button onClick={handleAdvertise}
+              <Link href="/advertise"
                 className="text-xs text-gray-500 hover:text-gray-900 hover:underline underline-offset-2 whitespace-nowrap transition-colors">
                 Advertise with us
-              </button>
-              <button onClick={() => { setContactSent(false); setContactForm({ name: "", email: "", message: "" }); setContactOpen(true); }}
+              </Link>
+              <Link href="/contact"
                 className="text-xs text-gray-500 hover:text-gray-900 hover:underline underline-offset-2 whitespace-nowrap transition-colors">
                 Contact us
-              </button>
+              </Link>
               {[
-                { label: "Agent admin", href: "/agents" },
-                { label: "Legal", href: "/" },
-                { label: "Privacy settings", href: "/" },
-                { label: "Privacy centre", href: "/" },
-                { label: "Careers", href: "/" },
+                { label: "Agent admin", href: "/agent-admin" },
+                { label: "Legal", href: "/legal" },
+                { label: "Privacy settings", href: "/privacy-settings" },
+                { label: "Privacy centre", href: "/privacy-centre" },
+                { label: "Careers", href: "/careers" },
               ].map(({ label, href }) => (
                 <Link key={label} href={href}
                   className="text-xs text-gray-500 hover:text-gray-900 hover:underline underline-offset-2 whitespace-nowrap transition-colors">
@@ -187,18 +179,6 @@ export default function Footer() {
         {/* ── Network & bottom ── */}
         <div className="border-t border-gray-200 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="mb-5">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Our network</p>
-              <div className="flex flex-wrap gap-2">
-                {NETWORK.map((brand) => (
-                  <Link key={brand.name} href={brand.href}
-                    className="group flex flex-col px-3 py-2 border border-gray-200 rounded-lg bg-white hover:border-gray-400 hover:shadow-sm transition-all min-w-[130px]">
-                    <span className="text-xs font-bold" style={{ color: brand.color }}>{brand.name}</span>
-                    <span className="text-[10px] text-gray-400 mt-0.5 group-hover:text-gray-600 transition-colors">{brand.desc}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
             <div className="space-y-1.5 text-xs text-gray-500 mb-4">
               <div className="flex flex-wrap items-center gap-x-1">
                 <span className="font-semibold text-gray-700 mr-1">International sites</span>
@@ -209,24 +189,15 @@ export default function Footer() {
                   </span>
                 ))}
               </div>
-              <div className="flex flex-wrap items-center gap-x-1">
-                <span className="font-semibold text-gray-700 mr-1">Partner sites</span>
-                {["LankaPropertyInfo", "HouseScout.lk", "GlobalPropertyGuide", "PropTiger", "MansionGlobal"].map((s, i, arr) => (
-                  <span key={s} className="flex items-center gap-x-1">
-                    <Link href="/" className="text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 transition-colors">{s}</Link>
-                    {i < arr.length - 1 && <span className="text-gray-300">|</span>}
-                  </span>
-                ))}
-              </div>
             </div>
             <p className="text-[11px] text-gray-400 leading-relaxed">
-              Greenbrick.net is owned and operated by{" "}
-              <span className="text-gray-600 font-medium">eSupport Technologies (Pvt) Ltd</span>.{" "}
-              © {new Date().getFullYear()} eSupport Technologies. All rights reserved.{" "}
+              © {new Date().getFullYear()} Greenbricks.net. All rights reserved.{" "}
               By accessing or using our platform, you agree to our{" "}
               <Link href="/" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Terms of Use</Link>
               {" "}and{" "}
               <Link href="/" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Privacy Policy</Link>.
+              {" "}Developed by{" "}
+              <Link href="http://esupport.live/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">eSupport</Link>.
             </p>
           </div>
         </div>

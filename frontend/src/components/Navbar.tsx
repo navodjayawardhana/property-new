@@ -101,14 +101,14 @@ export default function Navbar() {
             const active = pathname === link.href;
             return (
               <Link key={link.label} href={link.href}
-                className={`px-3 py-2 text-sm font-medium rounded transition-colors whitespace-nowrap ${
+                className={`px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${
                   active
                     ? transparent
-                      ? "text-white bg-white/20 font-bold"
-                      : "text-[#16a34a] bg-green-50 font-bold"
+                      ? "text-white border-white font-bold"
+                      : "text-[#16a34a] border-[#16a34a] font-bold"
                     : transparent
-                      ? "text-white/90 hover:text-white hover:bg-white/10"
-                      : "text-gray-700 hover:text-[#16a34a] hover:bg-gray-50"
+                      ? "text-white/90 hover:text-white border-transparent hover:border-white/40"
+                      : "text-gray-700 hover:text-[#16a34a] border-transparent"
                 }`}>
                 {link.label}
               </Link>
