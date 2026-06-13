@@ -20,3 +20,16 @@ jobs:
             grep -q "git reset --hard" /var/www/deploy-greenbricks.sh || \
               sed -i 's/git pull/git reset --hard HEAD \&\& git clean -fd \&\& git pull/' /var/www/deploy-greenbricks.sh
             bash /var/www/deploy-greenbricks.sh
+
+      - name: Update .env on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 94.72.96.17
+          username: root
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            ENV_FILE=/var/www/greenbricks/backend/.env
+            sed -i 's|^APP_URL=.*|APP_URL=https://api.greenbricks.net|' $ENV_FILE
+            sed -i 's|^FRONTEND_URL=.*|FRONTEND_URL=https://greenbricks.net|' $ENV_FILE
+            sed -i 's|^GOOGLE_REDIRECT_URI=.*|GOOGLE_REDIRECT_URI=https://api.greenbricks.net/auth/google/callback|' $ENV_FILE
+            cd /var/www/greenbricks/backend && php artisan config:clear && php artisan cache:clear
