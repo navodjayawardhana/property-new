@@ -130,7 +130,7 @@ export default function Footer() {
               className="text-xs text-gray-500 hover:text-gray-900 hover:underline underline-offset-2 whitespace-nowrap transition-colors">
               Contact us
             </Link>
-            <Link href="/dashboard/agent"
+            <Link href="/agent-admin"
               className="text-xs text-gray-500 hover:text-gray-900 hover:underline underline-offset-2 whitespace-nowrap transition-colors">
               Agent admin
             </Link>
