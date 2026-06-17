@@ -78,7 +78,7 @@ export default function NewsPage() {
           </button>
           <Link href="/" className="flex items-center gap-2 mx-auto lg:mx-0">
             <Image
-              src="/GreenBrickLogo.png"
+              src="/GreenBricksLogo.png"
               alt="Greenbrick"
               width={120}
               height={40}

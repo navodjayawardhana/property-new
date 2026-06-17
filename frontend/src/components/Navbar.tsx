@@ -86,7 +86,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center shrink-0">
           <Image
-            src="/GreenBrickLogo.png"
+            src="/GreenBricksLogo.png"
             alt="Greenbrick.net"
             width={170}
             height={56}

@@ -17,7 +17,7 @@
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td>
-                    <img src="{{ env('FRONTEND_URL','https://greenbrick.net') }}/GreenBrickLogo.png"
+                    <img src="{{ env('FRONTEND_URL','https://greenbrick.net') }}/GreenBricksLogo.png"
                          alt="Greenbrick.net" height="38" style="display:block;" />
                   </td>
                   <td align="right">

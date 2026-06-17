@@ -314,7 +314,7 @@ export default function SignInPage() {
       style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}>
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+          <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">Find your next<br />dream home.</h2>
@@ -334,7 +334,7 @@ export default function SignInPage() {
 
   const logo = (
     <Link href="/" className="flex items-center gap-2 mb-6 lg:hidden">
-      <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+      <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
     </Link>
   );
 

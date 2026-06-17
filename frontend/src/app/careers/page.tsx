@@ -61,7 +61,7 @@ export default function CareersPage() {
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/">
-            <Image src="/GreenBrickLogo.png" alt="Greenbricks" width={120} height={40} className="h-10 w-auto" />
+            <Image src="/GreenBricksLogo.png" alt="Greenbricks" width={120} height={40} className="h-10 w-auto" />
           </Link>
           <Link href="/contact" className="text-sm font-semibold text-[#16a34a] hover:underline">Get in touch</Link>
         </div>

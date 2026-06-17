@@ -198,7 +198,7 @@ export default function JoinPage() {
     >
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+          <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">
@@ -227,7 +227,7 @@ export default function JoinPage() {
         <div className="flex-1 flex items-center justify-center px-6 py-12">
           <div className="w-full max-w-md">
             <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-              <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+              <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
             </Link>
 
             <div className="flex justify-center mb-6">
@@ -296,7 +296,7 @@ export default function JoinPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-12 overflow-y-auto">
         <div className="w-full max-w-md">
           <Link href="/" className="flex items-center gap-2 mb-8 lg:hidden">
-            <Image src="/GreenBrickLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+            <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
           </Link>
 
           <div className="flex items-center gap-2 mb-8">
