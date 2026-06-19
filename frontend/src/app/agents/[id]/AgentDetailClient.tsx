@@ -163,7 +163,7 @@ export default function AgentLandingPage() {
   const [propsLoading, setPropsLoading] = useState(true);
   const [showAll,      setShowAll]      = useState(false);
 
-  const INITIAL_LIMIT = 6;
+  const INITIAL_LIMIT = 12;
 
   useEffect(() => {
     agentsApi.get(slug).then(setAgent).catch(() => router.replace("/agents")).finally(() => setLoading(false));
@@ -364,7 +364,7 @@ export default function AgentLandingPage() {
           </div>
 
           {propsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
             </div>
           ) : agentProps.length === 0 ? (
@@ -375,7 +375,7 @@ export default function AgentLandingPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {(showAll ? agentProps : agentProps.slice(0, INITIAL_LIMIT)).map((p) => (
                   <PropertyCard key={p.id} property={p} />
                 ))}

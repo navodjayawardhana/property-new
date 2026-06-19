@@ -21,14 +21,14 @@ export default function HomePageClient() {
 
   useEffect(() => {
     Promise.all([
-      propertiesApi.list({ listing_type: "buy", featured: true, per_page: 3 }),
-      propertiesApi.list({ listing_type: "rent", per_page: 2 }),
+      propertiesApi.list({ listing_type: "buy", featured: true, per_page: 4 }),
+      propertiesApi.list({ listing_type: "rent", per_page: 4 }),
       agentsApi.list({ page: 1 }),
       newsApi.list({ per_page: 4 }),
     ])
       .then(([buyRes, rentRes, agentsRes, newsRes]) => {
-        setBuyProps(buyRes.data.slice(0, 3));
-        setRentProps(rentRes.data.slice(0, 2));
+        setBuyProps(buyRes.data.slice(0, 4));
+        setRentProps(rentRes.data.slice(0, 4));
         setFeaturedAgents(agentsRes.data.slice(0, 8));
         setLatestNews(newsRes.data.slice(0, 4));
       })
@@ -77,11 +77,11 @@ export default function HomePageClient() {
             View all <ChevronRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {loading
-            ? Array.from({ length: 3 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            ? Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)
             : buyProps.length === 0
-              ? <p className="col-span-3 text-gray-400 text-center py-10">No properties listed yet.</p>
+              ? <p className="col-span-4 text-gray-400 text-center py-10">No properties listed yet.</p>
               : buyProps.map((p) => <PropertyCard key={p.id} property={p} />)
           }
         </div>
@@ -115,11 +115,11 @@ export default function HomePageClient() {
             View all <ChevronRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {loading
-            ? Array.from({ length: 2 }).map((_, i) => <PropertyCardSkeleton key={i} />)
+            ? Array.from({ length: 4 }).map((_, i) => <PropertyCardSkeleton key={i} />)
             : rentProps.length === 0
-              ? <p className="col-span-2 text-gray-400 text-center py-10">No rentals listed yet.</p>
+              ? <p className="col-span-4 text-gray-400 text-center py-10">No rentals listed yet.</p>
               : rentProps.map((p) => <PropertyCard key={p.id} property={p} />)
           }
         </div>

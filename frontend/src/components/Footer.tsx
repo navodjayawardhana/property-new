@@ -83,7 +83,7 @@ export default function Footer() {
                 className={`py-4 text-sm font-semibold text-center whitespace-nowrap border-b-2 transition-colors -mb-px ${
                   activeTab === tab
                     ? "border-[#16a34a] text-gray-900 bg-green-50/40"
-                    : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+                    : "border-transparent text-gray-500 hover:text-[#16a34a] hover:bg-gray-50"
                 }`}>
                 {tab}
               </button>
@@ -140,19 +140,27 @@ export default function Footer() {
 
       {/* ── Bottom bar ── */}
       <div className="border-t border-gray-200 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <p className="text-[11px] text-gray-400 leading-relaxed">
-            © {new Date().getFullYear()} Greenbricks. All rights reserved.{" "}
-            By accessing or using our platform, you agree to our{" "}
-            <Link href="/terms" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Terms of Use</Link>
-            {", "}
-            <Link href="/privacy" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Privacy Policy</Link>
-            {" and "}
-            <Link href="/cookies" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Cookie Policy</Link>.
-           {/* <Link href="/" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">Privacy Policy</Link>. */}
-              {" "}Developed by{" "}
-              <Link href="http://esupport.live/" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-[#16a34a] underline underline-offset-2 transition-colors">eSupport</Link>.
-            </p>
+        <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col items-center gap-1.5 sm:flex-row sm:justify-between sm:items-center">
+          {/* copyright */}
+          <p className="text-sm text-gray-500 text-center sm:text-left">
+            © {new Date().getFullYear()} Greenbricks.&nbsp;&nbsp;All rights reserved.
+          </p>
+
+          {/* mobile: stacked center | desktop: single row right */}
+          <div className="flex flex-col items-center gap-1 sm:flex-row sm:items-center sm:gap-x-3 text-[11px] text-gray-500">
+            <div className="flex items-center gap-x-3">
+              <Link href="/privacy" className="hover:text-[#16a34a] transition-colors">Privacy Policy</Link>
+              <span className="text-gray-300">·</span>
+              <Link href="/terms" className="hover:text-[#16a34a] transition-colors">Terms &amp; Conditions</Link>
+              <span className="text-gray-300">·</span>
+              <Link href="/cookies" className="hover:text-[#16a34a] transition-colors">Cookie Policy</Link>
+              <span className="text-gray-300 hidden sm:inline">·</span>
+            </div>
+            <span className="text-center">
+              Developed by{" "}
+              <Link href="http://esupport.live/" target="_blank" rel="noopener noreferrer" className="text-[#16a34a] font-medium hover:underline transition-colors">eSupport</Link>
+            </span>
+          </div>
         </div>
       </div>
 
