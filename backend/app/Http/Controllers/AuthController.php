@@ -18,10 +18,6 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // Hardcoded admin credentials — change these before going to production
-    private const ADMIN_EMAIL    = 'admin@greenbrick.net';
-    private const ADMIN_PASSWORD = 'Admin@1234';
-
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -99,26 +95,6 @@ class AuthController extends Controller
             'email'    => 'required|email',
             'password' => 'required|string',
         ]);
-
-        // Admin bypasses OTP — direct token
-        if ($request->email === self::ADMIN_EMAIL && $request->password === self::ADMIN_PASSWORD) {
-            $admin = User::firstOrCreate(
-                ['email' => self::ADMIN_EMAIL],
-                [
-                    'name'     => 'Site Admin',
-                    'password' => self::ADMIN_PASSWORD,
-                    'role'     => 'admin',
-                ]
-            );
-
-            if ($admin->role !== 'admin') {
-                $admin->update(['role' => 'admin']);
-            }
-
-            $token = $admin->createToken('admin_token')->plainTextToken;
-
-            return response()->json(['user' => $admin->fresh(), 'token' => $token]);
-        }
 
         if (! Auth::attempt($request->only('email', 'password'))) {
             throw ValidationException::withMessages([

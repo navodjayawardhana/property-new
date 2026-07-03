@@ -1,0 +1,38 @@
+name: Fresh Production DB (manual)
+
+# Manual-only: wipes ALL tables in the production database and reseeds them
+# (including the admin account from ADMIN_EMAIL/ADMIN_PASSWORD secrets).
+# Never add a push trigger here — this must stay opt-in once real user data exists.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type FRESH-DB to confirm this WIPES the production database'
+        required: true
+
+jobs:
+  fresh:
+    if: github.event.inputs.confirm == 'FRESH-DB'
+    name: migrate:fresh --seed on greenbricks.net
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set admin credentials and run migrate:fresh --seed
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 94.72.96.17
+          username: root
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            ENV_FILE=/var/www/greenbricks/backend/.env
+            grep -q '^ADMIN_EMAIL=' $ENV_FILE && \
+              sed -i "s|^ADMIN_EMAIL=.*|ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}|" $ENV_FILE || \
+              echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> $ENV_FILE
+            grep -q '^ADMIN_PASSWORD=' $ENV_FILE && \
+              sed -i "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}|" $ENV_FILE || \
+              echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> $ENV_FILE
+
+            cd /var/www/greenbricks/backend
+            php artisan migrate:fresh --seed --force
+            php artisan config:clear
+            php artisan cache:clear

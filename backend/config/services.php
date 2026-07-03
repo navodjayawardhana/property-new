@@ -53,4 +53,9 @@ return [
         'sandbox'         => env('PAYHERE_SANDBOX', true),
     ],
 
+    'admin' => [
+        'email'    => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
 ];
