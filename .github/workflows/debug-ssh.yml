@@ -1,0 +1,20 @@
+name: Debug SSH (temporary)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect deploy script and git remote
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 94.72.96.17
+          username: root
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            echo "--- deploy-greenbricks.sh ---"
+            cat /var/www/deploy-greenbricks.sh
+            echo "--- git remote in /var/www/greenbricks ---"
+            git -C /var/www/greenbricks remote -v || echo "no repo at /var/www/greenbricks"
