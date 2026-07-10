@@ -20,6 +20,7 @@ const ROLE_LABELS: Record<string, { label: string; color: string }> = {
   seller: { label: "Seller", color: "bg-green-100 text-green-700" },
   agent:  { label: "Agent",  color: "bg-purple-100 text-purple-700" },
   admin:  { label: "Admin",  color: "bg-red-100 text-red-700" },
+  advertisement_manager: { label: "Ad Manager", color: "bg-amber-100 text-amber-700" },
 };
 
 const TABS: { id: Tab; label: string }[] = [

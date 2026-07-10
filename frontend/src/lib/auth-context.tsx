@@ -5,7 +5,7 @@ import { auth, type User } from "@/lib/api";
 
 export type OtpPending = { email: string; maskedEmail: string };
 export type LoginResult =
-  | { status: "done" }
+  | { status: "done"; user: User }
   | { status: "otp";    email: string; maskedEmail: string }
   | { status: "verify"; email: string; maskedEmail: string };
 
@@ -15,7 +15,7 @@ type AuthContextValue = {
   loading: boolean;
   otpPending: OtpPending | null;
   login: (email: string, password: string) => Promise<LoginResult>;
-  loginWithToken: (token: string) => Promise<void>;
+  loginWithToken: (token: string) => Promise<User>;
   verifyOtp: (otp: string) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<void>;
   resendVerification: (email: string) => Promise<void>;
@@ -81,12 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { status: "verify", email: res.email, maskedEmail: res.masked_email };
     }
     persist(res.user, res.token);
-    return { status: "done" };
+    return { status: "done", user: res.user };
   }, []);
 
   const loginWithToken = useCallback(async (token: string) => {
     const user = await auth.me(token);
     persist(user, token);
+    return user;
   }, []);
 
   const verifyOtp = useCallback(async (otp: string) => {

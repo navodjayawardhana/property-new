@@ -50,7 +50,7 @@ export type User = {
   name: string;
   email: string | null;
   phone: string | null;
-  role: 'buyer' | 'seller' | 'agent' | 'admin';
+  role: 'buyer' | 'seller' | 'agent' | 'admin' | 'advertisement_manager';
   avatar: string | null;
   slug: string | null;
   is_blocked: boolean;
@@ -488,6 +488,21 @@ export const admin = {
   createProperty: (data: FormData, token: string) =>
     request<Property>('/admin/properties', { method: 'POST', body: data, token }),
 
+  createListingForSeller: (data: FormData, token: string) =>
+    request<{ property: Property; seller: User; temporary_password: string | null }>(
+      '/admin/properties/create-for-seller', { method: 'POST', body: data, token }
+    ),
+
+  createAdvertisementManager: (data: { name: string; email: string; password: string; password_confirmation: string; phone?: string }, token: string) =>
+    request<{ user: User }>(
+      '/admin/advertisement-managers', { method: 'POST', body: data, token }
+    ),
+
+  advertisementManagers: (filters: { search?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedUsers>(`/admin/advertisement-managers${qs ? '?' + qs : ''}`, { token });
+  },
+
   updateProperty: (id: number, data: { status?: string; is_featured?: boolean; listing_type?: string }, token: string) =>
     request<Property>(`/admin/properties/${id}`, { method: 'PATCH', body: data, token }),
 
@@ -521,6 +536,25 @@ export const admin = {
 
   updateSettings: (data: AdminSettings, token: string) =>
     request<AdminSettings>('/admin/settings', { method: 'PUT', body: data, token }),
+};
+
+// ─── Advertisement Manager portal ───────────────────────────────────────────────
+
+export const advertisementManagerApi = {
+  createListing: (data: FormData, token: string) =>
+    request<{ property: Property; seller: User; temporary_password: string | null }>(
+      '/advertisement-manager/listings', { method: 'POST', body: data, token }
+    ),
+
+  myListings: (filters: { page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedProperties>(`/advertisement-manager/listings${qs ? '?' + qs : ''}`, { token });
+  },
+
+  searchUsers: (filters: { role?: string; search?: string; page?: number }, token: string) => {
+    const qs = buildQs(filters);
+    return request<PaginatedUsers>(`/advertisement-manager/users${qs ? '?' + qs : ''}`, { token });
+  },
 };
 
 // ─── Favorites ───────────────────────────────────────────────────────────────

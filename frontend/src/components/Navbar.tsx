@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase, AlertCircle, Plus, Lock } from "lucide-react";
+import { Menu, X, LogOut, User as UserIcon, Shield, Home, TrendingUp, Briefcase, AlertCircle, Plus, Lock, Megaphone } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import type { User } from "@/lib/api";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -16,6 +16,7 @@ const ROLE_META: Record<Role, { label: string; icon: React.ReactNode; ring: stri
   seller: { label: "Seller", icon: <TrendingUp size={11} />, ring: "ring-green-400",  badge: "bg-green-100 text-green-700",  avatar: "bg-green-700"   },
   agent:  { label: "Agent",  icon: <Briefcase  size={11} />, ring: "ring-purple-400", badge: "bg-purple-100 text-purple-700",avatar: "bg-purple-700"  },
   admin:  { label: "Admin",  icon: <Shield     size={11} />, ring: "ring-red-400",    badge: "bg-red-100 text-red-700",      avatar: "bg-red-700"     },
+  advertisement_manager: { label: "Ad Manager", icon: <Megaphone size={11} />, ring: "ring-amber-400", badge: "bg-amber-100 text-amber-700", avatar: "bg-amber-700" },
 };
 
 const navLinks = [

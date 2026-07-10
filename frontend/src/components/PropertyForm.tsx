@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { properties as propertiesApi, admin as adminApi, publicSettings as publicSettingsApi, type Property, type PropertyImage, type AdminSettings } from "@/lib/api";
+import { properties as propertiesApi, admin as adminApi, publicSettings as publicSettingsApi, type Property, type PropertyImage, type AdminSettings, type User } from "@/lib/api";
 import { COUNTRY_CODES } from "@/lib/countries";
 import { X, Upload, Loader2, Info } from "lucide-react";
 import SriLankaAddressFields from "@/components/SriLankaAddressFields";
@@ -31,6 +31,20 @@ type FormState = {
   is_featured: boolean;
 };
 
+export type SellerPayload =
+  | { mode: 'existing'; sellerId: number }
+  | {
+      mode: 'new';
+      name: string;
+      email: string;
+      phone?: string;
+      role?: 'buyer' | 'seller' | 'agent';
+      country?: string;
+      state?: string;
+      district?: string;
+      suburb?: string;
+    };
+
 type Props = {
   mode: 'create' | 'edit';
   initialData?: Partial<FormState>;
@@ -38,6 +52,9 @@ type Props = {
   existingImages?: PropertyImage[];
   token: string;
   isAdmin?: boolean;
+  sellerPayload?: SellerPayload;
+  submitSellerListing?: (data: FormData, token: string) => Promise<{ property: Property; seller: User; temporary_password: string | null }>;
+  onSellerCreated?: (seller: User, temporaryPassword: string | null) => void;
   onSuccess: (property: Property) => void;
 };
 
@@ -68,7 +85,7 @@ const defaultForm: FormState = {
 
 const TYPES = ['House', 'Apartment', 'Townhouse', 'Land', 'Unit', 'Villa', 'Acreage'];
 
-export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, isAdmin = false, onSuccess }: Props) {
+export default function PropertyForm({ mode, initialData, propertyId, existingImages = [], token, isAdmin = false, sellerPayload, submitSellerListing, onSellerCreated, onSuccess }: Props) {
   const [form, setForm] = useState<FormState>({ ...defaultForm, ...initialData });
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -191,7 +208,28 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
       if (isAdmin) {
         setSubmitting(true);
         try {
-          const property = await adminApi.createProperty(buildFormData(), token);
+          const fd = buildFormData();
+          let property: Property;
+          if (sellerPayload) {
+            fd.append('seller_mode', sellerPayload.mode);
+            if (sellerPayload.mode === 'existing') {
+              fd.append('seller_id', String(sellerPayload.sellerId));
+            } else {
+              fd.append('seller_name', sellerPayload.name);
+              fd.append('seller_email', sellerPayload.email);
+              if (sellerPayload.phone) fd.append('seller_phone', sellerPayload.phone);
+              if (sellerPayload.role) fd.append('seller_role', sellerPayload.role);
+              if (sellerPayload.country) fd.append('seller_country', sellerPayload.country);
+              if (sellerPayload.state) fd.append('seller_state', sellerPayload.state);
+              if (sellerPayload.district) fd.append('seller_district', sellerPayload.district);
+              if (sellerPayload.suburb) fd.append('seller_suburb', sellerPayload.suburb);
+            }
+            const result = await (submitSellerListing ?? adminApi.createListingForSeller)(fd, token);
+            property = result.property;
+            onSellerCreated?.(result.seller, result.temporary_password);
+          } else {
+            property = await adminApi.createProperty(fd, token);
+          }
           onSuccess(property);
         } catch (err: unknown) {
           const e = err as Error & { errors?: Record<string, string[]> };

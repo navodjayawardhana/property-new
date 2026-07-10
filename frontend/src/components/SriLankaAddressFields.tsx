@@ -49,9 +49,20 @@ export default function SriLankaAddressFields({
       .catch(() => setDbCities([]));
   }, [province]);
 
+  const allDistricts = Object.values(SL_DISTRICTS).flat().sort();
   const availableDistricts = province
     ? (SL_DISTRICTS[province as keyof typeof SL_DISTRICTS] ?? [])
-    : [];
+    : allDistricts;
+
+  function handleDistrictChange(value: string) {
+    onDistrictChange(value);
+    onCityChange('');
+    if (value && !province) {
+      const match = (Object.entries(SL_DISTRICTS) as [string, string[]][])
+        .find(([, districts]) => districts.includes(value));
+      if (match) onProvinceChange(match[0]);
+    }
+  }
 
   const staticCities = district ? (SL_CITIES[district] ?? []) : [];
   const allCities = [...new Set([...staticCities, ...dbCities])].sort();
@@ -83,9 +94,8 @@ export default function SriLankaAddressFields({
         <div className="relative">
           <select
             value={district}
-            onChange={(e) => { onDistrictChange(e.target.value); onCityChange(''); }}
-            disabled={!province}
-            className={inp + " appearance-none pr-9 cursor-pointer disabled:bg-gray-50 disabled:text-gray-400"}
+            onChange={(e) => handleDistrictChange(e.target.value)}
+            className={inp + " appearance-none pr-9 cursor-pointer"}
           >
             <option value="">Select district</option>
             {availableDistricts.map(d => <option key={d} value={d}>{d}</option>)}

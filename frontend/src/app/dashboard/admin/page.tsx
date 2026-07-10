@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserAvatar } from "@/components/UserAvatar";
+import { CreateListingWizard } from "@/components/CreateListingWizard";
 import { useAuth } from "@/lib/auth-context";
 import {
   admin as adminApi,
@@ -28,11 +29,11 @@ import {
 } from "@/lib/api";
 import {
   Users, Home, MessageSquare, Star, TrendingUp, Search, Trash2,
-  ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, Check,
+  ChevronLeft, ChevronRight, RefreshCw, Shield, Eye, EyeOff, Check,
   LayoutDashboard, ToggleLeft, ToggleRight, X, AlertTriangle,
   Newspaper, Plus, Edit2, DollarSign, Ban, CheckCircle, Settings, Loader2,
   ImagePlay, Upload, Video, Building2, CreditCard, Calendar, MapPin, Briefcase,
-  Phone, Mail, FileText, LogOut, Menu,
+  Phone, Mail, FileText, LogOut, Menu, FilePlus2, Megaphone,
 } from "lucide-react";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -46,6 +47,7 @@ const ROLE_COLORS: Record<string, string> = {
   seller: "bg-green-100 text-green-700",
   agent: "bg-purple-100 text-purple-700",
   admin: "bg-red-100 text-red-700",
+  advertisement_manager: "bg-amber-100 text-amber-700",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -449,6 +451,297 @@ function UsersTab({ token }: { token: string }) {
           msg={`Delete user "${confirm.name}"? This cannot be undone.`}
           onConfirm={() => handleDelete(confirm.id)}
           onCancel={() => setConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClose: () => void; onCreated: () => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [created, setCreated] = useState(false);
+
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
+  const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+  const ready = !!(name && email && password.length >= 8 && password === passwordConfirmation);
+
+  async function handleCreate() {
+    setSaving(true);
+    setError("");
+    try {
+      await adminApi.createAdvertisementManager(
+        { name, email, password, password_confirmation: passwordConfirmation, phone: phone || undefined },
+        token
+      );
+      setCreated(true);
+    } catch (e: unknown) {
+      const err = e as Error & { errors?: Record<string, string[]> };
+      setError(err.errors ? Object.values(err.errors).flat().join(' · ') : (err.message ?? 'Something went wrong'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h3 className="font-black text-gray-900">New Advertisement Manager</h3>
+          <button onClick={() => { onClose(); if (created) onCreated(); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        {created ? (
+          <div className="p-6 space-y-4">
+            <p className="text-sm text-gray-600">Account created for <span className="font-semibold">{email}</span>.</p>
+            <p className="text-xs text-gray-400">They can sign in at <span className="font-mono">/advertisement-manager/login</span> with the email and password you set.</p>
+            <div className="flex justify-end pt-2">
+              <button onClick={onCreated} className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+                Done
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="p-6 space-y-4">
+            {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+            <div>
+              <label className={lbl}>Full Name *</label>
+              <input className={inp} value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Email *</label>
+              <input type="email" className={inp} value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div>
+              <label className={lbl}>Phone (optional)</label>
+              <input className={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>Password *</label>
+                <div className="relative">
+                  <input type={showPassword ? "text" : "password"} className={inp + " pr-10"} value={password}
+                    onChange={(e) => setPassword(e.target.value)} placeholder="Min. 8 characters" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Confirm Password *</label>
+                <input type={showPassword ? "text" : "password"} className={inp} value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)} />
+              </div>
+            </div>
+            {password && passwordConfirmation && password !== passwordConfirmation && (
+              <p className="text-xs text-red-500">Passwords do not match.</p>
+            )}
+            <div className="flex justify-end gap-3 pt-2">
+              <button onClick={onClose} className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleCreate} disabled={saving || !ready}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+                {saving ? <><Loader2 size={14} className="animate-spin" /> Creating…</> : "Create Account"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Advertisement Managers tab ────────────────────────────────────────────────
+
+function AdvertisementManagersTab({ token }: { token: string }) {
+  const [data, setData] = useState<PaginatedUsers | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
+  const [blocking, setBlocking] = useState<number | null>(null);
+  const [showNewAdManager, setShowNewAdManager] = useState(false);
+
+  const load = useCallback(async (p = page, s = search) => {
+    setLoading(true);
+    try {
+      const res = await adminApi.advertisementManagers({ search: s, page: p }, token);
+      setData(res);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [page, search, token]);
+
+  useEffect(() => { load(); }, []);
+
+  async function handleDelete(id: number) {
+    try {
+      await adminApi.deleteUser(id, token);
+      setConfirm(null);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleToggleBlock(u: User) {
+    setBlocking(u.id);
+    try {
+      await adminApi.toggleBlockUser(u.id, token);
+      load(page);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setBlocking(null); }
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-white border border-gray-200 rounded-xl px-3 py-2">
+          <Search size={14} className="text-gray-400 shrink-0" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (setPage(1), load(1, search))}
+            placeholder="Search by name or email…"
+            className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400" />
+          {search && <button onClick={() => { setSearch(""); setPage(1); load(1, ""); }}><X size={12} className="text-gray-400 hover:text-gray-600" /></button>}
+        </div>
+        <button onClick={() => load(page)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
+          <RefreshCw size={13} /> Refresh
+        </button>
+        <button onClick={() => setShowNewAdManager(true)}
+          className="flex items-center gap-1.5 text-sm bg-[#16a34a] hover:bg-[#15803d] text-white px-3 py-2 rounded-xl transition-colors font-semibold">
+          <Plus size={13} /> New Advertisement Manager
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100">
+          <p className="text-sm font-bold text-gray-900">
+            {loading ? (
+              <span className="inline-block h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            ) : ( `${data?.total ?? 0} advertisement managers`)}
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="animate-pulse overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  {["Manager", "Phone", "Joined", "Status", "Actions"].map((h) => (
+                    <th key={h} className="px-5 py-3"><div className="h-3 bg-gray-200 rounded w-14" /></th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {[1,2,3].map((i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 shrink-0" />
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 bg-gray-200 rounded w-28" />
+                          <div className="h-3 bg-gray-100 rounded w-36" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-16" /></td>
+                    <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
+                    <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : !data?.data.length ? (
+          <div className="p-10 text-center">
+            <Megaphone size={32} className="text-gray-200 mx-auto mb-3" />
+            <p className="text-sm text-gray-400">No advertisement managers yet. Click &quot;New Advertisement Manager&quot; to get started.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-100">
+                <tr>
+                  <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Manager</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden md:table-cell">Phone</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Joined</th>
+                  <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
+                  <th className="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {data.data.map((u) => (
+                  <tr key={u.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={u.name} avatar={u.avatar} />
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">{u.name}</p>
+                          <p className="text-xs text-gray-400">{u.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-gray-500">
+                      {u.phone ?? "—"}
+                    </td>
+                    <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">
+                      {fmtDate((u as User & { created_at: string }).created_at)}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {u.is_blocked
+                        ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded-full"><Ban size={10} /> Blocked</span>
+                        : <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full"><CheckCircle size={10} /> Active</span>
+                      }
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => handleToggleBlock(u)}
+                          disabled={blocking === u.id}
+                          title={u.is_blocked ? "Unblock user" : "Block user"}
+                          className={`transition-colors p-1.5 rounded-lg disabled:opacity-50 ${u.is_blocked ? "text-green-500 hover:text-green-700 hover:bg-green-50" : "text-orange-400 hover:text-orange-600 hover:bg-orange-50"}`}>
+                          {u.is_blocked ? <CheckCircle size={14} /> : <Ban size={14} />}
+                        </button>
+                        <button onClick={() => setConfirm({ id: u.id, name: u.name })}
+                          className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p); }} /></div>}
+      </div>
+
+      {confirm && (
+        <ConfirmDialog
+          msg={`Delete advertisement manager "${confirm.name}"? This cannot be undone.`}
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+
+      {showNewAdManager && (
+        <NewAdManagerModal
+          token={token}
+          onClose={() => setShowNewAdManager(false)}
+          onCreated={() => { setShowNewAdManager(false); load(page); }}
         />
       )}
     </div>
@@ -2052,6 +2345,7 @@ function BankRatesTab({ token }: { token: string }) {
   );
 }
 
+
 // ─── Pricing tab ─────────────────────────────────────────────────────────────
 
 function PricingTab({ token }: { token: string }) {
@@ -2160,18 +2454,20 @@ function PricingTab({ token }: { token: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "inquiries" | "news" | "loans" | "banks" | "slides" | "pricing";
+type Tab = "overview" | "users" | "properties" | "create-listing" | "inquiries" | "news" | "loans" | "banks" | "slides" | "advertisement-managers" | "pricing";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: "overview",    label: "Overview",       icon: <LayoutDashboard size={16} /> },
-  { id: "users",       label: "Users",          icon: <Users size={16} /> },
-  { id: "properties",  label: "Properties",     icon: <Home size={16} /> },
-  { id: "inquiries",   label: "Inquiries",      icon: <MessageSquare size={16} /> },
-  { id: "news",        label: "News",           icon: <Newspaper size={16} /> },
-  { id: "loans",       label: "Loan Applications", icon: <DollarSign size={16} /> },
-  { id: "banks",       label: "Bank Rates",     icon: <Building2 size={16} /> },
-  { id: "slides",      label: "Slides",         icon: <ImagePlay size={16} /> },
-  { id: "pricing",     label: "Pricing",        icon: <Settings size={16} /> },
+  { id: "overview",        label: "Overview",          icon: <LayoutDashboard size={16} /> },
+  { id: "users",           label: "Users",             icon: <Users size={16} /> },
+  { id: "properties",      label: "Properties",        icon: <Home size={16} /> },
+  { id: "create-listing",  label: "Create Listing",    icon: <FilePlus2 size={16} /> },
+  { id: "inquiries",       label: "Inquiries",         icon: <MessageSquare size={16} /> },
+  { id: "news",            label: "News",              icon: <Newspaper size={16} /> },
+  { id: "loans",           label: "Loan Applications", icon: <DollarSign size={16} /> },
+  { id: "banks",           label: "Bank Rates",        icon: <Building2 size={16} /> },
+  { id: "slides",          label: "Slides",            icon: <ImagePlay size={16} /> },
+  { id: "advertisement-managers", label: "Ad Managers", icon: <Megaphone size={16} /> },
+  { id: "pricing",         label: "Pricing",           icon: <Settings size={16} /> },
 ];
 
 export default function AdminPage() {
@@ -2288,14 +2584,16 @@ export default function AdminPage() {
                     ))}
                   </div>
             )}
-            {tab === "users"      && token && <UsersTab token={token} />}
-            {tab === "properties" && token && <PropertiesTab token={token} />}
-            {tab === "inquiries"  && token && <InquiriesTab token={token} />}
-            {tab === "news"       && token && <NewsTab token={token} />}
-            {tab === "loans"      && token && <LoanEnquiriesTab token={token} />}
-            {tab === "banks"      && token && <BankRatesTab token={token} />}
-            {tab === "slides"     && token && <SlidesTab token={token} />}
-            {tab === "pricing"    && token && <PricingTab token={token} />}
+            {tab === "users"          && token && <UsersTab token={token} />}
+            {tab === "properties"     && token && <PropertiesTab token={token} />}
+            {tab === "create-listing" && token && <CreateListingWizard token={token} />}
+            {tab === "inquiries"      && token && <InquiriesTab token={token} />}
+            {tab === "news"           && token && <NewsTab token={token} />}
+            {tab === "loans"          && token && <LoanEnquiriesTab token={token} />}
+            {tab === "banks"          && token && <BankRatesTab token={token} />}
+            {tab === "slides"         && token && <SlidesTab token={token} />}
+            {tab === "advertisement-managers" && token && <AdvertisementManagersTab token={token} />}
+            {tab === "pricing"        && token && <PricingTab token={token} />}
           </div>
         </main>
 

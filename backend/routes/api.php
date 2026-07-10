@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdvertisementManagerController;
 use App\Http\Controllers\AgentSlideController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankLoanRateController;
@@ -119,6 +120,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{user}/toggle-block', [AdminController::class, 'toggleBlockUser']);
         Route::get('/properties',                 [AdminController::class, 'properties']);
         Route::post('/properties',                [AdminController::class, 'createProperty']);
+        Route::post('/properties/create-for-seller', [AdminController::class, 'createListingForSeller']);
+        Route::get('/advertisement-managers',     [AdminController::class, 'advertisementManagers']);
+        Route::post('/advertisement-managers',    [AdminController::class, 'createAdvertisementManager']);
         Route::patch('/properties/{property}',    [AdminController::class, 'updateProperty']);
         Route::delete('/properties/{property}',   [AdminController::class, 'deleteProperty']);
         Route::get('/inquiries',                  [AdminController::class, 'inquiries']);
@@ -151,5 +155,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/slides',            [SlideController::class, 'store']);
         Route::patch('/slides/{slide}',   [SlideController::class, 'update']);
         Route::delete('/slides/{slide}',  [SlideController::class, 'destroy']);
+    });
+
+    // Advertisement Manager portal
+    Route::prefix('advertisement-manager')->group(function () {
+        Route::get('/users',     [AdvertisementManagerController::class, 'searchUsers']);
+        Route::get('/listings',  [AdvertisementManagerController::class, 'index']);
+        Route::post('/listings', [AdvertisementManagerController::class, 'createListing']);
     });
 });
