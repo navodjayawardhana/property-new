@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Megaphone, LogOut, Menu, X, FilePlus2, List, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Megaphone, LogOut, Menu, X, FilePlus2, List, ChevronLeft, ChevronRight, ExternalLink, Search, RefreshCw } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
 import { advertisementManagerApi, type PaginatedProperties } from "@/lib/api";
@@ -27,26 +27,51 @@ function fmtDate(s: string) { return new Date(s).toLocaleDateString("en-LK", { d
 function MyListingsTab({ token }: { token: string }) {
   const [data, setData] = useState<PaginatedProperties | null>(null);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [listingType, setListingType] = useState<"" | "buy" | "rent" | "sold">("");
   const [page, setPage] = useState(1);
 
-  const load = useCallback(async (p = page) => {
+  const load = useCallback(async (p = page, s = search, lt = listingType) => {
     setLoading(true);
     try {
-      const res = await advertisementManagerApi.myListings({ page: p }, token);
+      const res = await advertisementManagerApi.myListings({ search: s || undefined, listing_type: lt || undefined, page: p }, token);
       setData(res);
     } catch { /* ignore */ }
     finally { setLoading(false); }
-  }, [page, token]);
+  }, [page, search, listingType, token]);
 
   useEffect(() => { load(); }, []);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+    <div className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-white border border-gray-200 rounded-xl px-3 py-2">
+          <Search size={14} className="text-gray-400 shrink-0" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (setPage(1), load(1, search, listingType))}
+            placeholder="Search by seller, email, phone or listing title…"
+            className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400" />
+          {search && <button onClick={() => { setSearch(""); setPage(1); load(1, "", listingType); }}><X size={12} className="text-gray-400 hover:text-gray-600" /></button>}
+        </div>
+        <select value={listingType} onChange={(e) => { const v = e.target.value as typeof listingType; setListingType(v); setPage(1); load(1, search, v); }}
+          className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none text-gray-700 min-w-[130px]">
+          <option value="">All types</option>
+          <option value="buy">For Sale</option>
+          <option value="rent">For Rent</option>
+          <option value="sold">Sold</option>
+        </select>
+        <button onClick={() => load(page)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
+          <RefreshCw size={13} /> Refresh
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="px-5 py-3.5 border-b border-gray-100">
         <p className="text-sm font-bold text-gray-900">
           {loading ? (
             <span className="inline-block h-4 w-32 bg-gray-200 rounded animate-pulse" />
-          ) : (`${data?.total ?? 0} listing${data?.total === 1 ? "" : "s"} created`)}
+          ) : (`${data?.total ?? 0} listing${data?.total === 1 ? "" : "s"} found`)}
         </p>
       </div>
 
@@ -65,7 +90,9 @@ function MyListingsTab({ token }: { token: string }) {
       ) : !data?.data.length ? (
         <div className="p-10 text-center">
           <List size={32} className="text-gray-200 mx-auto mb-3" />
-          <p className="text-sm text-gray-400">You haven&apos;t created any listings yet.</p>
+          <p className="text-sm text-gray-400">
+            {search || listingType ? "No listings match your search." : "You haven't created any listings yet."}
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -117,6 +144,7 @@ function MyListingsTab({ token }: { token: string }) {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
