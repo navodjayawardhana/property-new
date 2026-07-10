@@ -47,10 +47,27 @@ class AdvertisementManagerController extends Controller
     {
         $this->gate($request);
 
-        $properties = Property::where('created_by_id', $request->user()->id)
+        $query = Property::where('created_by_id', $request->user()->id)
             ->with('user:id,name,email,phone,avatar')
-            ->latest()
-            ->paginate($request->get('per_page', 10));
+            ->latest();
+
+        if ($request->filled('listing_type')) {
+            $query->where('listing_type', $request->listing_type);
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhereHas('user', function ($uq) use ($s) {
+                      $uq->where('name', 'like', "%{$s}%")
+                         ->orWhere('email', 'like', "%{$s}%")
+                         ->orWhere('phone', 'like', "%{$s}%");
+                  });
+            });
+        }
+
+        $properties = $query->paginate($request->get('per_page', 10));
 
         return response()->json($properties);
     }

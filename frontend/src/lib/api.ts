@@ -546,7 +546,7 @@ export const advertisementManagerApi = {
       '/advertisement-manager/listings', { method: 'POST', body: data, token }
     ),
 
-  myListings: (filters: { page?: number }, token: string) => {
+  myListings: (filters: { search?: string; listing_type?: string; page?: number }, token: string) => {
     const qs = buildQs(filters);
     return request<PaginatedProperties>(`/advertisement-manager/listings${qs ? '?' + qs : ''}`, { token });
   },
