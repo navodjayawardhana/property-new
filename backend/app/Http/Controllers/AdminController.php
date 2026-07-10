@@ -7,10 +7,12 @@ use App\Models\LoanEnquiry;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Models\User;
+use App\Services\SellerListingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -62,7 +64,7 @@ class AdminController extends Controller
     {
         $this->gate($request);
 
-        $query = User::latest();
+        $query = User::where('role', '!=', 'advertisement_manager')->latest();
 
         if ($request->filled('role')) {
             $query->where('role', $request->role);
@@ -72,7 +74,28 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%");
+                  ->orWhere('email', 'like', "%{$s}%")
+                  ->orWhere('phone', 'like', "%{$s}%");
+            });
+        }
+
+        return response()->json($query->paginate(5));
+    }
+
+    // Advertisement Managers are a separate staff role — never mixed into the
+    // general Users table above; this is their own dedicated listing.
+    public function advertisementManagers(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $query = User::where('role', 'advertisement_manager')->latest();
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('email', 'like', "%{$s}%")
+                  ->orWhere('phone', 'like', "%{$s}%");
             });
         }
 
@@ -86,7 +109,7 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name'  => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'role'  => 'sometimes|in:buyer,seller,agent,admin',
+            'role'  => 'sometimes|in:buyer,seller,agent,admin,advertisement_manager',
             'phone' => 'sometimes|nullable|string|max:20',
         ]);
 
@@ -214,6 +237,41 @@ class AdminController extends Controller
         $property->load('images');
 
         return response()->json($property, 201);
+    }
+
+    // Admin creates a listing on behalf of a seller — either an existing user,
+    // or a brand-new account collected with the same fields as self-registration.
+    public function createListingForSeller(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        return response()->json(app(SellerListingService::class)->createForSeller($request, $request->user()), 201);
+    }
+
+    // ── Advertisement Managers ───────────────────────────────────────────────────
+
+    public function createAdvertisementManager(Request $request): JsonResponse
+    {
+        $this->gate($request);
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'phone'    => 'nullable|string|max:20',
+        ]);
+
+        $user = User::create([
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'password'          => $validated['password'],
+            'phone'             => $validated['phone'] ?? null,
+            'role'              => 'advertisement_manager',
+            'email_verified_at' => now(),
+        ]);
+        $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
+
+        return response()->json(['user' => $user], 201);
     }
 
     public function updateProperty(Request $request, Property $property): JsonResponse

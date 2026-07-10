@@ -62,7 +62,7 @@ const ROLES: { key: Role; label: string; icon: React.ReactNode; desc: string }[]
 
 export default function SignInPage() {
   const router = useRouter();
-  const { login, verifyOtp, verifyEmail, resendVerification, otpPending, loginWithToken } = useAuth();
+  const { login, verifyOtp, verifyEmail, resendVerification, otpPending, loginWithToken, logout } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("email");
   const [role, setRole]               = useState<Role>("buyer");
@@ -152,7 +152,14 @@ export default function SignInPage() {
     setError(""); setLoading(true);
     try {
       const result = await login(email, password);
-      if (result.status === "done") router.push("/");
+      if (result.status === "done") {
+        if (result.user.role === "advertisement_manager") {
+          await logout();
+          setError("Advertisement Manager accounts must sign in at /advertisement-manager/login.");
+          return;
+        }
+        router.push("/");
+      }
       if (result.status === "otp") { resetDigits(); setScreen("otp"); }
       if (result.status === "verify") {
         setVerifyData({ email: result.email, maskedEmail: result.maskedEmail });
@@ -240,7 +247,12 @@ export default function SignInPage() {
       if (countryEntry) {
         localStorage.setItem("gb_country", toGbCountry(countryEntry.code));
       }
-      await loginWithToken(res.token);
+      const loggedInUser = await loginWithToken(res.token);
+      if (loggedInUser.role === "advertisement_manager") {
+        await logout();
+        setError("Advertisement Manager accounts must sign in at /advertisement-manager/login.");
+        return;
+      }
       router.push("/");
     } catch (err: unknown) {
       setError(parseApiError(err, "Incorrect verification code. Please try again.")); resetDigits();

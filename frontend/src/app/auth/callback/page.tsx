@@ -44,7 +44,7 @@ function Spinner() {
 function AuthCallbackInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const { loginWithToken, updateUser } = useAuth();
+  const { loginWithToken, updateUser, logout } = useAuth();
   const ran = useRef(false);
 
   useEffect(() => {
@@ -63,7 +63,13 @@ function AuthCallbackInner() {
       try {
         const ipCountry = await detectCountryFromIp();
 
-        await loginWithToken(token);
+        const loggedInUser = await loginWithToken(token);
+
+        if (loggedInUser.role === "advertisement_manager") {
+          await logout();
+          router.replace("/signin?error=ad_manager_portal");
+          return;
+        }
 
         if (ipCountry) {
           localStorage.setItem("gb_country", toGbCountry(ipCountry.code));
@@ -76,7 +82,7 @@ function AuthCallbackInner() {
         router.replace("/signin?error=google_failed");
       }
     })();
-  }, [params, router, loginWithToken]);
+  }, [params, router, loginWithToken, logout]);
 
   return <Spinner />;
 }
