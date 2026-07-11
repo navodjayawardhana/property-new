@@ -169,6 +169,13 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
     try {
       const checkout = await propertiesApi.initiatePayment(buildFormData(otpCode), token);
 
+      if (!('checkout_url' in checkout)) {
+        // Payment gateway disabled — listing was created directly, pending admin approval.
+        setOtpPhase('form');
+        onSuccess(checkout);
+        return;
+      }
+
       // Auto-submit a hidden form to PayHere checkout page
       const form = document.createElement('form');
       form.method = 'POST';
@@ -413,8 +420,8 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
           <input required type="number" min={0} className={inp} value={form.price} onChange={(e) => set('price', e.target.value)} placeholder="e.g. 15000000" />
         </div>
 
-        {/* Fee breakdown — shown to agents/sellers when they enter a price */}
-        {!isAdmin && settings && form.price && Number(form.price) > 0 && (() => {
+        {/* Fee breakdown — shown to agents/sellers when they enter a price, unless the payment gateway is disabled */}
+        {!isAdmin && settings && settings.payment_gateway_enabled && form.price && Number(form.price) > 0 && (() => {
           const listingFee = settings.listing_fee;
           const procFee    = parseFloat((listingFee * settings.processing_fee_pct / 100).toFixed(2));
           const total      = parseFloat((listingFee + procFee).toFixed(2));
@@ -543,12 +550,16 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
       {otpPhase === 'otp' && !isAdmin && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Verify &amp; Pay</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">
+              {settings?.payment_gateway_enabled === false ? 'Verify & Submit' : 'Verify & Pay'}
+            </h2>
             <p className="text-sm text-gray-500 mb-1">
               A 6-digit code was sent to <span className="font-medium text-gray-700">{maskedEmail}</span>.
             </p>
             <p className="text-xs text-gray-400 mb-4">
-              After verification you will be redirected to PayHere to pay a 10% listing fee.
+              {settings?.payment_gateway_enabled === false
+                ? 'After verification your listing will be submitted for admin review and published once approved.'
+                : 'After verification you will be redirected to PayHere to pay a 10% listing fee.'}
             </p>
             {otpError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700 mb-3">{otpError}</div>
@@ -570,7 +581,9 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
               className="w-full bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               {submitting && <Loader2 size={16} className="animate-spin" />}
-              {submitting ? 'Redirecting to payment...' : 'Verify & Proceed to Payment'}
+              {submitting
+                ? (settings?.payment_gateway_enabled === false ? 'Submitting...' : 'Redirecting to payment...')
+                : (settings?.payment_gateway_enabled === false ? 'Verify & Submit for Review' : 'Verify & Proceed to Payment')}
             </button>
             <button
               type="button"

@@ -19,9 +19,10 @@ class PaymentController extends Controller
     {
         $rows = DB::table('settings')->get()->keyBy('key');
         return [
-            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
-            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
-            'commission_pct'     => (float) ($rows['commission_pct']->value     ?? 0),
+            'listing_fee'             => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct'      => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'          => (float) ($rows['commission_pct']->value     ?? 0),
+            'payment_gateway_enabled' => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
         ];
     }
 
@@ -68,8 +69,15 @@ class PaymentController extends Controller
             'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
+        $cfg = $this->settings();
+
+        // Payment gateway temporarily disabled — skip PayHere entirely and submit
+        // the listing directly for admin review (published once an admin approves it).
+        if (! $cfg['payment_gateway_enabled']) {
+            return $this->createPendingApprovalProperty($request, $user);
+        }
+
         // Step 3 — generate order: flat listing fee + processing fee (from settings)
-        $cfg            = $this->settings();
         $orderId        = 'GB-' . strtoupper(uniqid());
         $listingPrice   = (float) $request->price;
         $listingFee     = $cfg['listing_fee'];
@@ -317,6 +325,40 @@ class PaymentController extends Controller
         } catch (\Throwable $e) {
             Log::error("PayHere: failed to send receipt for order {$pending->order_id}: {$e->getMessage()}");
         }
+    }
+
+    // Used while the payment gateway is temporarily disabled — creates the property
+    // straight away as 'inactive' so an admin can review and publish it manually.
+    private function createPendingApprovalProperty(Request $request, User $user): JsonResponse
+    {
+        $listingData = $request->only([
+            'title', 'price', 'price_per_week', 'address', 'suburb', 'state',
+            'postcode', 'country', 'beds', 'baths', 'cars', 'land_size',
+            'property_type', 'condition', 'category', 'listing_type', 'description',
+            'is_featured',
+        ]);
+        $listingData['agent_name']  = $user->name;
+        $listingData['agency_name'] = $user->name;
+        $listingData['status']      = 'inactive';
+        $listingData['listing_fee'] = 0;
+
+        $property = $user->properties()->create($listingData);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store("properties/{$property->id}", 'public');
+                PropertyImage::create([
+                    'property_id' => $property->id,
+                    'image_path'  => $path,
+                    'is_primary'  => $index === 0,
+                    'sort_order'  => $index,
+                ]);
+            }
+        }
+
+        $property->load('images');
+
+        return response()->json($property, 201);
     }
 
     private function createPropertyFromPending(PendingListing $pending, User $user)

@@ -2350,14 +2350,15 @@ function BankRatesTab({ token }: { token: string }) {
 
 function PricingTab({ token }: { token: string }) {
   const [settings, setSettings] = useState<AdminSettings | null>(null);
-  const [form, setForm] = useState({ listing_fee: 1000, processing_fee_pct: 3.3 });
+  const [form, setForm] = useState({ listing_fee: 1000, processing_fee_pct: 3.3, payment_gateway_enabled: true });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [togglingGateway, setTogglingGateway] = useState(false);
 
   useEffect(() => {
     adminApi.getSettings(token)
-      .then((s) => { setSettings(s); setForm({ listing_fee: s.listing_fee, processing_fee_pct: s.processing_fee_pct }); })
+      .then((s) => { setSettings(s); setForm({ listing_fee: s.listing_fee, processing_fee_pct: s.processing_fee_pct, payment_gateway_enabled: s.payment_gateway_enabled }); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [token]);
@@ -2368,10 +2369,21 @@ function PricingTab({ token }: { token: string }) {
     try {
       const updated = await adminApi.updateSettings({ ...form, commission_pct: 0 }, token);
       setSettings(updated);
+      setForm((f) => ({ ...f, payment_gateway_enabled: updated.payment_gateway_enabled }));
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (e: unknown) { alert((e as Error).message); }
     finally { setSaving(false); }
+  }
+
+  async function handleToggleGateway() {
+    setTogglingGateway(true);
+    try {
+      const updated = await adminApi.updateSettings({ ...form, payment_gateway_enabled: !form.payment_gateway_enabled, commission_pct: 0 }, token);
+      setSettings(updated);
+      setForm((f) => ({ ...f, payment_gateway_enabled: updated.payment_gateway_enabled }));
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setTogglingGateway(false); }
   }
 
   const fee   = form.listing_fee;
@@ -2383,6 +2395,28 @@ function PricingTab({ token }: { token: string }) {
 
   return (
     <div className="max-w-2xl space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-100 p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2"><CreditCard size={16} className="text-[#16a34a]" /> Payment Gateway</h3>
+            <p className="text-xs text-gray-500 mt-1">
+              {loading ? 'Loading…' : form.payment_gateway_enabled
+                ? 'Sellers pay a listing fee via PayHere before their listing goes live.'
+                : 'Payment is disabled — new listings are submitted directly for admin approval.'}
+            </p>
+          </div>
+          <button onClick={handleToggleGateway} disabled={loading || togglingGateway}
+            className="flex items-center gap-2 shrink-0 disabled:opacity-50">
+            <span className={`text-xs font-semibold ${form.payment_gateway_enabled ? 'text-green-600' : 'text-gray-400'}`}>
+              {form.payment_gateway_enabled ? 'Enabled' : 'Disabled'}
+            </span>
+            {form.payment_gateway_enabled
+              ? <ToggleRight size={28} className="text-green-500" />
+              : <ToggleLeft size={28} className="text-gray-300" />}
+          </button>
+        </div>
+      </div>
+
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
         <h3 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-2"><DollarSign size={16} className="text-[#16a34a]" /> Listing Fee Configuration</h3>
 

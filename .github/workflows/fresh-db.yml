@@ -22,7 +22,7 @@ jobs:
         with:
           host: 94.72.96.17
           username: root
-          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             ENV_FILE=/var/www/greenbricks/backend/.env
             grep -q '^ADMIN_EMAIL=' $ENV_FILE && \

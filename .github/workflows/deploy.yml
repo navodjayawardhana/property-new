@@ -15,7 +15,7 @@ jobs:
         with:
           host: 94.72.96.17
           username: root
-          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             grep -q "git reset --hard" /var/www/deploy-greenbricks.sh || \
               sed -i 's/git pull/git reset --hard HEAD \&\& git clean -fd \&\& git pull/' /var/www/deploy-greenbricks.sh
@@ -26,7 +26,7 @@ jobs:
         with:
           host: 94.72.96.17
           username: root
-          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             ENV_FILE=/var/www/greenbricks/backend/.env
             sed -i 's|^APP_URL=.*|APP_URL=https://api.greenbricks.net|' $ENV_FILE

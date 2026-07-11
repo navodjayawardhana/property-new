@@ -424,9 +424,10 @@ class AdminController extends Controller
         $rows = DB::table('settings')->get()->keyBy('key');
 
         return response()->json([
-            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
-            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
-            'commission_pct'     => 0,
+            'listing_fee'              => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct'       => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'           => 0,
+            'payment_gateway_enabled'  => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
         ]);
     }
 
@@ -437,9 +438,10 @@ class AdminController extends Controller
         $rows = DB::table('settings')->get()->keyBy('key');
 
         return response()->json([
-            'listing_fee'        => (float) ($rows['listing_fee']->value        ?? 1000),
-            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
-            'commission_pct'     => (float) ($rows['commission_pct']->value     ?? 0),
+            'listing_fee'             => (float) ($rows['listing_fee']->value        ?? 1000),
+            'processing_fee_pct'      => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct'          => (float) ($rows['commission_pct']->value     ?? 0),
+            'payment_gateway_enabled' => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
         ]);
     }
 
@@ -448,15 +450,19 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'listing_fee'        => 'required|numeric|min:0',
-            'processing_fee_pct' => 'required|numeric|min:0|max:100',
-            'commission_pct'     => 'required|numeric|min:0|max:100',
+            'listing_fee'              => 'required|numeric|min:0',
+            'processing_fee_pct'       => 'required|numeric|min:0|max:100',
+            'commission_pct'           => 'required|numeric|min:0|max:100',
+            'payment_gateway_enabled'  => 'required|boolean',
         ]);
 
         foreach ($validated as $key => $value) {
-            DB::table('settings')->updateOrInsert(['key' => $key], ['value' => $value]);
+            DB::table('settings')->updateOrInsert(['key' => $key], ['value' => is_bool($value) ? (int) $value : $value]);
         }
 
-        return response()->json($validated);
+        return response()->json([
+            ...$validated,
+            'payment_gateway_enabled' => (bool) $validated['payment_gateway_enabled'],
+        ]);
     }
 }

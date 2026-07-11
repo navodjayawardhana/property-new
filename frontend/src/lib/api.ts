@@ -75,6 +75,7 @@ export type AdminSettings = {
   listing_fee: number;
   processing_fee_pct: number;
   commission_pct: number;
+  payment_gateway_enabled: boolean;
 };
 
 export type AuthResponse = { user: User; token: string };
@@ -265,8 +266,10 @@ export const properties = {
   sendListingOtp: (token: string) =>
     request<{ message: string; masked_email: string }>('/send-listing-otp', { method: 'POST', token }),
 
+  // Returns a PayHere checkout payload, or the created Property directly when
+  // the payment gateway is disabled and the listing is submitted for admin review.
   initiatePayment: (data: FormData, token: string) =>
-    request<PayHereCheckout>('/payment/initiate', { method: 'POST', body: data, token }),
+    request<PayHereCheckout | Property>('/payment/initiate', { method: 'POST', body: data, token }),
 
   checkPaymentStatus: (orderId: string, token: string) =>
     request<{ status: 'pending' | 'completed' | 'failed'; property_id: number | null }>(

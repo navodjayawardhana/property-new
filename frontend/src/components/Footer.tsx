@@ -157,12 +157,7 @@ export default function Footer() {
               <Link href="/terms" className="hover:text-[#16a34a] transition-colors">Terms &amp; Conditions</Link>
               <span className="text-gray-300">·</span>
               <Link href="/cookies" className="hover:text-[#16a34a] transition-colors">Cookie Policy</Link>
-              <span className="text-gray-300 hidden sm:inline">·</span>
             </div>
-            <span className="text-center">
-              Developed by{" "}
-              <Link href="http://esupport.live/" target="_blank" rel="noopener noreferrer" className="text-[#16a34a] font-medium hover:underline transition-colors">eSupport</Link>
-            </span>
           </div>
         </div>
       </div>
