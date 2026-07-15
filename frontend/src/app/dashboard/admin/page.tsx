@@ -471,14 +471,14 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
 
-  const ready = !!(name && email && password.length >= 8 && password === passwordConfirmation);
+  const ready = !!(name && phone && password.length >= 8 && password === passwordConfirmation);
 
   async function handleCreate() {
     setSaving(true);
     setError("");
     try {
       await adminApi.createAdvertisementManager(
-        { name, email, password, password_confirmation: passwordConfirmation, phone: phone || undefined },
+        { name, email: email || undefined, password, password_confirmation: passwordConfirmation, phone: phone || undefined },
         token
       );
       setCreated(true);
@@ -502,7 +502,7 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
 
         {created ? (
           <div className="p-6 space-y-4">
-            <p className="text-sm text-gray-600">Account created for <span className="font-semibold">{email}</span>.</p>
+            <p className="text-sm text-gray-600">Account created for <span className="font-semibold">{email || name}</span>.</p>
             <p className="text-xs text-gray-400">They can sign in at <span className="font-mono">/advertisement-manager/login</span> with the email and password you set.</p>
             <div className="flex justify-end pt-2">
               <button onClick={onCreated} className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
@@ -518,11 +518,11 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
               <input className={inp} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <label className={lbl}>Email *</label>
+              <label className={lbl}>Email (optional)</label>
               <input type="email" className={inp} value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className={lbl}>Phone (optional)</label>
+              <label className={lbl}>Phone *</label>
               <input className={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" />
             </div>
             <div className="grid grid-cols-2 gap-3">

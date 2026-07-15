@@ -256,14 +256,14 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
+            'email'    => 'nullable|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'phone'    => 'nullable|string|max:20',
+            'phone'    => 'required|string|max:20',
         ]);
 
         $user = User::create([
             'name'              => $validated['name'],
-            'email'             => $validated['email'],
+            'email'             => $validated['email'] ?? null,
             'password'          => $validated['password'],
             'phone'             => $validated['phone'] ?? null,
             'role'              => 'advertisement_manager',

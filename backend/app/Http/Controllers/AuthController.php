@@ -92,17 +92,28 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email'    => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($request->only('email', 'password'))) {
+        // Identifier can be an email address or a phone number (any format).
+        // A phone number may be shared across several accounts (e.g. a seller
+        // and an advertisement manager), so match all candidates and pick the
+        // one whose password actually matches.
+        $login = $request->email;
+        $candidates = str_contains($login, '@')
+            ? User::where('email', $login)->get()
+            : User::whereIn('phone', $this->phoneVariants($login))->get();
+
+        $user = $candidates->first(
+            fn ($candidate) => $candidate->password && Hash::check($request->password, $candidate->password)
+        );
+
+        if (! $user) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-
-        $user = Auth::user();
 
         if ($user->is_blocked) {
             throw ValidationException::withMessages([
@@ -110,8 +121,8 @@ class AuthController extends Controller
             ]);
         }
 
-        // Block login until email is verified
-        if (! $user->email_verified_at) {
+        // Block login until email is verified (only for accounts that have an email)
+        if ($user->email && ! $user->email_verified_at) {
             // Resend a fresh OTP so they can complete verification
             $otp = (string) random_int(100000, 999999);
             $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);

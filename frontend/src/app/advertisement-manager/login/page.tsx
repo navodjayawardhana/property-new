@@ -159,11 +159,11 @@ export default function AdvertisementManagerLoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-gray-400 mb-1.5 block">Email address</label>
+              <label className="text-xs font-semibold text-gray-400 mb-1.5 block">Email or phone number</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com" autoFocus
+                <input type="text" value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com or 07XXXXXXXX" autoFocus
                   className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white outline-none focus:border-green-600 focus:ring-2 focus:ring-green-950 transition-all placeholder-gray-600" />
               </div>
             </div>
