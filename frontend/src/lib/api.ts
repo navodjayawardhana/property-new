@@ -495,9 +495,14 @@ export const admin = {
       '/admin/properties/create-for-seller', { method: 'POST', body: data, token }
     ),
 
-  createAdvertisementManager: (data: { name: string; email: string; password: string; password_confirmation: string; phone?: string }, token: string) =>
+  createAdvertisementManager: (data: { name: string; email?: string; password: string; password_confirmation: string; phone?: string }, token: string) =>
     request<{ user: User }>(
       '/admin/advertisement-managers', { method: 'POST', body: data, token }
+    ),
+
+  updateAdvertisementManager: (id: number, data: { name: string; email?: string; password?: string; password_confirmation?: string; phone: string }, token: string) =>
+    request<{ user: User }>(
+      `/admin/advertisement-managers/${id}`, { method: 'PATCH', body: data, token }
     ),
 
   advertisementManagers: (filters: { search?: string; page?: number }, token: string) => {

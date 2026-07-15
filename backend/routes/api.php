@@ -123,6 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/properties/create-for-seller', [AdminController::class, 'createListingForSeller']);
         Route::get('/advertisement-managers',     [AdminController::class, 'advertisementManagers']);
         Route::post('/advertisement-managers',    [AdminController::class, 'createAdvertisementManager']);
+        Route::patch('/advertisement-managers/{user}', [AdminController::class, 'updateAdvertisementManager']);
         Route::patch('/properties/{property}',    [AdminController::class, 'updateProperty']);
         Route::delete('/properties/{property}',   [AdminController::class, 'deleteProperty']);
         Route::get('/inquiries',                  [AdminController::class, 'inquiries']);

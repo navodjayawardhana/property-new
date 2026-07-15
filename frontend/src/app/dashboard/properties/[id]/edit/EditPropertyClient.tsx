@@ -18,7 +18,7 @@ export default function EditPropertyPage() {
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'seller' && user.role !== 'agent' && user.role !== 'admin'))) {
+    if (!loading && (!user || (user.role !== 'seller' && user.role !== 'agent' && user.role !== 'admin' && user.role !== 'advertisement_manager'))) {
       router.replace('/signin');
     }
   }, [loading, user, router]);
@@ -34,6 +34,8 @@ export default function EditPropertyPage() {
   function handleSuccess(updated: Property) {
     if (user?.role === 'admin') {
       router.push('/dashboard/admin');
+    } else if (user?.role === 'advertisement_manager') {
+      router.push('/dashboard/advertisement-manager');
     } else {
       router.push(`/property/${updated.id}`);
     }
@@ -42,8 +44,8 @@ export default function EditPropertyPage() {
   if (loading || fetching || !user) return null;
   if (!property) return null;
 
-  const backHref = user.role === 'admin' ? '/dashboard/admin' : user.role === 'agent' ? '/dashboard/agent' : '/dashboard/seller';
-  const dashLabel = user.role === 'admin' ? 'Admin Dashboard' : user.role === 'agent' ? 'Agent Dashboard' : 'Seller Dashboard';
+  const backHref = user.role === 'admin' ? '/dashboard/admin' : user.role === 'agent' ? '/dashboard/agent' : user.role === 'advertisement_manager' ? '/dashboard/advertisement-manager' : '/dashboard/seller';
+  const dashLabel = user.role === 'admin' ? 'Admin Dashboard' : user.role === 'agent' ? 'Agent Dashboard' : user.role === 'advertisement_manager' ? 'Advertisement Manager Portal' : 'Seller Dashboard';
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

@@ -276,6 +276,35 @@ class AdminController extends Controller
         return response()->json(['user' => $user], 201);
     }
 
+    public function updateAdvertisementManager(Request $request, User $user): JsonResponse
+    {
+        $this->gate($request);
+
+        if ($user->role !== 'advertisement_manager') {
+            abort(404, 'Advertisement manager not found.');
+        }
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'nullable|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'phone'    => 'required|string|max:20',
+        ]);
+
+        $user->update([
+            'name'  => $validated['name'],
+            'email' => $validated['email'] ?? null,
+            'phone' => $validated['phone'],
+            'slug'  => Str::slug($validated['name']) . '-' . $user->id,
+        ]);
+
+        if (! empty($validated['password'])) {
+            $user->update(['password' => $validated['password']]);
+        }
+
+        return response()->json(['user' => $user->fresh()]);
+    }
+
     public function updateProperty(Request $request, Property $property): JsonResponse
     {
         $this->gate($request);
