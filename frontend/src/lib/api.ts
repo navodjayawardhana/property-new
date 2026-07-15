@@ -59,6 +59,7 @@ export type User = {
   state: string | null;
   postcode: string | null;
   country: string | null;
+  created_listings_count?: number;
 };
 
 export type Slide = {

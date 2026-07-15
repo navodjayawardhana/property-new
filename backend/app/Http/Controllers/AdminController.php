@@ -88,7 +88,9 @@ class AdminController extends Controller
     {
         $this->gate($request);
 
-        $query = User::where('role', 'advertisement_manager')->latest();
+        $query = User::where('role', 'advertisement_manager')
+            ->withCount('createdListings')
+            ->latest();
 
         if ($request->filled('search')) {
             $s = $request->search;

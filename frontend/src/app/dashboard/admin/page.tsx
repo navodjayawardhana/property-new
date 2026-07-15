@@ -637,7 +637,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {["Manager", "Phone", "Joined", "Status", "Actions"].map((h) => (
+                  {["Manager", "Phone", "Listings", "Joined", "Status", "Actions"].map((h) => (
                     <th key={h} className="px-5 py-3"><div className="h-3 bg-gray-200 rounded w-14" /></th>
                   ))}
                 </tr>
@@ -655,6 +655,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-4 py-3.5"><div className="h-3 bg-gray-100 rounded w-8" /></td>
                     <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-16" /></td>
                     <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
                     <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
@@ -694,6 +695,11 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell text-xs text-gray-500">
                       {u.phone ?? "—"}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center justify-center min-w-[1.5rem] px-2 py-0.5 text-xs font-bold text-[#16a34a] bg-green-50 rounded-full">
+                        {u.created_listings_count ?? 0}
+                      </span>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">
                       {fmtDate((u as User & { created_at: string }).created_at)}
