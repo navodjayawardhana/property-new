@@ -31,7 +31,7 @@ class SellerListingService
         } else {
             $sellerData = $request->validate([
                 'seller_name'     => 'required|string|max:255',
-                'seller_email'    => 'required|email|unique:users,email',
+                'seller_email'    => 'nullable|email|unique:users,email',
                 'seller_phone'    => 'nullable|string|max:20',
                 'seller_role'     => 'nullable|in:buyer,seller,agent',
                 'seller_country'  => 'nullable|string|max:100',
@@ -75,7 +75,7 @@ class SellerListingService
             if ($newAccountCreated) {
                 $seller = User::create([
                     'name'              => $sellerData['seller_name'],
-                    'email'             => $sellerData['seller_email'],
+                    'email'             => $sellerData['seller_email'] ?? null,
                     'password'          => $plainPassword,
                     'phone'             => $sellerData['seller_phone'] ?? null,
                     'role'              => $sellerData['seller_role'] ?? 'seller',
@@ -151,10 +151,12 @@ class SellerListingService
             ? "LKR {$property->price_per_week}/week"
             : "LKR {$property->price}";
 
+        $loginId = $seller->email ? "Email: {$seller->email}" : "Phone: {$seller->phone}";
+
         $message = "Hi {$seller->name}, welcome to GreenBricks! Your listing \"{$property->title}\" "
             . "({$listingTypeLabel}, {$property->property_type}, {$property->suburb}, {$property->state}) "
             . "is live at {$priceText}. View it: {$listingUrl} "
-            . "Login to manage it: {$signinUrl} — Email: {$seller->email} / Password: {$plainPassword}";
+            . "Login to manage it: {$signinUrl} — {$loginId} / Password: {$plainPassword}";
 
         $smsResponse = Http::get('https://app.notify.lk/api/v1/send', [
             'user_id'   => config('services.notify_lk.user_id'),

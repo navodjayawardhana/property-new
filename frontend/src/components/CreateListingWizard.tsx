@@ -55,14 +55,14 @@ export function CreateListingWizard({ token, submitSellerListing, searchUsers }:
 
   const sellerReady = sellerMode === "existing"
     ? !!selectedSeller
-    : !!(newSeller.name && newSeller.email);
+    : !!newSeller.name;
 
   const sellerPayload: SellerPayload | undefined = sellerReady
     ? (sellerMode === "existing"
         ? { mode: "existing", sellerId: selectedSeller!.id }
         : {
             mode: "new",
-            name: newSeller.name, email: newSeller.email,
+            name: newSeller.name, email: newSeller.email || undefined,
             phone: newSeller.phone || undefined, role: newSeller.role,
             country: newSeller.country || undefined, state: newSeller.state || undefined,
             district: newSeller.district || undefined, suburb: newSeller.suburb || undefined,
@@ -197,7 +197,7 @@ export function CreateListingWizard({ token, submitSellerListing, searchUsers }:
                   </select>
                 </div>
                 <div>
-                  <label className={lbl}>Email *</label>
+                  <label className={lbl}>Email (optional)</label>
                   <input type="email" className={inp} value={newSeller.email} onChange={(e) => setNewSeller((p) => ({ ...p, email: e.target.value }))} />
                 </div>
                 <div>

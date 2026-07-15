@@ -515,10 +515,16 @@ export default function SellerDashboard() {
                             className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" title="View">
                             <ExternalLink size={14} />
                           </Link>
-                          <Link href={`/dashboard/properties/${p.id}/edit`}
-                            className="p-1.5 text-gray-400 hover:text-[#16a34a] hover:bg-[#16a34a]/10 rounded-lg transition-colors" title="Edit">
-                            <Edit2 size={14} />
-                          </Link>
+                          {p.created_by_id == null ? (
+                            <Link href={`/dashboard/properties/${p.id}/edit`}
+                              className="p-1.5 text-gray-400 hover:text-[#16a34a] hover:bg-[#16a34a]/10 rounded-lg transition-colors" title="Edit">
+                              <Edit2 size={14} />
+                            </Link>
+                          ) : (
+                            <span className="p-1.5 text-gray-300 cursor-not-allowed" title="Published by GreenBricks — contact support to edit">
+                              <Edit2 size={14} />
+                            </span>
+                          )}
                           <button onClick={() => handleDelete(p.id)} disabled={deletingId === p.id}
                             className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50" title="Delete">
                             {deletingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}

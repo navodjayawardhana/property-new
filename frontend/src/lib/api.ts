@@ -151,6 +151,7 @@ export type PropertyOwner = {
 export type Property = {
   id: number;
   user_id: number;
+  created_by_id: number | null;
   user?: PropertyOwner;
   title: string;
   price: number;
