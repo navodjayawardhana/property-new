@@ -69,6 +69,13 @@ class User extends Authenticatable
         return $this->hasMany(Property::class);
     }
 
+    // Listings this user created on someone else's behalf
+    // (admin / advertisement manager acting as an agent).
+    public function createdListings(): HasMany
+    {
+        return $this->hasMany(Property::class, 'created_by_id');
+    }
+
     public function inquiries(): HasMany
     {
         return $this->hasMany(Inquiry::class);

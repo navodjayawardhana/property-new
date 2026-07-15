@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Megaphone, LogOut, Menu, X, FilePlus2, List, ChevronLeft, ChevronRight, ExternalLink, Search, RefreshCw } from "lucide-react";
+import { Megaphone, LogOut, Menu, X, FilePlus2, List, ChevronLeft, ChevronRight, ExternalLink, Search, RefreshCw, Pencil, Loader2 } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAuth } from "@/lib/auth-context";
-import { advertisementManagerApi, type PaginatedProperties } from "@/lib/api";
+import { advertisementManagerApi, properties as propertiesApi, type PaginatedProperties, type Property } from "@/lib/api";
 import { CreateListingWizard } from "@/components/CreateListingWizard";
+import PropertyForm from "@/components/PropertyForm";
 
 type Tab = "create-listing" | "my-listings";
 
@@ -24,12 +25,82 @@ const TAB_TITLES: Record<Tab, string> = {
 function fmtPrice(n: number) { return `LKR ${n.toLocaleString()}`; }
 function fmtDate(s: string) { return new Date(s).toLocaleDateString("en-LK", { day: "numeric", month: "short", year: "numeric" }); }
 
+function EditListingModal({ id, token, onClose, onSaved }: { id: number; token: string; onClose: () => void; onSaved: () => void }) {
+  const [property, setProperty] = useState<Property | null>(null);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    propertiesApi.get(id)
+      .then(setProperty)
+      .catch(() => setError(true))
+      .finally(() => setFetching(false));
+  }, [id]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl my-8">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl z-10">
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-widest font-medium">Edit Listing</p>
+            <h3 className="font-black text-gray-900 mt-0.5 line-clamp-1">{property?.title ?? "Loading…"}</h3>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors shrink-0">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {fetching ? (
+            <div className="flex items-center justify-center py-16 text-gray-400">
+              <Loader2 size={22} className="animate-spin" />
+            </div>
+          ) : error || !property ? (
+            <div className="py-16 text-center text-sm text-gray-400">Could not load this listing. Please try again.</div>
+          ) : (
+            <PropertyForm
+              mode="edit"
+              propertyId={property.id}
+              initialData={{
+                title: property.title,
+                listing_type: property.listing_type,
+                property_type: property.property_type,
+                condition: property.condition as 'new' | 'used',
+                category: property.category as 'domestic' | 'commercial' | 'both',
+                address: property.address,
+                suburb: property.suburb,
+                district: property.district ?? '',
+                state: property.state,
+                postcode: property.postcode ?? '',
+                country: property.country ?? 'Sri Lanka',
+                beds: String(property.beds),
+                baths: String(property.baths),
+                cars: String(property.cars),
+                land_size: property.land_size ?? '',
+                price: String(property.price),
+                price_per_week: property.price_per_week ? String(property.price_per_week) : '',
+                description: property.description,
+                status: property.status,
+                is_featured: property.is_featured,
+              }}
+              existingImages={property.images ?? []}
+              token={token}
+              onSuccess={onSaved}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MyListingsTab({ token }: { token: string }) {
   const [data, setData] = useState<PaginatedProperties | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [listingType, setListingType] = useState<"" | "buy" | "rent" | "sold">("");
   const [page, setPage] = useState(1);
+  const [editId, setEditId] = useState<number | null>(null);
 
   const load = useCallback(async (p = page, s = search, lt = listingType) => {
     setLoading(true);
@@ -118,11 +189,17 @@ function MyListingsTab({ token }: { token: string }) {
                     {p.listing_type === "rent" && p.price_per_week ? `${fmtPrice(p.price_per_week)}/week` : fmtPrice(p.price)}
                   </td>
                   <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">{fmtDate(p.created_at)}</td>
-                  <td className="px-5 py-3.5 text-right">
-                    <Link href={`/property/${p.id}`} target="_blank"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#16a34a] hover:underline">
-                      View <ExternalLink size={12} />
-                    </Link>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link href={`/property/${p.id}`} target="_blank"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#16a34a] hover:underline">
+                        View <ExternalLink size={12} />
+                      </Link>
+                      <button onClick={() => setEditId(p.id)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-[#16a34a] hover:underline">
+                        Edit <Pencil size={12} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -145,6 +222,15 @@ function MyListingsTab({ token }: { token: string }) {
         </div>
       )}
       </div>
+
+      {editId !== null && (
+        <EditListingModal
+          id={editId}
+          token={token}
+          onClose={() => setEditId(null)}
+          onSaved={() => { setEditId(null); load(page); }}
+        />
+      )}
     </div>
   );
 }

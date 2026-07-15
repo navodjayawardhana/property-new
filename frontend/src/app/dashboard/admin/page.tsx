@@ -457,31 +457,49 @@ function UsersTab({ token }: { token: string }) {
   );
 }
 
-function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClose: () => void; onCreated: () => void }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+function AdManagerModal({ token, editing, onClose, onSaved }: { token: string; editing?: User | null; onClose: () => void; onSaved: () => void }) {
+  const isEdit = !!editing;
+  const [name, setName] = useState(editing?.name ?? "");
+  const [email, setEmail] = useState(editing?.email ?? "");
+  const [phone, setPhone] = useState(editing?.phone ?? "");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [created, setCreated] = useState(false);
+  const [done, setDone] = useState(false);
 
   const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white";
   const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
 
-  const ready = !!(name && email && password.length >= 8 && password === passwordConfirmation);
+  // On edit, password is optional (blank = keep current). On create it is required.
+  const passwordValid = isEdit
+    ? (password === "" && passwordConfirmation === "") || (password.length >= 8 && password === passwordConfirmation)
+    : (password.length >= 8 && password === passwordConfirmation);
+  const ready = !!(name && phone && passwordValid);
 
-  async function handleCreate() {
+  async function handleSave() {
     setSaving(true);
     setError("");
     try {
-      await adminApi.createAdvertisementManager(
-        { name, email, password, password_confirmation: passwordConfirmation, phone: phone || undefined },
-        token
-      );
-      setCreated(true);
+      if (isEdit && editing) {
+        await adminApi.updateAdvertisementManager(
+          editing.id,
+          {
+            name,
+            email: email || undefined,
+            phone,
+            ...(password ? { password, password_confirmation: passwordConfirmation } : {}),
+          },
+          token
+        );
+      } else {
+        await adminApi.createAdvertisementManager(
+          { name, email: email || undefined, password, password_confirmation: passwordConfirmation, phone: phone || undefined },
+          token
+        );
+      }
+      setDone(true);
     } catch (e: unknown) {
       const err = e as Error & { errors?: Record<string, string[]> };
       setError(err.errors ? Object.values(err.errors).flat().join(' · ') : (err.message ?? 'Something went wrong'));
@@ -494,18 +512,24 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 className="font-black text-gray-900">New Advertisement Manager</h3>
-          <button onClick={() => { onClose(); if (created) onCreated(); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+          <h3 className="font-black text-gray-900">{isEdit ? "Edit Advertisement Manager" : "New Advertisement Manager"}</h3>
+          <button onClick={() => { onClose(); if (done) onSaved(); }} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
             <X size={16} />
           </button>
         </div>
 
-        {created ? (
+        {done ? (
           <div className="p-6 space-y-4">
-            <p className="text-sm text-gray-600">Account created for <span className="font-semibold">{email}</span>.</p>
-            <p className="text-xs text-gray-400">They can sign in at <span className="font-mono">/advertisement-manager/login</span> with the email and password you set.</p>
+            {isEdit ? (
+              <p className="text-sm text-gray-600">Changes saved for <span className="font-semibold">{email || name}</span>.</p>
+            ) : (
+              <>
+                <p className="text-sm text-gray-600">Account created for <span className="font-semibold">{email || name}</span>.</p>
+                <p className="text-xs text-gray-400">They can sign in at <span className="font-mono">/advertisement-manager/login</span> with the email and password you set.</p>
+              </>
+            )}
             <div className="flex justify-end pt-2">
-              <button onClick={onCreated} className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+              <button onClick={onSaved} className="bg-[#16a34a] hover:bg-[#15803d] text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
                 Done
               </button>
             </div>
@@ -518,19 +542,19 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
               <input className={inp} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <label className={lbl}>Email *</label>
+              <label className={lbl}>Email (optional)</label>
               <input type="email" className={inp} value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className={lbl}>Phone (optional)</label>
+              <label className={lbl}>Phone *</label>
               <input className={inp} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="07XXXXXXXX" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={lbl}>Password *</label>
+                <label className={lbl}>{isEdit ? "New Password" : "Password *"}</label>
                 <div className="relative">
                   <input type={showPassword ? "text" : "password"} className={inp + " pr-10"} value={password}
-                    onChange={(e) => setPassword(e.target.value)} placeholder="Min. 8 characters" />
+                    onChange={(e) => setPassword(e.target.value)} placeholder={isEdit ? "Leave blank to keep" : "Min. 8 characters"} />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -538,7 +562,7 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
                 </div>
               </div>
               <div>
-                <label className={lbl}>Confirm Password *</label>
+                <label className={lbl}>{isEdit ? "Confirm Password" : "Confirm Password *"}</label>
                 <input type={showPassword ? "text" : "password"} className={inp} value={passwordConfirmation}
                   onChange={(e) => setPasswordConfirmation(e.target.value)} />
               </div>
@@ -550,9 +574,9 @@ function NewAdManagerModal({ token, onClose, onCreated }: { token: string; onClo
               <button onClick={onClose} className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
                 Cancel
               </button>
-              <button onClick={handleCreate} disabled={saving || !ready}
+              <button onClick={handleSave} disabled={saving || !ready}
                 className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
-                {saving ? <><Loader2 size={14} className="animate-spin" /> Creating…</> : "Create Account"}
+                {saving ? <><Loader2 size={14} className="animate-spin" /> {isEdit ? "Saving…" : "Creating…"}</> : (isEdit ? "Save Changes" : "Create Account")}
               </button>
             </div>
           </div>
@@ -572,6 +596,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
   const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
   const [blocking, setBlocking] = useState<number | null>(null);
   const [showNewAdManager, setShowNewAdManager] = useState(false);
+  const [editManager, setEditManager] = useState<User | null>(null);
 
   const load = useCallback(async (p = page, s = search) => {
     setLoading(true);
@@ -637,7 +662,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  {["Manager", "Phone", "Joined", "Status", "Actions"].map((h) => (
+                  {["Manager", "Phone", "Listings", "Joined", "Status", "Actions"].map((h) => (
                     <th key={h} className="px-5 py-3"><div className="h-3 bg-gray-200 rounded w-14" /></th>
                   ))}
                 </tr>
@@ -655,6 +680,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                       </div>
                     </td>
                     <td className="px-4 py-3.5 hidden md:table-cell"><div className="h-3 bg-gray-100 rounded w-20" /></td>
+                    <td className="px-4 py-3.5"><div className="h-3 bg-gray-100 rounded w-8" /></td>
                     <td className="px-4 py-3.5 hidden lg:table-cell"><div className="h-3 bg-gray-100 rounded w-16" /></td>
                     <td className="px-4 py-3.5"><div className="h-5 bg-gray-200 rounded-full w-14" /></td>
                     <td className="px-5 py-3.5"><div className="h-6 bg-gray-100 rounded-lg w-20 ml-auto" /></td>
@@ -695,6 +721,11 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                     <td className="px-4 py-3.5 hidden md:table-cell text-xs text-gray-500">
                       {u.phone ?? "—"}
                     </td>
+                    <td className="px-4 py-3.5">
+                      <span className="inline-flex items-center justify-center min-w-[1.5rem] px-2 py-0.5 text-xs font-bold text-[#16a34a] bg-green-50 rounded-full">
+                        {u.created_listings_count ?? 0}
+                      </span>
+                    </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">
                       {fmtDate((u as User & { created_at: string }).created_at)}
                     </td>
@@ -706,6 +737,12 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditManager(u)}
+                          title="Edit manager"
+                          className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                          <Edit2 size={14} />
+                        </button>
                         <button
                           onClick={() => handleToggleBlock(u)}
                           disabled={blocking === u.id}
@@ -738,10 +775,19 @@ function AdvertisementManagersTab({ token }: { token: string }) {
       )}
 
       {showNewAdManager && (
-        <NewAdManagerModal
+        <AdManagerModal
           token={token}
           onClose={() => setShowNewAdManager(false)}
-          onCreated={() => { setShowNewAdManager(false); load(page); }}
+          onSaved={() => { setShowNewAdManager(false); load(page); }}
+        />
+      )}
+
+      {editManager && (
+        <AdManagerModal
+          token={token}
+          editing={editManager}
+          onClose={() => setEditManager(null)}
+          onSaved={() => { setEditManager(null); load(page); }}
         />
       )}
     </div>

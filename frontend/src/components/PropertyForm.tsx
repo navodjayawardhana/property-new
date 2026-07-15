@@ -36,7 +36,7 @@ export type SellerPayload =
   | {
       mode: 'new';
       name: string;
-      email: string;
+      email?: string;
       phone?: string;
       role?: 'buyer' | 'seller' | 'agent';
       country?: string;
@@ -223,7 +223,7 @@ export default function PropertyForm({ mode, initialData, propertyId, existingIm
               fd.append('seller_id', String(sellerPayload.sellerId));
             } else {
               fd.append('seller_name', sellerPayload.name);
-              fd.append('seller_email', sellerPayload.email);
+              if (sellerPayload.email) fd.append('seller_email', sellerPayload.email);
               if (sellerPayload.phone) fd.append('seller_phone', sellerPayload.phone);
               if (sellerPayload.role) fd.append('seller_role', sellerPayload.role);
               if (sellerPayload.country) fd.append('seller_country', sellerPayload.country);

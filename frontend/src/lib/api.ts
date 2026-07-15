@@ -59,6 +59,7 @@ export type User = {
   state: string | null;
   postcode: string | null;
   country: string | null;
+  created_listings_count?: number;
 };
 
 export type Slide = {
@@ -152,6 +153,7 @@ export type PropertyOwner = {
 export type Property = {
   id: number;
   user_id: number;
+  created_by_id: number | null;
   user?: PropertyOwner;
   title: string;
   price: number;
@@ -496,9 +498,14 @@ export const admin = {
       '/admin/properties/create-for-seller', { method: 'POST', body: data, token }
     ),
 
-  createAdvertisementManager: (data: { name: string; email: string; password: string; password_confirmation: string; phone?: string }, token: string) =>
+  createAdvertisementManager: (data: { name: string; email?: string; password: string; password_confirmation: string; phone?: string }, token: string) =>
     request<{ user: User }>(
       '/admin/advertisement-managers', { method: 'POST', body: data, token }
+    ),
+
+  updateAdvertisementManager: (id: number, data: { name: string; email?: string; password?: string; password_confirmation?: string; phone: string }, token: string) =>
+    request<{ user: User }>(
+      `/admin/advertisement-managers/${id}`, { method: 'PATCH', body: data, token }
     ),
 
   advertisementManagers: (filters: { search?: string; page?: number }, token: string) => {
