@@ -485,7 +485,7 @@ export const admin = {
   toggleBlockUser: (id: number, token: string) =>
     request<User>(`/admin/users/${id}/toggle-block`, { method: 'POST', token }),
 
-  properties: (filters: { status?: string; listing_type?: string; search?: string; featured?: string; page?: number }, token: string) => {
+  properties: (filters: { status?: string; listing_type?: string; search?: string; featured?: string; created_by?: number; page?: number; per_page?: number }, token: string) => {
     const qs = buildQs(filters);
     return request<PaginatedProperties>(`/admin/properties${qs ? '?' + qs : ''}`, { token });
   },

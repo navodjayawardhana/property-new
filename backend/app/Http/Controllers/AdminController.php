@@ -166,6 +166,11 @@ class AdminController extends Controller
             $query->where('is_featured', filter_var($request->featured, FILTER_VALIDATE_BOOLEAN));
         }
 
+        // Scope to listings created by a specific advertisement manager.
+        if ($request->filled('created_by')) {
+            $query->where('created_by_id', $request->created_by);
+        }
+
         if ($request->filled('search')) {
             $s = $request->search;
             $query->where(function ($q) use ($s) {
@@ -176,7 +181,7 @@ class AdminController extends Controller
             });
         }
 
-        return response()->json($query->paginate(5));
+        return response()->json($query->paginate($request->get('per_page', 5)));
     }
 
     private function calcListingFee(): float
