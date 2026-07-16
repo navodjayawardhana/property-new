@@ -586,6 +586,188 @@ function AdManagerModal({ token, editing, onClose, onSaved }: { token: string; e
   );
 }
 
+// ─── Manager listings drill-down modal ─────────────────────────────────────────
+// Shows every listing a single advertisement manager created, with the same
+// view/edit/status/feature/delete controls as the main Properties tab.
+
+function ManagerListingsModal({ token, manager, onClose }: { token: string; manager: User; onClose: () => void }) {
+  const [data, setData] = useState<PaginatedProperties | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [confirm, setConfirm] = useState<{ id: number; title: string } | null>(null);
+  const [toggling, setToggling] = useState<number | null>(null);
+
+  const load = useCallback(async (p = 1, s = "") => {
+    setLoading(true);
+    try {
+      const res = await adminApi.properties({ created_by: manager.id, search: s, page: p, per_page: 5 }, token);
+      setData(res);
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, [manager.id, token]);
+
+  useEffect(() => { load(1, ""); }, [load]);
+
+  async function handleToggleFeatured(p: Property) {
+    setToggling(p.id);
+    try {
+      await adminApi.updateProperty(p.id, { is_featured: !p.is_featured }, token);
+      load(page, search);
+    } catch (e: unknown) { alert((e as Error).message); }
+    finally { setToggling(null); }
+  }
+
+  async function handleStatusChange(p: Property, status: string) {
+    try {
+      await adminApi.updateProperty(p.id, { status }, token);
+      load(page, search);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      await adminApi.deleteProperty(id, token);
+      setConfirm(null);
+      load(page, search);
+    } catch (e: unknown) { alert((e as Error).message); }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <Avatar name={manager.name} avatar={manager.avatar} />
+            <div>
+              <h3 className="font-black text-gray-900 leading-tight">{manager.name}&apos;s Listings</h3>
+              <p className="text-xs text-gray-400">{manager.email ?? manager.phone ?? "Advertisement manager"}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4 overflow-y-auto">
+          <div className="flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-white border border-gray-200 rounded-xl px-3 py-2">
+              <Search size={14} className="text-gray-400 shrink-0" />
+              <input value={search} onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (setPage(1), load(1, search))}
+                placeholder="Search this manager's listings…"
+                className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400" />
+              {search && <button onClick={() => { setSearch(""); setPage(1); load(1, ""); }}><X size={12} className="text-gray-400 hover:text-gray-600" /></button>}
+            </div>
+            <button onClick={() => load(page, search)} className="flex items-center gap-1.5 text-sm border border-gray-200 px-3 py-2 rounded-xl hover:border-gray-400 text-gray-600 bg-white transition-colors">
+              <RefreshCw size={13} /> Refresh
+            </button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-gray-100">
+              <p className="text-sm font-bold text-gray-900">{loading ? <span className="inline-block h-4 w-28 bg-gray-200 rounded animate-pulse" /> : `${data?.total ?? 0} listings`}</p>
+            </div>
+
+            {loading ? (
+              <div className="p-10 text-center"><Loader2 size={22} className="text-gray-300 mx-auto animate-spin" /></div>
+            ) : !data?.data.length ? (
+              <div className="p-10 text-center">
+                <Building2 size={32} className="text-gray-200 mx-auto mb-3" />
+                <p className="text-sm text-gray-400">This manager hasn&apos;t created any listings yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Property</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Type</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Featured</th>
+                      <th className="text-left px-4 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Price</th>
+                      <th className="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wide">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {data.data.map((p) => {
+                      const thumb = p.images?.[0]?.url;
+                      return (
+                        <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                                {thumb ? <img src={thumb} alt={p.title} className="w-full h-full object-cover" /> :
+                                  <div className="w-full h-full flex items-center justify-center text-gray-300"><Home size={16} /></div>}
+                              </div>
+                              <div className="min-w-0">
+                                <Link href={`/property/${p.id}`} target="_blank"
+                                  className="font-semibold text-gray-900 text-sm hover:text-[#16a34a] transition-colors line-clamp-1">{p.title}</Link>
+                                <p className="text-xs text-gray-400">{p.suburb}, {p.state}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <Badge label={p.listing_type} color={LISTING_COLORS[p.listing_type] ?? "bg-gray-100 text-gray-600"} />
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <select value={p.status}
+                              onChange={(e) => handleStatusChange(p, e.target.value)}
+                              className="text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none bg-white text-gray-700">
+                              <option value="active">Active</option>
+                              <option value="inactive">Inactive</option>
+                              <option value="sold">Sold</option>
+                            </select>
+                          </td>
+                          <td className="px-4 py-3.5 hidden lg:table-cell">
+                            <button onClick={() => handleToggleFeatured(p)} disabled={toggling === p.id}
+                              className={`transition-colors ${p.is_featured ? "text-yellow-500 hover:text-yellow-600" : "text-gray-300 hover:text-yellow-400"} disabled:opacity-50`}>
+                              {p.is_featured ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3.5 hidden lg:table-cell text-sm font-semibold text-gray-700">
+                            {fmtPrice(p.price)}
+                          </td>
+                          <td className="px-5 py-3.5 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Link href={`/property/${p.id}`} target="_blank"
+                                className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-blue-50 rounded-lg">
+                                <Eye size={14} />
+                              </Link>
+                              <Link href={`/dashboard/properties/${p.id}/edit`}
+                                className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                                <Edit2 size={14} />
+                              </Link>
+                              <button onClick={() => setConfirm({ id: p.id, title: p.title })}
+                                className="text-red-400 hover:text-red-600 transition-colors p-1.5 hover:bg-red-50 rounded-lg">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p, search); }} /></div>}
+          </div>
+        </div>
+      </div>
+
+      {confirm && (
+        <ConfirmDialog
+          msg={`Delete "${confirm.title}"? All images will be removed.`}
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Advertisement Managers tab ────────────────────────────────────────────────
 
 function AdvertisementManagersTab({ token }: { token: string }) {
@@ -597,6 +779,7 @@ function AdvertisementManagersTab({ token }: { token: string }) {
   const [blocking, setBlocking] = useState<number | null>(null);
   const [showNewAdManager, setShowNewAdManager] = useState(false);
   const [editManager, setEditManager] = useState<User | null>(null);
+  const [viewListingsFor, setViewListingsFor] = useState<User | null>(null);
 
   const load = useCallback(async (p = page, s = search) => {
     setLoading(true);
@@ -722,9 +905,12 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                       {u.phone ?? "—"}
                     </td>
                     <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center justify-center min-w-[1.5rem] px-2 py-0.5 text-xs font-bold text-[#16a34a] bg-green-50 rounded-full">
-                        {u.created_listings_count ?? 0}
-                      </span>
+                      <button
+                        onClick={() => setViewListingsFor(u)}
+                        title="View this manager's listings"
+                        className="inline-flex items-center gap-1 min-w-[1.5rem] px-2 py-0.5 text-xs font-bold text-[#16a34a] bg-green-50 hover:bg-green-100 rounded-full transition-colors cursor-pointer">
+                        <Building2 size={11} /> {u.created_listings_count ?? 0}
+                      </button>
                     </td>
                     <td className="px-4 py-3.5 hidden lg:table-cell text-xs text-gray-400">
                       {fmtDate((u as User & { created_at: string }).created_at)}
@@ -737,6 +923,12 @@ function AdvertisementManagersTab({ token }: { token: string }) {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setViewListingsFor(u)}
+                          title="View listings"
+                          className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                          <Building2 size={14} />
+                        </button>
                         <button
                           onClick={() => setEditManager(u)}
                           title="Edit manager"
@@ -788,6 +980,14 @@ function AdvertisementManagersTab({ token }: { token: string }) {
           editing={editManager}
           onClose={() => setEditManager(null)}
           onSaved={() => { setEditManager(null); load(page); }}
+        />
+      )}
+
+      {viewListingsFor && (
+        <ManagerListingsModal
+          token={token}
+          manager={viewListingsFor}
+          onClose={() => { setViewListingsFor(null); load(page); }}
         />
       )}
     </div>
