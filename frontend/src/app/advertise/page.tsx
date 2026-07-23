@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import { CheckCircle, TrendingUp, Users, Star, Mail } from "lucide-react";
+
+export const metadata: Metadata = {
+  robots: "noindex, nofollow",
+  title: "Advertise Your Properties | Greenbricks",
+  description: "Reach Sri Lanka's largest property audience. Advertise your properties on Greenbricks with flexible pricing plans starting from LKR 4,900/month.",
+  openGraph: {
+    title: "Advertise Your Properties | Greenbricks",
+    description: "Reach Sri Lanka's largest property audience.",
+    url: "https://greenbricks.net/advertise",
+    type: "website",
+  },
+};
 
 const PACKAGES = [
   {
