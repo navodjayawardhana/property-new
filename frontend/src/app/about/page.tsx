@@ -1,4 +1,16 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Greenbricks | Sri Lanka's No.1 Property Site",
+  description: "Learn about Greenbricks, Sri Lanka's leading property portal. Discover our mission, vision, and commitment to connecting buyers and sellers.",
+  keywords: "about Greenbricks, real estate platform, property company",
+  openGraph: {
+    title: "About Greenbricks",
+    description: "Learn about Greenbricks, Sri Lanka's leading property portal.",
+    url: "https://greenbricks.net/about",
+    type: "website",
+  },
+};
 
 import Link from "next/link";
 import Navbar from "@/components/Navbar";

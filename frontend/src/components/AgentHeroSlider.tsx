@@ -59,8 +59,9 @@ export default function AgentHeroSlider({ slides, agent }: Props) {
         >
           <img
             src={slide.url}
-            alt={`Slide ${i + 1}`}
+            alt={`${agent.name} - Real estate agent profile slide ${i + 1}`}
             className="w-full h-full object-cover"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         </div>

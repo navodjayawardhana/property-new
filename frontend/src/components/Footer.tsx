@@ -62,6 +62,124 @@ const tabHeadings: Record<string, string> = {
   "Popular searches": "Popular searches",
 };
 
+const footerLinkMap: Record<string, string> = {
+  // Real estate links - map to buy page with suburb filter
+  "Real estate Colombo": "/buy?suburb=Colombo",
+  "Real estate Gampaha": "/buy?suburb=Gampaha",
+  "Real estate Kalutara": "/buy?suburb=Kalutara",
+  "Real estate Kandy": "/buy?suburb=Kandy",
+  "Real estate Matale": "/buy?suburb=Matale",
+  "Real estate Nuwara Eliya": "/buy?suburb=Nuwara%20Eliya",
+  "Real estate Galle": "/buy?suburb=Galle",
+  "Real estate Matara": "/buy?suburb=Matara",
+  "Real estate Hambantota": "/buy?suburb=Hambantota",
+  "Real estate Jaffna": "/buy?suburb=Jaffna",
+  "Real estate Kilinochchi": "/buy?suburb=Kilinochchi",
+  "Real estate Mannar": "/buy?suburb=Mannar",
+  "Real estate Mullaitivu": "/buy?suburb=Mullaitivu",
+  "Real estate Vavuniya": "/buy?suburb=Vavuniya",
+  "Real estate Trincomalee": "/buy?suburb=Trincomalee",
+  "Real estate Batticaloa": "/buy?suburb=Batticaloa",
+  "Real estate Ampara": "/buy?suburb=Ampara",
+  "Real estate Kurunegala": "/buy?suburb=Kurunegala",
+  "Real estate Puttalam": "/buy?suburb=Puttalam",
+  "Real estate Anuradhapura": "/buy?suburb=Anuradhapura",
+  "Real estate Polonnaruwa": "/buy?suburb=Polonnaruwa",
+  "Real estate Badulla": "/buy?suburb=Badulla",
+  "Real estate Monaragala": "/buy?suburb=Monaragala",
+  "Real estate Ratnapura": "/buy?suburb=Ratnapura",
+  "Real estate Kegalle": "/buy?suburb=Kegalle",
+
+  // New homes links
+  "New apartments Colombo": "/new-homes?suburb=Colombo",
+  "New apartments Kandy": "/new-homes?suburb=Kandy",
+  "New apartments Galle": "/new-homes?suburb=Galle",
+  "New apartments Negombo": "/new-homes?suburb=Negombo",
+  "House & land packages Colombo": "/new-homes?type=House%20%26%20land",
+  "House & land packages Kandy": "/new-homes?type=House%20%26%20land&suburb=Kandy",
+  "House & land packages Gampaha": "/new-homes?type=House%20%26%20land&suburb=Gampaha",
+  "Display homes Colombo": "/new-homes?type=Display%20homes",
+  "Display homes Negombo": "/new-homes?type=Display%20homes&suburb=Negombo",
+  "Display homes Kandy": "/new-homes?type=Display%20homes&suburb=Kandy",
+  "Off-the-plan Colombo": "/new-homes?type=Off-plan",
+  "Off-the-plan Kandy": "/new-homes?type=Off-plan&suburb=Kandy",
+  "Off-the-plan Galle": "/new-homes?type=Off-plan&suburb=Galle",
+  "New townhouses Colombo": "/new-homes?property_type=Townhouse",
+  "New villas Colombo": "/new-homes?property_type=Villa",
+  "New villas Galle": "/new-homes?property_type=Villa&suburb=Galle",
+  "Luxury apartments Colombo": "/new-homes?type=Luxury",
+  "Condominiums Colombo": "/new-homes?property_type=Apartment",
+  "Penthouses Colombo": "/new-homes?type=Penthouses",
+  "Serviced apartments Colombo": "/new-homes?type=Serviced",
+  "Studio apartments Colombo": "/new-homes?property_type=Studio",
+  "Project homes Colombo": "/new-homes?type=Project%20homes",
+
+  // Popular areas - link to buy with suburb
+  "Colombo 1 – Fort": "/buy?suburb=Colombo%201",
+  "Colombo 2 – Slave Island": "/buy?suburb=Colombo%202",
+  "Colombo 3 – Kollupitiya": "/buy?suburb=Colombo%203",
+  "Colombo 4 – Bambalapitiya": "/buy?suburb=Colombo%204",
+  "Colombo 5 – Havelock Town": "/buy?suburb=Colombo%205",
+  "Colombo 6 – Wellawatta": "/buy?suburb=Colombo%206",
+  "Colombo 7 – Cinnamon Gardens": "/buy?suburb=Colombo%207",
+  "Colombo 8 – Borella": "/buy?suburb=Colombo%208",
+  "Colombo 10 – Maradana": "/buy?suburb=Colombo%2010",
+  "Colombo 11 – Pettah": "/buy?suburb=Colombo%2011",
+  "Colombo 15 – Modera": "/buy?suburb=Colombo%2015",
+  "Maharagama": "/buy?suburb=Maharagama",
+  "Nugegoda": "/buy?suburb=Nugegoda",
+  "Thalawathugoda": "/buy?suburb=Thalawathugoda",
+  "Kottawa": "/buy?suburb=Kottawa",
+  "Piliyandala": "/buy?suburb=Piliyandala",
+  "Moratuwa": "/buy?suburb=Moratuwa",
+  "Dehiwala": "/buy?suburb=Dehiwala",
+  "Mount Lavinia": "/buy?suburb=Mount%20Lavinia",
+  "Nawala": "/buy?suburb=Nawala",
+  "Battaramulla": "/buy?suburb=Battaramulla",
+  "Malabe": "/buy?suburb=Malabe",
+  "Kaduwela": "/buy?suburb=Kaduwela",
+  "Sri Jayawardenepura Kotte": "/buy?suburb=Sri%20Jayawardenepura%20Kotte",
+  "Homagama": "/buy?suburb=Homagama",
+  "Negombo": "/buy?suburb=Negombo",
+  "Wattala": "/buy?suburb=Wattala",
+  "Ja-Ela": "/buy?suburb=Ja-Ela",
+  "Kelaniya": "/buy?suburb=Kelaniya",
+  "Gampaha": "/buy?suburb=Gampaha",
+  "Kandy": "/buy?suburb=Kandy",
+  "Peradeniya": "/buy?suburb=Peradeniya",
+  "Galle": "/buy?suburb=Galle",
+  "Matara": "/buy?suburb=Matara",
+  "Hikkaduwa": "/buy?suburb=Hikkaduwa",
+  "Unawatuna": "/buy?suburb=Unawatuna",
+
+  // Popular searches
+  "Houses for sale": "/buy?property_type=House",
+  "Apartments for sale": "/buy?property_type=Apartment",
+  "Townhouses for sale": "/buy?property_type=Townhouse",
+  "Villas for sale": "/buy?property_type=Villa",
+  "Land for sale": "/buy?property_type=Land",
+  "Commercial property for sale": "/commercial",
+  "Industrial property for sale": "/commercial?type=Industrial",
+  "Houses for rent": "/rent?property_type=House",
+  "Apartments for rent": "/rent?property_type=Apartment",
+  "Villas for rent": "/rent?property_type=Villa",
+  "Townhouses for rent": "/rent?property_type=Townhouse",
+  "Office space for rent": "/commercial?type=Office",
+  "Shop for rent": "/commercial?type=Shop",
+  "Warehouse for rent": "/commercial?type=Warehouse",
+  "New homes": "/new-homes",
+  "Off-the-plan": "/new-homes?type=Off-plan",
+  "House and land packages": "/new-homes?type=House%20%26%20land",
+  "Display homes": "/new-homes?type=Display%20homes",
+  "Luxury properties": "/buy?price_range=luxury",
+  "Waterfront properties": "/buy?feature=waterfront",
+  "Beachfront homes": "/buy?feature=beachfront",
+  "Rural properties": "/buy?property_type=Rural",
+  "Investment properties": "/buy?feature=investment",
+  "Property management": "/contact",
+  "Farms for sale": "/buy?property_type=Rural",
+};
+
 const SOCIAL = [
   { label: "Facebook",  href: "https://web.facebook.com/greenbrickssl/",   path: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" },
   { label: "Instagram", href: "https://www.instagram.com/greenbricksl/",   path: "M7.75 2C4.574 2 2 4.574 2 7.75v8.5C2 19.426 4.574 22 7.75 22h8.5C19.426 22 22 19.426 22 16.25v-8.5C22 4.574 19.426 2 16.25 2h-8.5zm0 2h8.5C18.216 4 20 5.784 20 7.75v8.5C20 18.216 18.216 20 16.25 20h-8.5C5.784 20 4 18.216 4 16.25v-8.5C4 5.784 5.784 4 7.75 4zm9.25 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" },
@@ -98,7 +216,7 @@ export default function Footer() {
           <h3 className="text-sm font-semibold text-gray-900 mb-4">{tabHeadings[activeTab]}</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-2.5 gap-x-6">
             {links.map((link) => (
-              <Link key={link} href="/"
+              <Link key={link} href={footerLinkMap[link] || "/"}
                 className="text-sm text-gray-700 hover:text-[#16a34a] hover:underline underline-offset-2 break-words transition-colors">
                 {link}
               </Link>
@@ -112,7 +230,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {SOCIAL.map(({ label, path, href }) => (
-              <Link key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}
+              <Link key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Visit Greenbricks on ${label}`} title={`Follow us on ${label}`}
                 className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-500 hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d={path} />

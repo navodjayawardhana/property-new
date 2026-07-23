@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /advertisement-manager/
+Disallow: /api/
+Disallow: /auth/
+Disallow: /signin
+Disallow: /join
+Disallow: /profile
+Disallow: /*?sort=
+Disallow: /*?page=
+
+# Allow search engines to index main property and agent pages
+Allow: /property/
+Allow: /agents/
+
+# Crawl delay to be respectful
+Crawl-delay: 1
+
+Sitemap: https://greenbricks.net/sitemap.xml

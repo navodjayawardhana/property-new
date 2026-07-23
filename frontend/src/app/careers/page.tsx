@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import { MapPin, Clock, Briefcase, Heart, Zap, Users, ArrowRight } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Careers at Greenbricks | Join Our Team",
+  description: "Join the Greenbricks team! Explore career opportunities in real estate, technology, and business. Build your future with Sri Lanka's No.1 property platform.",
+  keywords: "careers, jobs, employment, real estate jobs, Greenbricks",
+  openGraph: {
+    title: "Careers at Greenbricks",
+    description: "Join the Greenbricks team and build your career in real estate.",
+    url: "https://greenbricks.net/careers",
+    type: "website",
+  },
+};
 
 const JOBS = [
   {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Bed, Bath, Car, Heart, Ruler, Clock } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Property } from "@/lib/api";
@@ -34,10 +35,13 @@ export default function PropertyCard({ property }: { property: Property }) {
       <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100">
         {/* Image */}
         <div className="relative overflow-hidden h-32 sm:h-36">
-          <img
+          <Image
             src={getPrimaryImageUrl(property)}
-            alt={property.address}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            alt={`${property.property_type} in ${property.suburb} - ${property.address}`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
           />
 
           {/* Top-left badges */}
