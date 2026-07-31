@@ -309,7 +309,8 @@ class AuthController extends Controller
 
         Log::info('phone-otp generated', ['to' => $sendTo, 'otp' => $otp]);
 
-        $smsResponse = Http::withoutVerifying()->post('https://app.notify.lk/api/v1/send', [
+        // TLS verification is skipped only on local dev boxes that lack a CA bundle.
+        $smsResponse = Http::withOptions(['verify' => ! app()->isLocal()])->post('https://app.notify.lk/api/v1/send', [
             'user_id'   => config('services.notify_lk.user_id'),
             'api_key'   => config('services.notify_lk.api_key'),
             'sender_id' => config('services.notify_lk.service_id'),
