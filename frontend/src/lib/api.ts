@@ -59,6 +59,13 @@ export type User = {
   state: string | null;
   postcode: string | null;
   country: string | null;
+  bio?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  linkedin?: string | null;
+  whatsapp?: string | null;
+  twitter?: string | null;
+  website?: string | null;
   created_listings_count?: number;
 };
 
@@ -476,8 +483,17 @@ export const admin = {
     return request<PaginatedUsers>(`/admin/users${qs ? '?' + qs : ''}`, { token });
   },
 
-  updateUser: (id: number, data: { role?: string; name?: string; email?: string }, token: string) =>
-    request<User>(`/admin/users/${id}`, { method: 'PATCH', body: data, token }),
+  // FormData (avatar upload) goes over POST; plain field edits stay on PATCH.
+  updateUser: (
+    id: number,
+    data: FormData | { role?: string; name?: string; email?: string; phone?: string },
+    token: string
+  ) =>
+    request<User>(`/admin/users/${id}`, {
+      method: data instanceof FormData ? 'POST' : 'PATCH',
+      body: data,
+      token,
+    }),
 
   deleteUser: (id: number, token: string) =>
     request<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE', token }),
