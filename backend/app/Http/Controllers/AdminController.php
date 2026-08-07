@@ -104,18 +104,78 @@ class AdminController extends Controller
         return response()->json($query->paginate(5));
     }
 
+    /**
+     * Full profile edit from the admin panel.
+     *
+     * Reached over PATCH with JSON (the inline role dropdown) and over POST with
+     * multipart form data (the edit modal, which may carry an avatar file).
+     * Every field is `sometimes` so partial payloads only touch what they send.
+     */
     public function updateUser(Request $request, User $user): JsonResponse
     {
         $this->gate($request);
 
-        $validated = $request->validate([
-            'name'  => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,' . $user->id,
-            'role'  => 'sometimes|in:buyer,seller,agent,admin,advertisement_manager',
-            'phone' => 'sometimes|nullable|string|max:20',
-        ]);
+        $rules = [
+            'name'      => 'sometimes|required|string|max:255',
+            'email'     => 'sometimes|nullable|email|unique:users,email,' . $user->id,
+            'role'      => 'sometimes|in:buyer,seller,agent,admin,advertisement_manager',
+            'phone'     => 'sometimes|nullable|string|max:20',
+            'suburb'    => 'sometimes|nullable|string|max:100',
+            'district'  => 'sometimes|nullable|string|max:100',
+            'state'     => 'sometimes|nullable|string|max:100',
+            'postcode'  => 'sometimes|nullable|string|max:10',
+            'country'   => 'sometimes|nullable|string|max:100',
+            'bio'       => 'sometimes|nullable|string|max:2000',
+            'facebook'  => 'sometimes|nullable|string|max:255',
+            'instagram' => 'sometimes|nullable|string|max:255',
+            'linkedin'  => 'sometimes|nullable|string|max:255',
+            'whatsapp'  => 'sometimes|nullable|string|max:20',
+            'twitter'   => 'sometimes|nullable|string|max:255',
+            'website'   => 'sometimes|nullable|string|max:255',
+            'avatar'        => 'sometimes|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'remove_avatar' => 'sometimes|boolean',
+        ];
+
+        // Blank password means "keep the current one", so only validate a real one.
+        if ($request->filled('password')) {
+            $rules['password'] = 'string|min:8|confirmed';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Don't let an admin strip their own admin role and lock themselves out.
+        if (isset($validated['role']) && $user->id === $request->user()->id && $validated['role'] !== 'admin') {
+            return response()->json(['message' => 'Cannot change your own role.'], 422);
+        }
+
+        // Multipart sends every field as a string — an empty one means "clear it".
+        foreach ($rules as $field => $_) {
+            if (array_key_exists($field, $validated) && $validated[$field] === '') {
+                $validated[$field] = null;
+            }
+        }
+
+        $removeAvatar = $request->boolean('remove_avatar');
+        unset($validated['avatar'], $validated['remove_avatar']);
+
+        if ($request->hasFile('avatar') || $removeAvatar) {
+            $oldPath = $user->getAttributes()['avatar'] ?? null;
+            if ($oldPath && ! str_starts_with($oldPath, 'http')) {
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $validated['avatar'] = $request->hasFile('avatar')
+                ? $request->file('avatar')->store('avatars', 'public')
+                : null;
+        }
 
         $user->update($validated);
+
+        // Agents are published at /agents/{slug}; backfill one if this account
+        // predates the slug column or was created without a name.
+        if (! $user->slug) {
+            $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
+        }
 
         return response()->json($user->fresh());
     }

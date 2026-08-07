@@ -116,6 +116,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stats',                      [AdminController::class, 'stats']);
         Route::get('/users',                      [AdminController::class, 'users']);
         Route::patch('/users/{user}',             [AdminController::class, 'updateUser']);
+        // Same handler over POST so the edit form can send multipart (avatar upload).
+        Route::post('/users/{user}',              [AdminController::class, 'updateUser']);
         Route::delete('/users/{user}',            [AdminController::class, 'deleteUser']);
         Route::post('/users/{user}/toggle-block', [AdminController::class, 'toggleBlockUser']);
         Route::get('/properties',                 [AdminController::class, 'properties']);

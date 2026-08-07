@@ -243,7 +243,7 @@ function OverviewTab({ stats }: { stats: AdminStats }) {
 
 // ─── Users tab ────────────────────────────────────────────────────────────────
 
-function UsersTab({ token }: { token: string }) {
+function UsersTab({ token, currentUserId }: { token: string; currentUserId: number }) {
   const [data, setData] = useState<PaginatedUsers | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -251,6 +251,7 @@ function UsersTab({ token }: { token: string }) {
   const [page, setPage] = useState(1);
   const [confirm, setConfirm] = useState<{ id: number; name: string } | null>(null);
   const [editRole, setEditRole] = useState<{ id: number; role: string } | null>(null);
+  const [editing, setEditing] = useState<User | null>(null);
   const [saving, setSaving] = useState(false);
   const [blocking, setBlocking] = useState<number | null>(null);
 
@@ -424,6 +425,12 @@ function UsersTab({ token }: { token: string }) {
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
+                          onClick={() => setEditing(u)}
+                          title="Edit user"
+                          className="text-gray-400 hover:text-[#16a34a] transition-colors p-1.5 hover:bg-green-50 rounded-lg">
+                          <Edit2 size={14} />
+                        </button>
+                        <button
                           onClick={() => handleToggleBlock(u)}
                           disabled={blocking === u.id}
                           title={u.is_blocked ? "Unblock user" : "Block user"}
@@ -446,6 +453,16 @@ function UsersTab({ token }: { token: string }) {
         {data && <div className="px-5 pb-5"><Pagination current={data.current_page} last={data.last_page} onChange={(p) => { setPage(p); load(p); }} /></div>}
       </div>
 
+      {editing && (
+        <EditUserModal
+          token={token}
+          user={editing}
+          isSelf={editing.id === currentUserId}
+          onClose={() => setEditing(null)}
+          onSaved={() => { setEditing(null); load(page); }}
+        />
+      )}
+
       {confirm && (
         <ConfirmDialog
           msg={`Delete user "${confirm.name}"? This cannot be undone.`}
@@ -453,6 +470,245 @@ function UsersTab({ token }: { token: string }) {
           onCancel={() => setConfirm(null)}
         />
       )}
+    </div>
+  );
+}
+
+// ─── Edit user modal ──────────────────────────────────────────────────────────
+// Full profile editor: avatar, account details, role, password reset, location,
+// bio and social links — everything the user can set on their own profile page,
+// plus the fields only an admin controls.
+
+const USER_ROLES = ["buyer", "seller", "agent", "admin"] as const;
+
+function EditUserModal({ token, user, isSelf, onClose, onSaved }: {
+  token: string; user: User; isSelf: boolean; onClose: () => void; onSaved: () => void;
+}) {
+  const [form, setForm] = useState({
+    name:      user.name ?? "",
+    email:     user.email ?? "",
+    phone:     user.phone ?? "",
+    role:      user.role as string,
+    suburb:    user.suburb ?? "",
+    district:  user.district ?? "",
+    state:     user.state ?? "",
+    postcode:  user.postcode ?? "",
+    country:   user.country ?? "",
+    bio:       user.bio ?? "",
+    facebook:  user.facebook ?? "",
+    instagram: user.instagram ?? "",
+    linkedin:  user.linkedin ?? "",
+    whatsapp:  user.whatsapp ?? "",
+    twitter:   user.twitter ?? "",
+    website:   user.website ?? "",
+  });
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const inp = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-[#16a34a] transition-colors bg-white text-gray-800";
+  const lbl = "block text-xs font-semibold text-gray-600 mb-1.5";
+  const sec = "text-xs font-bold text-gray-400 uppercase tracking-wide";
+
+  useEffect(() => {
+    if (!avatarFile) return;
+    const url = URL.createObjectURL(avatarFile);
+    setAvatarPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [avatarFile]);
+
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  function handleAvatarPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 2 * 1024 * 1024) { setError("Profile picture must be 2 MB or smaller."); return; }
+    setError("");
+    setRemoveAvatar(false);
+    setAvatarFile(f);
+  }
+
+  function handleAvatarRemove() {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setRemoveAvatar(true);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  // Blank password fields mean "keep the current password".
+  const passwordValid = (password === "" && passwordConfirmation === "")
+    || (password.length >= 8 && password === passwordConfirmation);
+  const ready = !!form.name.trim() && passwordValid && !saving;
+
+  async function handleSave() {
+    setSaving(true);
+    setError("");
+    try {
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => fd.append(k, v ?? ""));
+      if (isSelf) fd.delete("role"); // guarded server-side too
+      if (password) {
+        fd.append("password", password);
+        fd.append("password_confirmation", passwordConfirmation);
+      }
+      if (avatarFile) fd.append("avatar", avatarFile);
+      else if (removeAvatar) fd.append("remove_avatar", "1");
+
+      await adminApi.updateUser(user.id, fd, token);
+      onSaved();
+    } catch (e: unknown) {
+      const err = e as Error & { errors?: Record<string, string[]> };
+      setError(err.errors ? Object.values(err.errors).flat().join(" · ") : (err.message ?? "Something went wrong"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+          <div>
+            <h3 className="font-black text-gray-900">Edit User</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{user.email ?? user.phone ?? `#${user.id}`}</p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6 overflow-y-auto">
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">{error}</div>}
+
+          {/* Profile picture */}
+          <div className="flex items-center gap-5">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center shrink-0">
+              {avatarPreview
+                ? <img src={avatarPreview} alt={form.name} className="w-full h-full object-cover" />
+                : <span className="text-white font-bold text-2xl">{(form.name || "?").charAt(0).toUpperCase()}</span>}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="flex items-center gap-1.5 text-sm font-semibold border border-gray-200 text-gray-700 px-3 py-2 rounded-xl hover:border-[#16a34a] hover:text-[#16a34a] transition-colors">
+                  <Upload size={13} /> {avatarPreview ? "Change picture" : "Upload picture"}
+                </button>
+                {avatarPreview && (
+                  <button type="button" onClick={handleAvatarRemove}
+                    className="text-sm font-semibold text-red-500 hover:text-red-700 px-3 py-2 rounded-xl hover:bg-red-50 transition-colors">
+                    Remove
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-gray-400">JPG, PNG or WEBP · max 2 MB</p>
+            </div>
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/jpg,image/webp"
+              onChange={handleAvatarPick} className="hidden" />
+          </div>
+
+          {/* Account */}
+          <div className="space-y-4">
+            <p className={sec}>Account</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>Full Name *</label>
+                <input className={inp} value={form.name} onChange={set("name")} />
+              </div>
+              <div>
+                <label className={lbl}>Role</label>
+                <select className={inp + " disabled:bg-gray-50 disabled:text-gray-400"} value={form.role} onChange={set("role")} disabled={isSelf}>
+                  {USER_ROLES.map((r) => <option key={r} value={r} className="capitalize">{r}</option>)}
+                  {user.role === "advertisement_manager" && <option value="advertisement_manager">advertisement_manager</option>}
+                </select>
+                {isSelf && <p className="text-xs text-gray-400 mt-1">You cannot change your own role.</p>}
+              </div>
+              <div>
+                <label className={lbl}>Email</label>
+                <input type="email" className={inp} value={form.email} onChange={set("email")} />
+              </div>
+              <div>
+                <label className={lbl}>Phone</label>
+                <input className={inp} value={form.phone} onChange={set("phone")} placeholder="07XXXXXXXX" />
+              </div>
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className="space-y-4">
+            <p className={sec}>Reset Password</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className={lbl}>New Password</label>
+                <div className="relative">
+                  <input type={showPassword ? "text" : "password"} className={inp + " pr-10"} value={password}
+                    onChange={(e) => setPassword(e.target.value)} placeholder="Leave blank to keep" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className={lbl}>Confirm Password</label>
+                <input type={showPassword ? "text" : "password"} className={inp} value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)} />
+              </div>
+            </div>
+            {password && password.length < 8 && <p className="text-xs text-red-500">Password must be at least 8 characters.</p>}
+            {password && passwordConfirmation && password !== passwordConfirmation && (
+              <p className="text-xs text-red-500">Passwords do not match.</p>
+            )}
+          </div>
+
+          {/* Location */}
+          <div className="space-y-4">
+            <p className={sec}>Location</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div><label className={lbl}>Suburb</label><input className={inp} value={form.suburb} onChange={set("suburb")} /></div>
+              <div><label className={lbl}>District</label><input className={inp} value={form.district} onChange={set("district")} /></div>
+              <div><label className={lbl}>Province / State</label><input className={inp} value={form.state} onChange={set("state")} /></div>
+              <div><label className={lbl}>Postcode</label><input className={inp} value={form.postcode} onChange={set("postcode")} /></div>
+              <div className="sm:col-span-2"><label className={lbl}>Country</label><input className={inp} value={form.country} onChange={set("country")} /></div>
+            </div>
+          </div>
+
+          {/* Profile */}
+          <div className="space-y-4">
+            <p className={sec}>Profile</p>
+            <div>
+              <label className={lbl}>Bio</label>
+              <textarea className={inp + " resize-none"} rows={4} value={form.bio} onChange={set("bio")}
+                placeholder="Short description shown on the public agent profile…" />
+              <p className="text-xs text-gray-400 mt-1">{form.bio.length}/2000</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div><label className={lbl}>Website</label><input className={inp} value={form.website} onChange={set("website")} placeholder="https://…" /></div>
+              <div><label className={lbl}>WhatsApp</label><input className={inp} value={form.whatsapp} onChange={set("whatsapp")} placeholder="07XXXXXXXX" /></div>
+              <div><label className={lbl}>Facebook</label><input className={inp} value={form.facebook} onChange={set("facebook")} /></div>
+              <div><label className={lbl}>Instagram</label><input className={inp} value={form.instagram} onChange={set("instagram")} /></div>
+              <div><label className={lbl}>LinkedIn</label><input className={inp} value={form.linkedin} onChange={set("linkedin")} /></div>
+              <div><label className={lbl}>Twitter / X</label><input className={inp} value={form.twitter} onChange={set("twitter")} /></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 shrink-0">
+          <button onClick={onClose} className="border border-gray-200 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={!ready}
+            className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-colors">
+            {saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : "Save Changes"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2864,7 +3120,7 @@ export default function AdminPage() {
                     ))}
                   </div>
             )}
-            {tab === "users"          && token && <UsersTab token={token} />}
+            {tab === "users"          && token && <UsersTab token={token} currentUserId={user.id} />}
             {tab === "properties"     && token && <PropertiesTab token={token} />}
             {tab === "create-listing" && token && <CreateListingWizard token={token} />}
             {tab === "inquiries"      && token && <InquiriesTab token={token} />}

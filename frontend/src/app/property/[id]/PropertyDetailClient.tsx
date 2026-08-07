@@ -183,7 +183,10 @@ export default function PropertyDetailPage() {
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
                 <p className="text-[#16a34a] font-black text-3xl">{formatPrice(property)}</p>
-                <h1 className="text-gray-900 font-bold text-xl mt-1">{property.address}</h1>
+                <h1 className="text-gray-900 font-bold text-xl mt-1">{property.title || property.address}</h1>
+                {property.title && (
+                  <p className="text-gray-700 font-semibold text-sm mt-0.5">{property.address}</p>
+                )}
                 <p className="flex items-center gap-1 text-gray-500 text-sm mt-0.5">
                   <MapPin size={13} /> {property.suburb} {property.state} {property.postcode}
                 </p>

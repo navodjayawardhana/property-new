@@ -89,7 +89,10 @@ export default function PropertyCard({ property }: { property: Property }) {
         {/* Info */}
         <div className="p-3">
           <p className="text-[#16a34a] font-black text-base leading-tight">{formatPrice(property)}</p>
-          <p className="text-gray-900 font-bold text-xs mt-0.5 leading-snug line-clamp-1">{property.address}</p>
+          <p className="text-gray-900 font-bold text-xs mt-0.5 leading-snug line-clamp-1">{property.title || property.address}</p>
+          {property.title && (
+            <p className="text-gray-500 text-[10px] mt-0.5 leading-snug line-clamp-1">{property.address}</p>
+          )}
           <p className="text-gray-400 text-[10px] mt-0.5 leading-none">
             {property.suburb} {property.state} {property.postcode}
           </p>
