@@ -5,6 +5,7 @@ use App\Http\Controllers\AdvertisementManagerController;
 use App\Http\Controllers\AgentSlideController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankLoanRateController;
+use App\Http\Controllers\ExternalStatsController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SlideController;
 use App\Http\Controllers\InquiryController;
@@ -56,6 +57,12 @@ Route::get('/settings/public', [AdminController::class, 'publicSettings']);
 
 // PayHere server-to-server callback (no auth — called by PayHere servers)
 Route::post('/payment/notify', [PaymentController::class, 'notify']);
+
+// Partner feed — read-only aggregates for external dashboards (Syncy Analytics).
+// Server-to-server: authenticated by a shared key in X-Api-Key, not a session.
+Route::middleware('partner')->prefix('external')->group(function () {
+    Route::get('/stats', [ExternalStatsController::class, 'stats']);
+});
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
