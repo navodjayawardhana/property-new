@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { id } = await params;
     const property = await propertiesApi.get(id);
 
-    const title = `${property.title || property.address} - ${formatPrice(property)} | Greenbricks`;
+    const title = `${property.address} - ${formatPrice(property)} | Greenbricks`;
     const description = `${property.property_type} in ${property.suburb}, ${property.state}. ${property.beds} bed${property.beds !== 1 ? 's' : ''}, ${property.baths} bath${property.baths !== 1 ? 's' : ''}. Listed on Greenbricks.`;
     const image = property.images && property.images.length > 0
       ? property.images.find(img => img.is_primary)?.url || property.images[0]?.url
