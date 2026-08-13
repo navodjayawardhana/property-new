@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PendingListing extends Model
 {
@@ -21,4 +22,9 @@ class PendingListing extends Model
         'listing_price'  => 'float',
         'payment_amount' => 'float',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
