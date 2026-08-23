@@ -5,6 +5,7 @@ use App\Http\Controllers\AdvertisementManagerController;
 use App\Http\Controllers\AgentSlideController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankLoanRateController;
+use App\Http\Controllers\ExternalStatsController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SlideController;
 use App\Http\Controllers\InquiryController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\LoanEnquiryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Middleware\VerifyPartnerApiKey;
 use Illuminate\Support\Facades\Route;
 
 // Public auth routes
@@ -56,6 +58,12 @@ Route::get('/settings/public', [AdminController::class, 'publicSettings']);
 
 // PayHere server-to-server callback (no auth — called by PayHere servers)
 Route::post('/payment/notify', [PaymentController::class, 'notify']);
+
+// Partner statistics feed — server-to-server, API key instead of a user session.
+// Consumed by external dashboards (Syncy Analytics). Read-only, aggregates only.
+Route::middleware(VerifyPartnerApiKey::class)->prefix('external')->group(function () {
+    Route::get('/stats', [ExternalStatsController::class, 'index']);
+});
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
