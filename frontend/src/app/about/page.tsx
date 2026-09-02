@@ -1,14 +1,28 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Greenbricks | Sri Lanka's No.1 Property Site",
-  description: "Learn about Greenbricks, Sri Lanka's leading property portal. Discover our mission, vision, and commitment to connecting buyers and sellers.",
-  keywords: "about Greenbricks, real estate platform, property company",
+  title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
+  description: "Learn about Greenbricks, Sri Lanka's leading property portal. Discover our mission, vision, and commitment to connecting buyers, renters, and sellers across the island.",
+  keywords: "about Greenbricks, real estate platform, property company, Sri Lanka",
   openGraph: {
-    title: "About Greenbricks",
-    description: "Learn about Greenbricks, Sri Lanka's leading property portal.",
+    title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
+    description: "Learn about Greenbricks, Sri Lanka's leading property portal connecting buyers, renters, and sellers.",
     url: "https://greenbricks.net/about",
     type: "website",
+    images: [
+      {
+        url: "https://greenbricks.net/GreenBricksLogo.png",
+        width: 1200,
+        height: 630,
+        alt: "Greenbricks - Sri Lanka Property Portal",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
+    description: "Learn about our mission to make property search simple, transparent, and stress-free.",
+    images: ["https://greenbricks.net/GreenBricksLogo.png"],
   },
 };
 

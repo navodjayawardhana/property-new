@@ -311,6 +311,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
     <>
       {/* ── Hero ── */}
       <section className="relative w-full h-screen min-h-[600px] overflow-hidden">
+        <h1 className="sr-only">Search Properties in Sri Lanka | Buy, Rent & Sell</h1>
 
         {/* Slides */}
         {slides.map((slide, i) => (
@@ -336,9 +337,9 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 <p className="text-white/70 text-sm font-semibold uppercase tracking-[0.2em] mb-3">
                   Sri Lanka&apos;s No.1 Property Site
                 </p>
-                <h1 className="text-white font-black text-4xl sm:text-5xl md:text-6xl drop-shadow-2xl leading-tight">
+                <h2 className="text-white font-black text-4xl sm:text-5xl md:text-6xl drop-shadow-2xl leading-tight">
                   {slide.label}
-                </h1>
+                </h2>
                 <p className="text-white/75 text-base sm:text-lg mt-3 font-medium max-w-xl mx-auto">
                   {slide.sub}
                 </p>
