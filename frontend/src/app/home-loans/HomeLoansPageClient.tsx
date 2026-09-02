@@ -14,6 +14,7 @@ import {
   ChevronUp, ChevronDown, Info,
 } from "lucide-react";
 import { bankLoanRatesApi, type BankLoanRate } from "@/lib/api";
+import { useDebouncedValue } from "@/lib/use-debounced-value";
 
 function calcMonthly(principal: number, annualRate: number, years: number): number {
   const r = annualRate / 100 / 12;
@@ -71,6 +72,12 @@ export default function HomeLoansPageClient() {
   const loanAmt = parseInt(amtStr.replace(/\D/g, "") || "5000000");
   const term    = Math.min(30, Math.max(1, parseInt(termStr || "20")));
 
+  // The inputs and sliders stay on the immediate values so dragging feels
+  // instant; only the per-bank repayment recalculation waits for the drag to
+  // settle, which is what would otherwise block the main thread.
+  const calcAmt  = useDebouncedValue(loanAmt, 200);
+  const calcTerm = useDebouncedValue(term, 200);
+
   const INITIAL_LIMIT = 5;
 
   useEffect(() => {
@@ -87,10 +94,10 @@ export default function HomeLoansPageClient() {
   const results = useMemo(() => {
     const filtered = typeFilter === "all" ? banks : banks.filter((b) => b.loan_type === typeFilter);
     const rows = filtered
-      .filter((b) => loanAmt >= b.min_loan && loanAmt <= b.max_loan && term <= b.max_term)
+      .filter((b) => calcAmt >= b.min_loan && calcAmt <= b.max_loan && calcTerm <= b.max_term)
       .map((b) => {
-        const monthly = calcMonthly(loanAmt, b.interest_rate, term);
-        return { ...b, monthly, totalPaid: monthly * term * 12, totalInterest: monthly * term * 12 - loanAmt };
+        const monthly = calcMonthly(calcAmt, b.interest_rate, calcTerm);
+        return { ...b, monthly, totalPaid: monthly * calcTerm * 12, totalInterest: monthly * calcTerm * 12 - calcAmt };
       });
 
     return [...rows].sort((a, b) => {
@@ -101,7 +108,7 @@ export default function HomeLoansPageClient() {
       if (sort.col === "interest") return (a.totalInterest - b.totalInterest) * dir;
       return (a.monthly - b.monthly);
     });
-  }, [banks, loanAmt, term, typeFilter, sort]);
+  }, [banks, calcAmt, calcTerm, typeFilter, sort]);
 
   function toggleSort(col: string) {
     setSort((s) => s.col === col ? { col, dir: s.dir === "asc" ? "desc" : "asc" } : { col, dir: "asc" });

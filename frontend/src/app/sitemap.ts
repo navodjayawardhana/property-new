@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { properties as propertiesApi, newsApi, agentsApi } from '@/lib/api';
+import { DISTRICTS } from '@/lib/districts';
 
 // Rebuilt hourly so newly published listings and articles get discovered.
 export const revalidate = 3600;
@@ -138,6 +139,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/sitemap-page`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.4,
+    },
+    {
       url: `${baseUrl}/careers`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -157,6 +164,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // District landing pages — the destinations the footer's location links point at.
+  const districtPages: MetadataRoute.Sitemap = DISTRICTS.flatMap((d) => [
+    {
+      url: `${baseUrl}/buy/${d.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/rent/${d.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.85,
+    },
+  ]);
+
   // A failing API must not break the sitemap — each helper degrades to [].
   const [propertyPages, newsPages, agentPages] = await Promise.all([
     propertyEntries(),
@@ -164,5 +187,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     agentEntries(),
   ]);
 
-  return [...staticPages, ...propertyPages, ...newsPages, ...agentPages];
+  return [
+    ...staticPages,
+    ...districtPages,
+    ...propertyPages,
+    ...newsPages,
+    ...agentPages,
+  ];
 }
