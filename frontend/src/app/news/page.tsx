@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Property News & Real Estate Insights in Sri Lanka | Greenbricks",
   description: "Read the latest property news, real estate market trends, finance updates, and housing insights for Sri Lanka. Stay informed with Greenbricks news hub.",
   keywords: "property news Sri Lanka, real estate news, market trends, housing news, finance updates, property insights",
+  alternates: { canonical: "https://greenbricks.net/news" },
   openGraph: {
     title: "Property News & Insights | Greenbricks",
     description: "Latest real estate news, market trends, and property insights for Sri Lanka.",

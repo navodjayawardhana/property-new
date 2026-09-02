@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Rent Properties in Sri Lanka | Apartments, Houses & Villas | Greenbricks",
   description: "Find rental properties in Sri Lanka. Browse 55,000+ apartments, houses, villas, and commercial spaces for rent from verified real estate agents.",
   keywords: "rent property Sri Lanka, apartments for rent, house rental, villa rental, rental listings",
+  alternates: { canonical: "https://greenbricks.net/rent" },
   openGraph: {
     title: "Rent Properties in Sri Lanka | Greenbricks",
     description: "Search and rent from 55,000+ properties across Sri Lanka with verified agents.",

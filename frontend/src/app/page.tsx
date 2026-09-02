@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Buy, Rent & Sell Property in Sri Lanka | Greenbricks",
   description: "Sri Lanka's No.1 property portal. Search 120,000+ properties for sale, 55,000+ rentals, and connect with 2,400+ verified agents across all districts.",
   keywords: "property Sri Lanka, buy house, rent apartment, real estate, agents, property search",
+  alternates: { canonical: "https://greenbricks.net" },
   openGraph: {
     title: "Buy, Rent & Sell Property in Sri Lanka | Greenbricks",
     description: "Sri Lanka's No.1 property portal with 120,000+ listings and verified agents.",

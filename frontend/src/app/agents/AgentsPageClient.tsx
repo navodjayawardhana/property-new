@@ -7,7 +7,9 @@ import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
 import ExploreSection from "@/components/ExploreSection";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { agentsApi, type Agent } from "@/lib/api";
+import { useDebouncedValue } from "@/lib/use-debounced-value";
 import {
   Search,
   MapPin,
@@ -103,7 +105,8 @@ function AgentsContent() {
     fetchAgents(val);
   }
 
-  const q = search.trim().toLowerCase();
+  // Debounced so the up-to-100-agent filter pass doesn't run on every keystroke.
+  const q = useDebouncedValue(search, 200).trim().toLowerCase();
   const filtered = q
     ? allAgents.filter((a) =>
         a.name.toLowerCase().includes(q) ||
@@ -280,8 +283,10 @@ export default function AgentsPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
-      <SearchHero defaultTab="Agents" title="Find a real estate agent" />
+      <SearchHero defaultTab="Agents" title="Real Estate Agents in Sri Lanka" />
       <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Agents" }]} />
       <Suspense fallback={null}>
         <AgentsContent />
       </Suspense>

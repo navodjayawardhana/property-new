@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import { slidesApi, type Slide } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import {
@@ -311,7 +312,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
     <>
       {/* ── Hero ── */}
       <section className="relative w-full h-screen min-h-[600px] overflow-hidden">
-        <h1 className="sr-only">Search Properties in Sri Lanka | Buy, Rent & Sell</h1>
+        <h1 className="sr-only">{title ?? "Search Properties in Sri Lanka — Buy, Rent & Sell"}</h1>
 
         {/* Slides */}
         {slides.map((slide, i) => (
@@ -320,7 +321,15 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
             {slide.type === "video" ? (
               <video autoPlay muted loop playsInline className="w-full h-full object-cover" src={slide.src} />
             ) : (
-              <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${slide.src})` }} />
+              <Image
+                src={slide.src}
+                alt={slide.label || "Property in Sri Lanka"}
+                fill
+                sizes="100vw"
+                // First slide is the LCP element on every page using this hero.
+                priority={i === 0}
+                className="object-cover"
+              />
             )}
             <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
           </div>
@@ -345,11 +354,12 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 </p>
               </div>
             ))}
-            {/* Spacer matching headline height */}
-            <div className="opacity-0 pointer-events-none">
-              <p className="text-sm mb-3">placeholder</p>
-              <h1 className="text-5xl leading-tight">placeholder</h1>
-              <p className="text-lg mt-3">placeholder</p>
+            {/* Invisible spacer reserving the height of the absolutely-positioned headline.
+                No text content and hidden from assistive tech / crawlers. */}
+            <div className="opacity-0 pointer-events-none select-none" aria-hidden="true">
+              <p className="text-sm mb-3">{" "}</p>
+              <div className="font-black text-4xl sm:text-5xl md:text-6xl leading-tight">{" "}</div>
+              <p className="text-lg mt-3">{" "}</p>
             </div>
           </div>
 

@@ -63,27 +63,50 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "RealEstateAgent",
-              "@id": "https://greenbricks.net",
-              "name": "Greenbricks",
-              "alternateName": "Greenbrick.net",
-              "description": "Sri Lanka's No.1 property search platform",
-              "url": "https://greenbricks.net",
-              "logo": "https://greenbricks.net/GreenBricksLogo.png",
-              "sameAs": [
-                "https://www.facebook.com/greenbrickssl/",
-                "https://www.instagram.com/greenbricksl/",
+              "@graph": [
+                {
+                  "@type": ["Organization", "RealEstateAgent"],
+                  "@id": "https://greenbricks.net/#organization",
+                  "name": "Greenbricks",
+                  "description": "Sri Lanka's No.1 property search platform",
+                  "url": "https://greenbricks.net",
+                  "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://greenbricks.net/GreenBricksLogo.png",
+                  },
+                  "sameAs": [
+                    "https://www.facebook.com/greenbrickssl/",
+                    "https://www.instagram.com/greenbricksl/",
+                  ],
+                  "contactPoint": {
+                    "@type": "ContactPoint",
+                    "contactType": "Customer Service",
+                    "email": "info@greenbricks.net",
+                    "url": "https://greenbricks.net/contact",
+                  },
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressCountry": "LK",
+                  },
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://greenbricks.net/#website",
+                  "url": "https://greenbricks.net",
+                  "name": "Greenbricks",
+                  "publisher": { "@id": "https://greenbricks.net/#organization" },
+                  "inLanguage": "en-LK",
+                  // Makes the site eligible for Google's sitelinks search box.
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                      "@type": "EntryPoint",
+                      "urlTemplate": "https://greenbricks.net/buy?q={search_term_string}",
+                    },
+                    "query-input": "required name=search_term_string",
+                  },
+                },
               ],
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "contactType": "Customer Service",
-                "email": "info@greenbricks.net",
-                "url": "https://greenbricks.net/contact",
-              },
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "LK",
-              },
             }),
           }}
         />

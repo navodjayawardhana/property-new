@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "New Homes & Off-Plan Properties in Sri Lanka | Developers | Greenbricks",
   description: "Browse new homes and off-plan developments from leading developers across Sri Lanka. Find pre-launch apartments, villas, and residential projects.",
   keywords: "new homes Sri Lanka, off-plan property, new developments, residential projects, pre-launch, developers",
+  alternates: { canonical: "https://greenbricks.net/new-homes" },
   openGraph: {
     title: "New Homes in Sri Lanka | Greenbricks",
     description: "Explore new homes and off-plan properties from top developers across Sri Lanka.",

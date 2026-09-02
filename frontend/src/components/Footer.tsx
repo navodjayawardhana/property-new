@@ -2,20 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { DISTRICTS } from "@/lib/districts";
 
 const footerTabs = ["Real estate", "New homes", "Popular areas", "Popular searches"] as const;
 
-const realEstateLinks = [
-  "Real estate Colombo", "Real estate Gampaha", "Real estate Kalutara",
-  "Real estate Kandy", "Real estate Matale", "Real estate Nuwara Eliya",
-  "Real estate Galle", "Real estate Matara", "Real estate Hambantota",
-  "Real estate Jaffna", "Real estate Kilinochchi", "Real estate Mannar",
-  "Real estate Mullaitivu", "Real estate Vavuniya", "Real estate Trincomalee",
-  "Real estate Batticaloa", "Real estate Ampara", "Real estate Kurunegala",
-  "Real estate Puttalam", "Real estate Anuradhapura", "Real estate Polonnaruwa",
-  "Real estate Badulla", "Real estate Monaragala", "Real estate Ratnapura",
-  "Real estate Kegalle",
-];
+// Derived from the district list so the labels and their /buy/[district]
+// destinations can never drift apart.
+const realEstateLinks = DISTRICTS.map((d) => `Real estate ${d.name}`);
 
 const newHomesLinks = [
   "New apartments Colombo", "New apartments Kandy", "New apartments Galle", "New apartments Negombo",
@@ -63,32 +56,11 @@ const tabHeadings: Record<string, string> = {
 };
 
 const footerLinkMap: Record<string, string> = {
-  // Real estate links - map to buy page with suburb filter
-  "Real estate Colombo": "/buy?suburb=Colombo",
-  "Real estate Gampaha": "/buy?suburb=Gampaha",
-  "Real estate Kalutara": "/buy?suburb=Kalutara",
-  "Real estate Kandy": "/buy?suburb=Kandy",
-  "Real estate Matale": "/buy?suburb=Matale",
-  "Real estate Nuwara Eliya": "/buy?suburb=Nuwara%20Eliya",
-  "Real estate Galle": "/buy?suburb=Galle",
-  "Real estate Matara": "/buy?suburb=Matara",
-  "Real estate Hambantota": "/buy?suburb=Hambantota",
-  "Real estate Jaffna": "/buy?suburb=Jaffna",
-  "Real estate Kilinochchi": "/buy?suburb=Kilinochchi",
-  "Real estate Mannar": "/buy?suburb=Mannar",
-  "Real estate Mullaitivu": "/buy?suburb=Mullaitivu",
-  "Real estate Vavuniya": "/buy?suburb=Vavuniya",
-  "Real estate Trincomalee": "/buy?suburb=Trincomalee",
-  "Real estate Batticaloa": "/buy?suburb=Batticaloa",
-  "Real estate Ampara": "/buy?suburb=Ampara",
-  "Real estate Kurunegala": "/buy?suburb=Kurunegala",
-  "Real estate Puttalam": "/buy?suburb=Puttalam",
-  "Real estate Anuradhapura": "/buy?suburb=Anuradhapura",
-  "Real estate Polonnaruwa": "/buy?suburb=Polonnaruwa",
-  "Real estate Badulla": "/buy?suburb=Badulla",
-  "Real estate Monaragala": "/buy?suburb=Monaragala",
-  "Real estate Ratnapura": "/buy?suburb=Ratnapura",
-  "Real estate Kegalle": "/buy?suburb=Kegalle",
+  // Each district link resolves to its own indexable landing page rather than a
+  // filtered view of /buy, so the anchor text reinforces a real location page.
+  ...Object.fromEntries(
+    DISTRICTS.map((d) => [`Real estate ${d.name}`, `/buy/${d.slug}`]),
+  ),
 
   // New homes links
   "New apartments Colombo": "/new-homes?suburb=Colombo",
@@ -275,6 +247,8 @@ export default function Footer() {
               <Link href="/terms" className="hover:text-[#16a34a] transition-colors">Terms &amp; Conditions</Link>
               <span className="text-gray-300">·</span>
               <Link href="/cookies" className="hover:text-[#16a34a] transition-colors">Cookie Policy</Link>
+              <span className="text-gray-300">·</span>
+              <Link href="/sitemap-page" className="hover:text-[#16a34a] transition-colors">Site Map</Link>
             </div>
           </div>
         </div>

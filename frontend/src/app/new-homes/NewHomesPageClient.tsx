@@ -8,6 +8,7 @@ import ExploreSection from "@/components/ExploreSection";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { properties as propertiesApi, type Property } from "@/lib/api";
 import { Home, X } from "lucide-react";
 
@@ -152,9 +153,6 @@ function NewHomesContent() {
 
   return (
     <>
-      <SearchHero defaultTab="Buy" title="Search new homes" />
-      <ExploreSection />
-
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         <div className="space-y-2 pb-5 border-b border-gray-200">
           <div className="flex flex-wrap items-center gap-2">
@@ -309,6 +307,12 @@ export default function NewHomesPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+      {/* Outside <Suspense>: these must appear in the prerendered HTML.
+          Only useSearchParams()-dependent output belongs inside it. */}
+      <SearchHero defaultTab="Buy" title="New Homes & Off-Plan Property in Sri Lanka" />
+      <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "New Homes" }]} />
       <Suspense fallback={null}>
         <NewHomesContent />
       </Suspense>
