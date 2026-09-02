@@ -1,10 +1,12 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
   images: {
+    // Serve modern formats to browsers that accept them — cuts listing/hero
+    // image weight substantially versus the original JPEG/PNG.
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "randomuser.me" },
       { protocol: "https", hostname: "images.unsplash.com" },

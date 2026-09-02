@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
   description: "Learn about Greenbricks, Sri Lanka's leading property portal. Discover our mission, vision, and commitment to connecting buyers, renters, and sellers across the island.",
   keywords: "about Greenbricks, real estate platform, property company, Sri Lanka",
+  alternates: { canonical: "https://greenbricks.net/about" },
   openGraph: {
     title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
     description: "Learn about Greenbricks, Sri Lanka's leading property portal connecting buyers, renters, and sellers.",
@@ -29,11 +30,13 @@ export const metadata: Metadata = {
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 
 export default function AboutPage() {
   return (
     <>
       <Navbar />
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "About" }]} />
       <main className="min-h-screen bg-white">
         <div className="max-w-3xl mx-auto px-4 py-12">
 

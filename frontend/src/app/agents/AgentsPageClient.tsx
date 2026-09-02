@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
 import ExploreSection from "@/components/ExploreSection";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { agentsApi, type Agent } from "@/lib/api";
 import {
   Search,
@@ -280,8 +281,10 @@ export default function AgentsPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
-      <SearchHero defaultTab="Agents" title="Find a real estate agent" />
+      <SearchHero defaultTab="Agents" title="Real Estate Agents in Sri Lanka" />
       <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Agents" }]} />
       <Suspense fallback={null}>
         <AgentsContent />
       </Suspense>

@@ -8,6 +8,7 @@ import ExploreSection from "@/components/ExploreSection";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { properties as propertiesApi, type Property } from "@/lib/api";
 import { X } from "lucide-react";
 
@@ -154,9 +155,6 @@ function RentContent() {
 
   return (
     <>
-      <SearchHero defaultTab="Rent" title="Search properties for rent" />
-      <ExploreSection />
-
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         <div className="flex flex-wrap items-center gap-2 mb-2 pb-5 border-b border-gray-200">
           <span className="text-sm font-semibold text-gray-700">
@@ -277,6 +275,12 @@ export default function RentPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+      {/* Outside <Suspense>: these must appear in the prerendered HTML.
+          Only useSearchParams()-dependent output belongs inside it. */}
+      <SearchHero defaultTab="Rent" title="Rent Property in Sri Lanka" />
+      <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Rent" }]} />
       <Suspense fallback={null}>
         <RentContent />
       </Suspense>

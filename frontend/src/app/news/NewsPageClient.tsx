@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Search, Menu } from "lucide-react";
 import NewsCard from "@/components/NewsCard";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { newsApi, type NewsArticleApi } from "@/lib/api";
 
 const CATEGORIES = [
@@ -79,7 +80,7 @@ export default function NewsPageClient() {
           <Link href="/" className="flex items-center gap-2 mx-auto lg:mx-0">
             <Image
               src="/GreenBricksLogo.png"
-              alt="Greenbrick"
+              alt="Greenbricks — Sri Lanka property portal"
               width={120}
               height={40}
               className="h-10 w-auto"
@@ -113,10 +114,12 @@ export default function NewsPageClient() {
         )}
       </header>
 
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Property News" }]} />
+
       <div className="border-b border-gray-100 bg-white">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 pb-8">
           <h1 className="text-3xl font-black text-gray-900">
-            Latest Property News
+            Property News &amp; Market Insights in Sri Lanka
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             Read the latest real estate & finance news, property market trends

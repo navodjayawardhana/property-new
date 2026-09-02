@@ -40,7 +40,7 @@ export default function HomePageClient() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <div className="-mt-20">
-        <SearchHero defaultTab="Buy" />
+        <SearchHero defaultTab="Buy" title="Buy, Rent & Sell Property in Sri Lanka" />
       </div>
 
       <div className="bg-white border-b border-gray-100">

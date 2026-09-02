@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
 import ExploreSection from "@/components/ExploreSection";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import {
   Home, TrendingUp, Users, DollarSign, Clock,
   CheckCircle, ArrowRight, ChevronRight, Star,
@@ -111,8 +112,10 @@ export default function HomeLoansPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
-      <SearchHero defaultTab="Buy" title="Compare home loan interest rates" />
+      <SearchHero defaultTab="Buy" title="Compare Home Loan Rates in Sri Lanka" />
       <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Home Loans" }]} />
 
       <div className="max-w-5xl mx-auto px-4 pt-8 w-full overflow-hidden">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">

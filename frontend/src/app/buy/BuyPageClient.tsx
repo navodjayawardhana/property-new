@@ -10,6 +10,7 @@ import NewsCard from "@/components/NewsCard";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 
 import {
   properties as propertiesApi,
@@ -169,9 +170,6 @@ function BuyContent() {
 
   return (
     <>
-      <SearchHero defaultTab="Buy" title="Search properties for sale" />
-      <ExploreSection />
-
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center gap-2 mb-2 pb-5 border-b border-gray-200">
@@ -289,7 +287,7 @@ function BuyContent() {
         <div className="bg-gray-50 rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-12 border border-gray-200">
           <div>
             <p className="text-xs font-semibold text-[#16a34a] mb-1">
-              Greenbrick.net
+              Greenbricks
             </p>
             <h3 className="text-base font-bold text-gray-900">
               Explore your home loan options
@@ -323,6 +321,12 @@ export default function BuyPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+      {/* Hero, breadcrumbs and headings sit OUTSIDE the Suspense boundary so they are
+          present in the prerendered HTML. Anything reading useSearchParams() bails out
+          of prerendering, so only the filtered result list lives inside it. */}
+      <SearchHero defaultTab="Buy" title="Buy Property in Sri Lanka" />
+      <ExploreSection />
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Buy" }]} />
       <Suspense fallback={null}>
         <BuyContent />
       </Suspense>

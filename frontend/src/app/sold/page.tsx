@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Recently Sold Properties in Sri Lanka | Market Insights | Greenbricks",
   description: "Browse recently sold properties across Sri Lanka. Get insights into market trends, sold prices, and sale history to inform your property decisions.",
   keywords: "sold properties Sri Lanka, recent sales, property market, sold listings, real estate trends",
+  alternates: { canonical: "https://greenbricks.net/sold" },
   openGraph: {
     title: "Recently Sold Properties in Sri Lanka | Greenbricks",
     description: "Explore recently sold properties and market insights across Sri Lanka.",

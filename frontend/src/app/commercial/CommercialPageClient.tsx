@@ -8,6 +8,7 @@ import ExploreSection from "@/components/ExploreSection";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { properties as propertiesApi, type Property } from "@/lib/api";
 import { Building2, X } from "lucide-react";
 
@@ -142,9 +143,6 @@ function CommercialContent() {
 
   return (
     <>
-      <SearchHero defaultTab="Buy" title="Search commercial properties" />
-      <ExploreSection />
-
       <section className="max-w-7xl mx-auto px-4 py-8 w-full">
         {/* Toolbar */}
         <div className="space-y-2 pb-5 border-b border-gray-200">
@@ -303,6 +301,12 @@ export default function CommercialPageClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+      {/* Outside <Suspense>: these must appear in the prerendered HTML.
+          Only useSearchParams()-dependent output belongs inside it. */}
+      <SearchHero defaultTab="Buy" title="Commercial Property in Sri Lanka" />
+      <ExploreSection />
+
+      <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Commercial" }]} />
       <Suspense fallback={null}>
         <CommercialContent />
       </Suspense>

@@ -2,7 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /dashboard/
 Disallow: /admin/
+Disallow: /agent-admin
 Disallow: /advertisement-manager/
+Disallow: /privacy-settings
 Disallow: /api/
 Disallow: /auth/
 Disallow: /signin

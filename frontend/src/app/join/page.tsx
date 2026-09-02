@@ -317,7 +317,7 @@ export default function JoinPage() {
             {step === 1 ? "Create an account" : "Your details"}
           </h1>
           <p className="text-gray-500 text-sm mb-7">
-            {step === 1 ? "Choose how you'll use Greenbrick.net" : "Almost there — fill in your info below"}{" "}
+            {step === 1 ? "Choose how you'll use Greenbricks" : "Almost there — fill in your info below"}{" "}
             <Link href="/signin" className="text-[#16a34a] font-semibold hover:underline">Sign in instead</Link>
           </p>
 

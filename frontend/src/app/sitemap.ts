@@ -1,7 +1,56 @@
 import { MetadataRoute } from 'next';
+import { properties as propertiesApi, newsApi, agentsApi } from '@/lib/api';
+
+// Rebuilt hourly so newly published listings and articles get discovered.
+export const revalidate = 3600;
+
+const BASE_URL = 'https://greenbricks.net';
+
+/** Detail pages for every live listing — the main indexable content of the site. */
+async function propertyEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const res = await propertiesApi.list({ per_page: 1000 });
+    return res.data.map((p) => ({
+      url: `${BASE_URL}/property/${p.id}`,
+      lastModified: new Date(p.updated_at ?? p.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function newsEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const res = await newsApi.list({ per_page: 200 });
+    return res.data.map((a) => ({
+      url: `${BASE_URL}/news/${a.id}`,
+      lastModified: new Date(a.updated_at ?? a.created_at),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function agentEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const res = await agentsApi.list({ per_page: 500 } as never);
+    return res.data.map((a) => ({
+      url: `${BASE_URL}/agents/${a.slug ?? a.id}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://greenbricks.net';
+  const baseUrl = BASE_URL;
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -108,5 +157,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return staticPages;
+  // A failing API must not break the sitemap — each helper degrades to [].
+  const [propertyPages, newsPages, agentPages] = await Promise.all([
+    propertyEntries(),
+    newsEntries(),
+    agentEntries(),
+  ]);
+
+  return [...staticPages, ...propertyPages, ...newsPages, ...agentPages];
 }

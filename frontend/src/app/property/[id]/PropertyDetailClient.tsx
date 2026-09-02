@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { properties as propertiesApi, inquiries as inquiriesApi, type Property } from "@/lib/api";
 import { formatPrice, getImageUrls, formatLandSize } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
@@ -133,9 +134,26 @@ export default function PropertyDetailPage() {
 
   const inp = "w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-[#16a34a] transition-colors";
 
+  // Breadcrumb trail mirrors the listing's own section: Home > Buy/Rent/Sold > Suburb > Listing
+  const listingHref =
+    property.listing_type === "rent" ? "/rent" :
+    property.listing_type === "sold" ? "/sold" : "/buy";
+  const listingLabel =
+    property.listing_type === "rent" ? "Rent" :
+    property.listing_type === "sold" ? "Sold" : "Buy";
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
+
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: listingLabel, href: listingHref },
+          { label: property.suburb, href: `${listingHref}?suburb=${encodeURIComponent(property.suburb)}` },
+          { label: property.title || property.address },
+        ]}
+      />
 
       <main className="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
         <button onClick={() => router.back()} className="flex items-center gap-1 text-gray-500 hover:text-gray-800 text-sm mb-4 transition-colors">

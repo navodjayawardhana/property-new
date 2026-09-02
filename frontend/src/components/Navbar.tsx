@@ -88,7 +88,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center shrink-0">
           <Image
             src="/GreenBricksLogo.png"
-            alt="Greenbrick.net"
+            alt="Greenbricks — Sri Lanka property portal"
             width={170}
             height={56}
             className="h-16 w-auto"
@@ -221,7 +221,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 min-w-0">
             <AlertCircle size={14} className="text-amber-600 shrink-0" />
             <p className="text-xs text-amber-800 font-medium truncate">
-              Your profile is incomplete — add your phone number and location to get the most out of Greenbrick.net.
+              Your profile is incomplete — add your phone number and location to get the most out of Greenbricks.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">

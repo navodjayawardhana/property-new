@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "Compare Home Loan Rates in Sri Lanka | Best Mortgage Rates | Greenbricks",
   description: "Compare home loan interest rates from top banks in Sri Lanka. Use our mortgage calculator to estimate monthly payments and find the best loan offer for your budget.",
   keywords: "home loans Sri Lanka, mortgage rates, home loan calculator, bank interest rates, housing loan, pre-approval",
+  alternates: { canonical: "https://greenbricks.net/home-loans" },
   openGraph: {
     title: "Compare Home Loan Rates in Sri Lanka | Greenbricks",
     description: "Compare mortgage rates from multiple banks and calculate monthly payments using our home loan calculator.",
