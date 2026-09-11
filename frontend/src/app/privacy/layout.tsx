@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Greenbricks",
   description: "How Greenbricks collects, uses, stores and protects your personal information when you use our Sri Lankan property search platform.",
   keywords: "Greenbricks privacy policy, data protection",
-  alternates: { canonical: "https://greenbricks.net/privacy" },
+  alternates: { canonical: "https://greenbrickz.com/privacy" },
   openGraph: {
     title: "Privacy Policy | Greenbricks",
     description: "How Greenbricks collects, uses, stores and protects your personal information when you use our Sri Lankan property search platform.",
-    url: "https://greenbricks.net/privacy",
+    url: "https://greenbrickz.com/privacy",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Privacy Policy | Greenbricks",
     description: "How Greenbricks collects, uses, stores and protects your personal information when you use our Sri Lankan property search platform.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

@@ -5,15 +5,15 @@ export const metadata: Metadata = {
   title: "Buy, Rent & Sell Property in Sri Lanka | Greenbricks",
   description: "Sri Lanka's No.1 property portal. Search 120,000+ properties for sale, 55,000+ rentals, and connect with 2,400+ verified agents across all districts.",
   keywords: "property Sri Lanka, buy house, rent apartment, real estate, agents, property search",
-  alternates: { canonical: "https://greenbricks.net" },
+  alternates: { canonical: "https://greenbrickz.com" },
   openGraph: {
     title: "Buy, Rent & Sell Property in Sri Lanka | Greenbricks",
     description: "Sri Lanka's No.1 property portal with 120,000+ listings and verified agents.",
-    url: "https://greenbricks.net",
+    url: "https://greenbrickz.com",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks - Sri Lanka Property Portal",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Buy, Rent & Sell Property in Sri Lanka | Greenbricks",
     description: "Search properties and connect with verified real estate agents.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

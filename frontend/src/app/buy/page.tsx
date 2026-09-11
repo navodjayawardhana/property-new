@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   description: "Browse thousands of properties for sale across Sri Lanka. Find your dream home, apartment, villa, or land with advanced filters and verified listings.",
   keywords: "buy property Sri Lanka, houses for sale, apartments, villas, land, property listings, real estate",
   // Filtered views (?suburb=, ?property_type=, ?min_price= …) all consolidate onto /buy
-  alternates: { canonical: "https://greenbricks.net/buy" },
+  alternates: { canonical: "https://greenbrickz.com/buy" },
   openGraph: {
     title: "Buy Properties in Sri Lanka | Greenbricks",
     description: "Discover thousands of properties for sale across Sri Lanka with verified listings and advanced search filters.",
-    url: "https://greenbricks.net/buy",
+    url: "https://greenbrickz.com/buy",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks - Buy Properties in Sri Lanka",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Buy Properties in Sri Lanka | Greenbricks",
     description: "Find properties for sale across Sri Lanka - apartments, houses, villas, and land.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

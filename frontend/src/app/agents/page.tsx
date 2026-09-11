@@ -5,15 +5,15 @@ export const metadata: Metadata = {
   title: "Real Estate Agents in Sri Lanka | Find & Connect | Greenbricks",
   description: "Browse 2,400+ verified real estate agents across Sri Lanka. Find experienced agents to help you buy, sell, or rent property with confidence.",
   keywords: "real estate agents Sri Lanka, property agents, realtors, real estate professionals, find agent",
-  alternates: { canonical: "https://greenbricks.net/agents" },
+  alternates: { canonical: "https://greenbrickz.com/agents" },
   openGraph: {
     title: "Real Estate Agents in Sri Lanka | Greenbricks",
     description: "Find 2,400+ verified real estate agents across Sri Lanka to help with your property needs.",
-    url: "https://greenbricks.net/agents",
+    url: "https://greenbrickz.com/agents",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks Real Estate Agents",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Real Estate Agents in Sri Lanka | Greenbricks",
     description: "Find verified agents to help with your property search.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

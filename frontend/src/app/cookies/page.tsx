@@ -10,7 +10,7 @@ const SECTIONS = [
   },
   {
     title: "2. How Greenbricks Uses Cookies",
-    body: "We use cookies on greenbricks.net for the following purposes:",
+    body: "We use cookies on greenbrickz.com for the following purposes:",
     subsections: [
       {
         heading: "Essential Cookies",
@@ -40,7 +40,7 @@ const SECTIONS = [
   },
   {
     title: "5. Consent",
-    body: 'When you first visit greenbricks.net, you will be shown a cookie consent notice. By clicking "Accept All" you consent to the use of all cookies as described in this policy. You may also choose to accept only essential cookies. You can update your preferences at any time by revisiting the cookie settings on the Platform.',
+    body: 'When you first visit greenbrickz.com, you will be shown a cookie consent notice. By clicking "Accept All" you consent to the use of all cookies as described in this policy. You may also choose to accept only essential cookies. You can update your preferences at any time by revisiting the cookie settings on the Platform.',
   },
   {
     title: "6. Changes to This Policy",

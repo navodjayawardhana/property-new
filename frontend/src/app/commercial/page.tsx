@@ -5,15 +5,15 @@ export const metadata: Metadata = {
   title: "Commercial Properties in Sri Lanka | Offices, Retail & Warehouses | Greenbricks",
   description: "Browse commercial properties for sale and lease across Sri Lanka. Find offices, retail spaces, warehouses, and more with verified listings and advanced filters.",
   keywords: "commercial property Sri Lanka, office space, retail, warehouses, commercial real estate, business property",
-  alternates: { canonical: "https://greenbricks.net/commercial" },
+  alternates: { canonical: "https://greenbrickz.com/commercial" },
   openGraph: {
     title: "Commercial Properties in Sri Lanka | Greenbricks",
     description: "Discover commercial properties across Sri Lanka - offices, retail spaces, warehouses, and prime business locations.",
-    url: "https://greenbricks.net/commercial",
+    url: "https://greenbrickz.com/commercial",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks - Commercial Properties in Sri Lanka",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Commercial Properties in Sri Lanka | Greenbricks",
     description: "Find commercial spaces - offices, retail, warehouses across Sri Lanka.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Privacy Centre | Greenbricks",
   description: "Understand and control how your data is handled on Greenbricks — access your information, manage consent and review our privacy commitments.",
   keywords: "Greenbricks privacy centre, data controls",
-  alternates: { canonical: "https://greenbricks.net/privacy-centre" },
+  alternates: { canonical: "https://greenbrickz.com/privacy-centre" },
   openGraph: {
     title: "Privacy Centre | Greenbricks",
     description: "Understand and control how your data is handled on Greenbricks — access your information, manage consent and review our privacy commitments.",
-    url: "https://greenbricks.net/privacy-centre",
+    url: "https://greenbrickz.com/privacy-centre",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Privacy Centre | Greenbricks",
     description: "Understand and control how your data is handled on Greenbricks — access your information, manage consent and review our privacy commitments.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

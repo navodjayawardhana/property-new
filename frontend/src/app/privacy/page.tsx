@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 const SECTIONS = [
   {
     title: "1. Introduction",
-    body: 'Greenbricks ("we", "us", "our") is committed to protecting the privacy of all users of greenbricks.net (the "Platform"). This Privacy Policy explains what personal information we collect, how we use it, and your rights regarding your information. By using the Platform, you consent to the practices described in this policy.',
+    body: 'Greenbricks ("we", "us", "our") is committed to protecting the privacy of all users of greenbrickz.com (the "Platform"). This Privacy Policy explains what personal information we collect, how we use it, and your rights regarding your information. By using the Platform, you consent to the practices described in this policy.',
   },
   {
     title: "2. Information We Collect",

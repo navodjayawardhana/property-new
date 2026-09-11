@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Property for Sale in ${district.name}, Sri Lanka | Greenbricks`;
   const description = `Browse houses, apartments and land for sale in ${district.name}, ${district.province} Province. ${district.blurb}`.slice(0, 160);
-  const url = `https://greenbricks.net/buy/${district.slug}`;
+  const url = `https://greenbrickz.com/buy/${district.slug}`;
 
   return {
     title,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: "https://greenbricks.net/GreenBricksLogo.png",
+          url: "https://greenbrickz.com/GreenBricksLogo.png",
           width: 1200,
           height: 630,
           alt: `Property for sale in ${district.name}, Sri Lanka`,
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: ["https://greenbricks.net/GreenBricksLogo.png"],
+      images: ["https://greenbrickz.com/GreenBricksLogo.png"],
     },
   };
 }

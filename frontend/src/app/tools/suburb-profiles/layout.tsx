@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Sri Lanka Suburb Profiles | Area Guides & Market Data | Greenbricks",
   description: "Explore suburb profiles across Sri Lanka — median prices, property types and area guides to help you choose the right neighbourhood before you buy or rent.",
   keywords: "Sri Lanka suburb profiles, area guides, neighbourhood property prices",
-  alternates: { canonical: "https://greenbricks.net/tools/suburb-profiles" },
+  alternates: { canonical: "https://greenbrickz.com/tools/suburb-profiles" },
   openGraph: {
     title: "Sri Lanka Suburb Profiles | Area Guides & Market Data | Greenbricks",
     description: "Explore suburb profiles across Sri Lanka — median prices, property types and area guides to help you choose the right neighbourhood before you buy or rent.",
-    url: "https://greenbricks.net/tools/suburb-profiles",
+    url: "https://greenbrickz.com/tools/suburb-profiles",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Sri Lanka Suburb Profiles | Area Guides & Market Data | Greenbricks",
     description: "Explore suburb profiles across Sri Lanka — median prices, property types and area guides to help you choose the right neighbourhood before you buy or rent.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

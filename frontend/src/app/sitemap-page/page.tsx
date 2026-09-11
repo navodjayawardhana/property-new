@@ -10,15 +10,15 @@ export const metadata: Metadata = {
   description:
     "Browse every section of Greenbricks — property for sale and rent in all 25 Sri Lankan districts, commercial listings, new homes, agents, home loans and tools.",
   keywords: "Greenbricks site map, property search Sri Lanka, all districts",
-  alternates: { canonical: "https://greenbricks.net/sitemap-page" },
+  alternates: { canonical: "https://greenbrickz.com/sitemap-page" },
   openGraph: {
     title: "Site Map | Greenbricks",
     description: "Every section of Greenbricks in one place.",
-    url: "https://greenbricks.net/sitemap-page",
+    url: "https://greenbrickz.com/sitemap-page",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Site Map | Greenbricks",
     description: "Every section of Greenbricks in one place.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

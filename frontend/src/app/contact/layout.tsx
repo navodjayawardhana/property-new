@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Contact Greenbricks | Property Enquiries & Support",
   description: "Get in touch with the Greenbricks team. Ask about listing your property, agent partnerships, advertising, or support with your property search in Sri Lanka.",
   keywords: "contact Greenbricks, property enquiry, real estate support Sri Lanka",
-  alternates: { canonical: "https://greenbricks.net/contact" },
+  alternates: { canonical: "https://greenbrickz.com/contact" },
   openGraph: {
     title: "Contact Greenbricks | Property Enquiries & Support",
     description: "Get in touch with the Greenbricks team. Ask about listing your property, agent partnerships, advertising, or support with your property search in Sri Lanka.",
-    url: "https://greenbricks.net/contact",
+    url: "https://greenbrickz.com/contact",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Contact Greenbricks | Property Enquiries & Support",
     description: "Get in touch with the Greenbricks team. Ask about listing your property, agent partnerships, advertising, or support with your property search in Sri Lanka.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

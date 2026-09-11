@@ -14,7 +14,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
     "@type": "ListItem",
     position: idx + 1,
     name: item.label,
-    item: item.href ? `https://greenbricks.net${item.href}` : undefined,
+    item: item.href ? `https://greenbrickz.com${item.href}` : undefined,
   }));
 
   return (

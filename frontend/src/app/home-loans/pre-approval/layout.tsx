@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Home Loan Pre-Approval in Sri Lanka | Greenbricks",
   description: "Get pre-approved for a home loan before you start house hunting. Submit one form and a lending specialist will confirm your borrowing power within 24–48 hours.",
   keywords: "home loan pre-approval Sri Lanka, mortgage pre-approval, borrowing power",
-  alternates: { canonical: "https://greenbricks.net/home-loans/pre-approval" },
+  alternates: { canonical: "https://greenbrickz.com/home-loans/pre-approval" },
   openGraph: {
     title: "Home Loan Pre-Approval in Sri Lanka | Greenbricks",
     description: "Get pre-approved for a home loan before you start house hunting. Submit one form and a lending specialist will confirm your borrowing power within 24–48 hours.",
-    url: "https://greenbricks.net/home-loans/pre-approval",
+    url: "https://greenbrickz.com/home-loans/pre-approval",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Home Loan Pre-Approval in Sri Lanka | Greenbricks",
     description: "Get pre-approved for a home loan before you start house hunting. Submit one form and a lending specialist will confirm your borrowing power within 24–48 hours.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

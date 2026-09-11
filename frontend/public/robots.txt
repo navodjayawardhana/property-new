@@ -20,4 +20,4 @@ Allow: /agents/
 # Crawl delay to be respectful
 Crawl-delay: 1
 
-Sitemap: https://greenbricks.net/sitemap.xml
+Sitemap: https://greenbrickz.com/sitemap.xml

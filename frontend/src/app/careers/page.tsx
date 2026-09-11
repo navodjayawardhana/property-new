@@ -8,11 +8,11 @@ export const metadata: Metadata = {
   title: "Careers at Greenbricks | Join Our Team",
   description: "Join the Greenbricks team! Explore career opportunities in real estate, technology, and business. Build your future with Sri Lanka's No.1 property platform.",
   keywords: "careers, jobs, employment, real estate jobs, Greenbricks",
-  alternates: { canonical: "https://greenbricks.net/careers" },
+  alternates: { canonical: "https://greenbrickz.com/careers" },
   openGraph: {
     title: "Careers at Greenbricks",
     description: "Join the Greenbricks team and build your career in real estate.",
-    url: "https://greenbricks.net/careers",
+    url: "https://greenbrickz.com/careers",
     type: "website",
   },
 };

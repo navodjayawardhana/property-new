@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Apply for a Home Loan in Sri Lanka | Greenbricks",
   description: "Apply online for a home loan with your chosen Sri Lankan bank. Compare your rate, monthly repayment and term, then submit your application in minutes.",
   keywords: "apply home loan Sri Lanka, housing loan application, bank home loan",
-  alternates: { canonical: "https://greenbricks.net/home-loans/apply" },
+  alternates: { canonical: "https://greenbrickz.com/home-loans/apply" },
   openGraph: {
     title: "Apply for a Home Loan in Sri Lanka | Greenbricks",
     description: "Apply online for a home loan with your chosen Sri Lankan bank. Compare your rate, monthly repayment and term, then submit your application in minutes.",
-    url: "https://greenbricks.net/home-loans/apply",
+    url: "https://greenbrickz.com/home-loans/apply",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Apply for a Home Loan in Sri Lanka | Greenbricks",
     description: "Apply online for a home loan with your chosen Sri Lankan bank. Compare your rate, monthly repayment and term, then submit your application in minutes.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

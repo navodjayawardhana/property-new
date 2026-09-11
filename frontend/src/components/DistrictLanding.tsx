@@ -50,7 +50,7 @@ export default async function DistrictLanding({
   const nearby = nearbyDistricts(district);
 
   const basePath = `/${mode}/${district.slug}`;
-  const url = `https://greenbricks.net${basePath}`;
+  const url = `https://greenbrickz.com${basePath}`;
 
   const faqs = [
     {
@@ -112,7 +112,7 @@ export default async function DistrictLanding({
             itemListElement: listings.slice(0, 10).map((p, i) => ({
               "@type": "ListItem",
               position: i + 1,
-              url: `https://greenbricks.net/property/${p.id}`,
+              url: `https://greenbrickz.com/property/${p.id}`,
               name: p.title || p.address,
             })),
           },

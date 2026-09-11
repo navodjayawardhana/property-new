@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Advertise Your Properties | Greenbricks",
     description: "Reach Sri Lanka's largest property audience.",
-    url: "https://greenbricks.net/advertise",
+    url: "https://greenbrickz.com/advertise",
     type: "website",
   },
 };
@@ -91,7 +91,7 @@ export default function AdvertisePage() {
             Reach Sri Lanka's <span className="text-[#16a34a]">largest</span> property audience
           </h1>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
-            List your properties on Greenbricks.net and connect with millions of buyers, sellers, and renters across Sri Lanka.
+            List your properties on Greenbrickz.com and connect with millions of buyers, sellers, and renters across Sri Lanka.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/join" className="bg-[#16a34a] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#15803d] transition-colors text-sm">

@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = property.images && property.images.length > 0
     ? property.images.find(img => img.is_primary)?.url || property.images[0]?.url
     : '/GreenBricksLogo.png';
-  const url = `https://greenbricks.net/property/${property.id}`;
+  const url = `https://greenbrickz.com/property/${property.id}`;
 
   return {
     title,
@@ -65,7 +65,7 @@ function residenceType(propertyType: string): string {
 }
 
 function listingSchema(property: Property) {
-  const url = `https://greenbricks.net/property/${property.id}`;
+  const url = `https://greenbrickz.com/property/${property.id}`;
   const images = (property.images ?? []).map((img) => img.url).filter(Boolean);
   const isSold = property.listing_type === "sold";
 
@@ -77,7 +77,7 @@ function listingSchema(property: Property) {
     name: property.title || property.address,
     description: property.description || `${property.property_type} in ${property.suburb}, ${property.state}.`,
     datePosted: property.created_at,
-    image: images.length > 0 ? images : ["https://greenbricks.net/GreenBricksLogo.png"],
+    image: images.length > 0 ? images : ["https://greenbrickz.com/GreenBricksLogo.png"],
     about: {
       "@type": residenceType(property.property_type),
       name: property.address,

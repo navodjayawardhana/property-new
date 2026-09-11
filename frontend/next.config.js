@@ -17,7 +17,7 @@ const nextConfig = {
       { protocol: "https", hostname: "randomuser.me" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "api-property.adzone.space" },
-      { protocol: "https", hostname: "api.greenbricks.net" },
+      { protocol: "https", hostname: "api.greenbrickz.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       // Local Laravel backend (php artisan serve)
       { protocol: "http", hostname: "localhost", port: "8000" },

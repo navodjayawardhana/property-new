@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${agent.name} - Real Estate Agent | Greenbricks`;
   const description = `Get in touch with ${agent.name}, a real estate agent${agent.suburb ? ` in ${agent.suburb}` : ''}, ${agent.state || 'Sri Lanka'}. View listings and contact details on Greenbricks.`;
   const image = agent.avatar || '/GreenBricksLogo.png';
-  const url = `https://greenbricks.net/agents/${agent.slug || agent.id}`;
+  const url = `https://greenbrickz.com/agents/${agent.slug || agent.id}`;
 
   return {
     title,
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function agentSchema(agent: Agent) {
-  const url = `https://greenbricks.net/agents/${agent.slug || agent.id}`;
+  const url = `https://greenbrickz.com/agents/${agent.slug || agent.id}`;
   const socials = [agent.facebook, agent.instagram, agent.linkedin].filter(Boolean);
 
   return {
@@ -78,7 +78,7 @@ function agentSchema(agent: Agent) {
     parentOrganization: {
       "@type": "Organization",
       name: "Greenbricks",
-      url: "https://greenbricks.net",
+      url: "https://greenbrickz.com",
     },
   };
 }

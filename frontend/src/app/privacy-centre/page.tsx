@@ -6,7 +6,7 @@ const SECTIONS = [
   {
     id: "overview",
     title: "1. Overview",
-    content: `Greenbricks.net is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our platform.\n\nBy using Greenbricks.net, you consent to the practices described in this policy. We encourage you to read this policy carefully.`,
+    content: `Greenbrickz.com is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our platform.\n\nBy using Greenbrickz.com, you consent to the practices described in this policy. We encourage you to read this policy carefully.`,
   },
   {
     id: "collection",
@@ -46,7 +46,7 @@ const SECTIONS = [
   {
     id: "contact",
     title: "9. Contact Us",
-    content: `For privacy-related enquiries, please contact:\n\nPrivacy Officer\nGreenbricks.net\nNo. 42, Galle Road, Colombo 03, Sri Lanka\nEmail: privacy@greenbricks.net\nPhone: +94 11 234 5678`,
+    content: `For privacy-related enquiries, please contact:\n\nPrivacy Officer\nGreenbrickz.com\nNo. 42, Galle Road, Colombo 03, Sri Lanka\nEmail: privacy@greenbricks.net\nPhone: +94 11 234 5678`,
   },
 ];
 

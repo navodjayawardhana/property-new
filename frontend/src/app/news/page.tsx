@@ -5,15 +5,15 @@ export const metadata: Metadata = {
   title: "Property News & Real Estate Insights in Sri Lanka | Greenbricks",
   description: "Read the latest property news, real estate market trends, finance updates, and housing insights for Sri Lanka. Stay informed with Greenbricks news hub.",
   keywords: "property news Sri Lanka, real estate news, market trends, housing news, finance updates, property insights",
-  alternates: { canonical: "https://greenbricks.net/news" },
+  alternates: { canonical: "https://greenbrickz.com/news" },
   openGraph: {
     title: "Property News & Insights | Greenbricks",
     description: "Latest real estate news, market trends, and property insights for Sri Lanka.",
-    url: "https://greenbricks.net/news",
+    url: "https://greenbrickz.com/news",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks - Property News Sri Lanka",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Property News & Insights | Greenbricks",
     description: "Read latest real estate news and market insights for Sri Lanka.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

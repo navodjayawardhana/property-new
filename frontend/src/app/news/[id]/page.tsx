@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const url = `https://greenbricks.net/news/${article.id}`;
+  const url = `https://greenbrickz.com/news/${article.id}`;
   const description = article.excerpt?.slice(0, 160) || `${article.title} — property news and insights from Greenbricks.`;
 
   return {
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function articleSchema(article: NewsArticleApi) {
-  const url = `https://greenbricks.net/news/${article.id}`;
+  const url = `https://greenbrickz.com/news/${article.id}`;
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -88,11 +88,11 @@ function articleSchema(article: NewsArticleApi) {
     datePublished: article.published_at ?? article.created_at,
     dateModified: article.updated_at,
     articleSection: article.category,
-    author: { "@type": "Organization", name: "Greenbricks", url: "https://greenbricks.net" },
+    author: { "@type": "Organization", name: "Greenbricks", url: "https://greenbrickz.com" },
     publisher: {
       "@type": "Organization",
       name: "Greenbricks",
-      logo: { "@type": "ImageObject", url: "https://greenbricks.net/GreenBricksLogo.png" },
+      logo: { "@type": "ImageObject", url: "https://greenbrickz.com/GreenBricksLogo.png" },
     },
   };
 }

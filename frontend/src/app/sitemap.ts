@@ -5,7 +5,7 @@ import { DISTRICTS } from '@/lib/districts';
 // Rebuilt hourly so newly published listings and articles get discovered.
 export const revalidate = 3600;
 
-const BASE_URL = 'https://greenbricks.net';
+const BASE_URL = 'https://greenbrickz.com';
 
 /** Detail pages for every live listing — the main indexable content of the site. */
 async function propertyEntries(): Promise<MetadataRoute.Sitemap> {

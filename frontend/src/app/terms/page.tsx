@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 const SECTIONS = [
   {
     title: "1. Acceptance of Terms",
-    body: 'By accessing or using greenbricks.net (the "Platform"), you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the Platform. These terms apply to all users including visitors, registered members, property listers, and advertising agents.',
+    body: 'By accessing or using greenbrickz.com (the "Platform"), you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the Platform. These terms apply to all users including visitors, registered members, property listers, and advertising agents.',
   },
   {
     title: "2. About the Platform",

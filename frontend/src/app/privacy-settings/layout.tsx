@@ -5,16 +5,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Settings | Greenbricks",
   description: "Manage your personal privacy and communication preferences on Greenbricks.",
-  alternates: { canonical: "https://greenbricks.net/privacy-settings" },
+  alternates: { canonical: "https://greenbrickz.com/privacy-settings" },
   robots: "noindex, follow",
   openGraph: {
     title: "Privacy Settings | Greenbricks",
     description: "Manage your personal privacy and communication preferences on Greenbricks.",
-    url: "https://greenbricks.net/privacy-settings",
+    url: "https://greenbrickz.com/privacy-settings",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Privacy Settings | Greenbricks",
     description: "Manage your personal privacy and communication preferences on Greenbricks.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 

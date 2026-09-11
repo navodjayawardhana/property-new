@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://greenbricks.net"),
+  metadataBase: new URL("https://greenbrickz.com"),
   title: "Greenbricks – Sri Lanka's No.1 Property Site",
   description: "Search properties for sale, rent, and sold across Sri Lanka. Find houses, apartments, villas, and commercial property from verified agents.",
   keywords: "property Sri Lanka, buy property, rent property, real estate, houses for sale",
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_LK",
-    url: "https://greenbricks.net",
+    url: "https://greenbrickz.com",
     siteName: "Greenbricks",
     title: "Greenbricks – Sri Lanka's No.1 Property Site",
     description: "Search properties for sale, rent, and sold across Sri Lanka. Find houses, apartments, villas, and commercial property from verified agents.",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks Logo",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     creator: "@greenbrickssl",
     title: "Greenbricks – Sri Lanka's No.1 Property Site",
     description: "Search properties for sale, rent, and sold across Sri Lanka.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 
@@ -66,13 +66,13 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": ["Organization", "RealEstateAgent"],
-                  "@id": "https://greenbricks.net/#organization",
+                  "@id": "https://greenbrickz.com/#organization",
                   "name": "Greenbricks",
                   "description": "Sri Lanka's No.1 property search platform",
-                  "url": "https://greenbricks.net",
+                  "url": "https://greenbrickz.com",
                   "logo": {
                     "@type": "ImageObject",
-                    "url": "https://greenbricks.net/GreenBricksLogo.png",
+                    "url": "https://greenbrickz.com/GreenBricksLogo.png",
                   },
                   "sameAs": [
                     "https://www.facebook.com/greenbrickssl/",
@@ -82,7 +82,7 @@ export default function RootLayout({
                     "@type": "ContactPoint",
                     "contactType": "Customer Service",
                     "email": "info@greenbricks.net",
-                    "url": "https://greenbricks.net/contact",
+                    "url": "https://greenbrickz.com/contact",
                   },
                   "address": {
                     "@type": "PostalAddress",
@@ -91,17 +91,17 @@ export default function RootLayout({
                 },
                 {
                   "@type": "WebSite",
-                  "@id": "https://greenbricks.net/#website",
-                  "url": "https://greenbricks.net",
+                  "@id": "https://greenbrickz.com/#website",
+                  "url": "https://greenbrickz.com",
                   "name": "Greenbricks",
-                  "publisher": { "@id": "https://greenbricks.net/#organization" },
+                  "publisher": { "@id": "https://greenbrickz.com/#organization" },
                   "inLanguage": "en-LK",
                   // Makes the site eligible for Google's sitelinks search box.
                   "potentialAction": {
                     "@type": "SearchAction",
                     "target": {
                       "@type": "EntryPoint",
-                      "urlTemplate": "https://greenbricks.net/buy?q={search_term_string}",
+                      "urlTemplate": "https://greenbrickz.com/buy?q={search_term_string}",
                     },
                     "query-input": "required name=search_term_string",
                   },

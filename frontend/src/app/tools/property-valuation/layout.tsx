@@ -6,15 +6,15 @@ export const metadata: Metadata = {
   title: "Free Property Valuation in Sri Lanka | Greenbricks",
   description: "Find out what your property is worth. Request a free, no-obligation property valuation from verified Greenbricks agents across Sri Lanka.",
   keywords: "property valuation Sri Lanka, house value, free property appraisal",
-  alternates: { canonical: "https://greenbricks.net/tools/property-valuation" },
+  alternates: { canonical: "https://greenbrickz.com/tools/property-valuation" },
   openGraph: {
     title: "Free Property Valuation in Sri Lanka | Greenbricks",
     description: "Find out what your property is worth. Request a free, no-obligation property valuation from verified Greenbricks agents across Sri Lanka.",
-    url: "https://greenbricks.net/tools/property-valuation",
+    url: "https://greenbrickz.com/tools/property-valuation",
     type: "website",
     images: [
       {
-        url: "https://greenbricks.net/GreenBricksLogo.png",
+        url: "https://greenbrickz.com/GreenBricksLogo.png",
         width: 1200,
         height: 630,
         alt: "Greenbricks — Sri Lanka property portal",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Free Property Valuation in Sri Lanka | Greenbricks",
     description: "Find out what your property is worth. Request a free, no-obligation property valuation from verified Greenbricks agents across Sri Lanka.",
-    images: ["https://greenbricks.net/GreenBricksLogo.png"],
+    images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 
