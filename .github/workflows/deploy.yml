@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to greenbricks.net
+    name: Deploy to greenbrickz.com
     runs-on: ubuntu-latest
 
     steps:
@@ -29,7 +29,7 @@ jobs:
           key: ${{ secrets.SSH_DEPLOY_KEY }}
           script: |
             ENV_FILE=/var/www/greenbricks/backend/.env
-            sed -i 's|^APP_URL=.*|APP_URL=https://api.greenbricks.net|' $ENV_FILE
-            sed -i 's|^FRONTEND_URL=.*|FRONTEND_URL=https://greenbricks.net|' $ENV_FILE
-            sed -i 's|^GOOGLE_REDIRECT_URI=.*|GOOGLE_REDIRECT_URI=https://api.greenbricks.net/auth/google/callback|' $ENV_FILE
+            sed -i 's|^APP_URL=.*|APP_URL=https://api.greenbrickz.com|' $ENV_FILE
+            sed -i 's|^FRONTEND_URL=.*|FRONTEND_URL=https://greenbrickz.com|' $ENV_FILE
+            sed -i 's|^GOOGLE_REDIRECT_URI=.*|GOOGLE_REDIRECT_URI=https://api.greenbrickz.com/auth/google/callback|' $ENV_FILE
             cd /var/www/greenbricks/backend && php artisan config:clear && php artisan cache:clear

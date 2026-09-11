@@ -58,7 +58,7 @@ const SECTIONS = [
   },
   {
     title: "12. Contact",
-    body: "For questions regarding these Terms of Use, please contact us at info@greenbricks.net.",
+    body: "For questions regarding these Terms of Use, please contact us at info@greenbrickz.com.",
   },
 ];
 

@@ -46,7 +46,7 @@ const SECTIONS = [
   },
   {
     title: "6. Data Retention",
-    body: "We retain your personal information for as long as necessary to fulfil the purposes described in this policy, or as required by applicable law. You may request deletion of your account and associated data by contacting us at info@greenbricks.net.",
+    body: "We retain your personal information for as long as necessary to fulfil the purposes described in this policy, or as required by applicable law. You may request deletion of your account and associated data by contacting us at info@greenbrickz.com.",
   },
   {
     title: "7. Your Rights",
@@ -73,7 +73,7 @@ const SECTIONS = [
   },
   {
     title: "11. Contact Us",
-    body: "If you have any questions or concerns about this Privacy Policy or how we handle your data, please contact us at info@greenbricks.net.",
+    body: "If you have any questions or concerns about this Privacy Policy or how we handle your data, please contact us at info@greenbrickz.com.",
   },
 ];
 

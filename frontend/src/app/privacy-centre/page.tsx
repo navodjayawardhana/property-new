@@ -31,7 +31,7 @@ const SECTIONS = [
   {
     id: "rights",
     title: "6. Your Rights",
-    content: `You have the right to:\n\n• Access the personal information we hold about you\n• Correct inaccurate or incomplete information\n• Request deletion of your personal data\n• Opt out of marketing communications\n• Withdraw consent for data processing\n• Lodge a complaint with the relevant data protection authority\n\nTo exercise your rights, please contact us at privacy@greenbricks.net.`,
+    content: `You have the right to:\n\n• Access the personal information we hold about you\n• Correct inaccurate or incomplete information\n• Request deletion of your personal data\n• Opt out of marketing communications\n• Withdraw consent for data processing\n• Lodge a complaint with the relevant data protection authority\n\nTo exercise your rights, please contact us at privacy@greenbrickz.com.`,
   },
   {
     id: "security",
@@ -46,7 +46,7 @@ const SECTIONS = [
   {
     id: "contact",
     title: "9. Contact Us",
-    content: `For privacy-related enquiries, please contact:\n\nPrivacy Officer\nGreenbrickz.com\nNo. 42, Galle Road, Colombo 03, Sri Lanka\nEmail: privacy@greenbricks.net\nPhone: +94 11 234 5678`,
+    content: `For privacy-related enquiries, please contact:\n\nPrivacy Officer\nGreenbrickz.com\nNo. 42, Galle Road, Colombo 03, Sri Lanka\nEmail: privacy@greenbrickz.com\nPhone: +94 11 234 5678`,
   },
 ];
 

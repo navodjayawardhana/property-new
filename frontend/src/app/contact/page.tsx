@@ -71,7 +71,7 @@ export default function ContactPage() {
               </p>
               <div className="space-y-4">
                 {[
-                  { icon: Mail,    label: "Email",    value: "info@greenbricks.net" },
+                  { icon: Mail,    label: "Email",    value: "info@greenbrickz.com" },
                   { icon: MapPin,  label: "Location", value: "Sri Lanka" },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex gap-3">

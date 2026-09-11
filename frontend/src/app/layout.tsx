@@ -81,7 +81,7 @@ export default function RootLayout({
                   "contactPoint": {
                     "@type": "ContactPoint",
                     "contactType": "Customer Service",
-                    "email": "info@greenbricks.net",
+                    "email": "info@greenbrickz.com",
                     "url": "https://greenbrickz.com/contact",
                   },
                   "address": {

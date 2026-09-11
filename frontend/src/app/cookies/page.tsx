@@ -48,7 +48,7 @@ const SECTIONS = [
   },
   {
     title: "7. Contact Us",
-    body: "If you have questions about our use of cookies, please contact us at info@greenbricks.net.",
+    body: "If you have questions about our use of cookies, please contact us at info@greenbrickz.com.",
   },
 ];
 
