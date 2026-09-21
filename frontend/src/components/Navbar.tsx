@@ -91,7 +91,7 @@ export default function Navbar() {
             alt="Greenbricks — Sri Lanka property portal"
             width={170}
             height={56}
-            className="h-16 w-auto"
+            className="h-10 w-auto"
             priority
           />
         </Link>
