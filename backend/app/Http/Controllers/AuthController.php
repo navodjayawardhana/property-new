@@ -240,47 +240,230 @@ class AuthController extends Controller
     }
 
     public function agent(string $slug): JsonResponse
-    {
-        $agent = User::where('role', 'agent')
-            ->where(function ($q) use ($slug) {
-                $q->where('slug', $slug)->orWhere('id', is_numeric($slug) ? (int) $slug : 0);
-            })
-            ->firstOrFail();
+{
+    // Find the selected agent/company profile
+    $agent = User::where('role', 'agent')
+        ->where(function ($q) use ($slug) {
+            $q->where('slug', $slug)
+              ->orWhere('id', is_numeric($slug) ? (int) $slug : 0);
+        })
+        ->firstOrFail();
 
-        return response()->json(
-            $agent->only([
-                'id', 'name', 'email', 'phone', 'avatar', 'slug',
-                'suburb', 'state', 'postcode', 'country', 'district',
-                'bio', 'facebook', 'instagram', 'linkedin', 'whatsapp', 'twitter', 'website',
-            ])
+    /*
+     * A company may currently exist as multiple agent records
+     * because different locations were stored separately.
+     *
+     * Find all agent records that belong to the same company
+     * using the company/agent name.
+     */
+    $companyAgents = User::where('role', 'agent')
+        ->whereRaw('LOWER(TRIM(name)) = ?', [
+            strtolower(trim($agent->name))
+        ])
+        ->get();
+
+    // Keep the existing profile fields
+    $data = $agent->only([
+        'id',
+        'name',
+        'email',
+        'phone',
+        'avatar',
+        'slug',
+        'suburb',
+        'state',
+        'postcode',
+        'country',
+        'district',
+        'bio',
+        'facebook',
+        'instagram',
+        'linkedin',
+        'whatsapp',
+        'twitter',
+        'website',
+    ]);
+
+    /*
+     * Return every user/agent ID belonging to this company.
+     * The frontend can use these IDs to load all properties
+     * belonging to the company.
+     */
+    $data['user_ids'] = $companyAgents
+        ->pluck('id')
+        ->values();
+
+    /*
+     * Return all unique locations belonging to this company.
+     */
+    $data['locations'] = $companyAgents
+        ->map(function ($companyAgent) {
+            return [
+                'suburb'   => $companyAgent->suburb,
+                'district' => $companyAgent->district,
+                'state'    => $companyAgent->state,
+                'postcode' => $companyAgent->postcode,
+                'country'  => $companyAgent->country,
+            ];
+        })
+        ->unique(function ($location) {
+            return implode('|', [
+                $location['suburb'] ?? '',
+                $location['district'] ?? '',
+                $location['state'] ?? '',
+                $location['postcode'] ?? '',
+                $location['country'] ?? '',
+            ]);
+        })
+        ->values();
+
+    return response()->json($data);
+}
+
+
+public function agents(Request $request): JsonResponse
+{
+    $query = User::where('role', 'agent')
+        ->orderBy('name');
+
+    /*
+     * Existing filters
+     */
+    if ($request->filled('suburb')) {
+        $query->where(
+            'suburb',
+            'like',
+            '%' . $request->suburb . '%'
         );
     }
 
-    public function agents(Request $request): JsonResponse
-    {
-        $query = User::where('role', 'agent')->orderBy('name');
-
-        if ($request->filled('suburb')) {
-            $query->where('suburb', 'like', '%' . $request->suburb . '%');
-        }
-        if ($request->filled('state')) {
-            $query->where('state', $request->state);
-        }
-           if ($request->filled('district')) {
-            $query->where('district', 'like', '%' . $request->district . '%');
-        }
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        $agents = $query->select([
-                'id', 'name', 'email', 'phone', 'avatar', 'slug',
-                'suburb', 'state', 'postcode', 'country', 'district',
-            ])
-            ->paginate(24);
-
-        return response()->json($agents);
+    if ($request->filled('state')) {
+        $query->where(
+            'state',
+            $request->state
+        );
     }
+
+    if ($request->filled('district')) {
+        $query->where(
+            'district',
+            'like',
+            '%' . $request->district . '%'
+        );
+    }
+
+    if ($request->filled('search')) {
+        $query->where(
+            'name',
+            'like',
+            '%' . $request->search . '%'
+        );
+    }
+
+    /*
+     * Get all matching agent records first.
+     *
+     * We do not paginate here because duplicate company
+     * records must be grouped before pagination.
+     */
+    $agents = $query
+        ->select([
+            'id',
+            'name',
+            'email',
+            'phone',
+            'avatar',
+            'slug',
+            'suburb',
+            'state',
+            'postcode',
+            'country',
+            'district',
+        ])
+        ->get();
+
+    /*
+     * Group agents by normalized company/agent name.
+     *
+     * Example:
+     *
+     * 73 Avenue Realtors - Colombo
+     * 73 Avenue Realtors - Kandy
+     * 73 Avenue Realtors - Galle
+     *
+     * becomes one:
+     *
+     * 73 Avenue Realtors
+     */
+    $groupedAgents = $agents
+        ->groupBy(function ($agent) {
+            return strtolower(trim($agent->name));
+        })
+        ->map(function ($group) {
+
+            // Use the first record as the main company profile
+            $primary = $group->first();
+
+            /*
+             * Store every user ID belonging to this company.
+             */
+            $primary->user_ids = $group
+                ->pluck('id')
+                ->values();
+
+            /*
+             * Collect all unique company locations.
+             */
+            $primary->locations = $group
+                ->map(function ($agent) {
+                    return [
+                        'suburb'   => $agent->suburb,
+                        'district' => $agent->district,
+                        'state'    => $agent->state,
+                        'postcode' => $agent->postcode,
+                        'country'  => $agent->country,
+                    ];
+                })
+                ->unique(function ($location) {
+                    return implode('|', [
+                        $location['suburb'] ?? '',
+                        $location['district'] ?? '',
+                        $location['state'] ?? '',
+                        $location['postcode'] ?? '',
+                        $location['country'] ?? '',
+                    ]);
+                })
+                ->values();
+
+            return $primary;
+        })
+        ->values();
+
+    /*
+     * Paginate AFTER duplicate companies have been grouped.
+     */
+    $perPage = (int) $request->get('per_page', 24);
+    $page = (int) $request->get('page', 1);
+
+    // Safety limits
+    $perPage = max(1, min($perPage, 100));
+    $page = max(1, $page);
+
+    $paginatedAgents = new \Illuminate\Pagination\LengthAwarePaginator(
+        $groupedAgents
+            ->forPage($page, $perPage)
+            ->values(),
+        $groupedAgents->count(),
+        $perPage,
+        $page,
+        [
+            'path'  => $request->url(),
+            'query' => $request->query(),
+        ]
+    );
+
+    return response()->json($paginatedAgents);
+}
 
     public function sendPhoneOtp(Request $request): JsonResponse
     {
