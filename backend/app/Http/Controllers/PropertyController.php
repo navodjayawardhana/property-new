@@ -23,9 +23,21 @@ class PropertyController extends Controller
     {
         $query = Property::with('images')->latest();
 
-        if ($request->filled('user_id')) {
-            $query->where('user_id', (int) $request->user_id);
-        }
+         if ($request->filled('user_ids')) {
+    // Support multiple agent/user IDs for one company profile.
+    // Example: ?user_ids=10,15,21
+    $userIds = explode(',', $request->user_ids);
+
+    $userIds = array_filter(
+        array_map('intval', $userIds)
+    );
+
+    $query->whereIn('user_id', $userIds);
+
+} elseif ($request->filled('user_id')) {
+    // Keep existing single-agent filtering working
+    $query->where('user_id', (int) $request->user_id);
+}
 
         if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);

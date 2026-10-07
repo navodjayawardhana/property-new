@@ -221,12 +221,39 @@ function AgentsContent() {
                     <p className="text-xs text-[#16a34a] font-semibold">
                       Real Estate Agent
                     </p>
-                    {(agent.district || agent.state) && (
-                      <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
-                        <MapPin size={9} className="shrink-0" />
-                        {[agent.district || agent.suburb, agent.state].filter(Boolean).join(" · ")}
-                      </p>
-                    )}
+                    {agent.locations && agent.locations.length > 0 ? (
+  <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
+    <MapPin size={9} className="shrink-0" />
+
+    <span className="truncate">
+      {agent.locations
+        .map(
+          (location) =>
+            location.district ||
+            location.suburb ||
+            location.state
+        )
+        .filter(Boolean)
+        .filter(
+          (location, index, locations) =>
+            locations.indexOf(location) === index
+        )
+        .join(" · ")}
+    </span>
+  </p>
+) : (
+  (agent.district || agent.suburb || agent.state) && (
+    <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
+      <MapPin size={9} className="shrink-0" />
+
+      <span className="truncate">
+        {[agent.district || agent.suburb, agent.state]
+          .filter(Boolean)
+          .join(" · ")}
+      </span>
+    </p>
+  )
+)}
                   </div>
                 </div>
 

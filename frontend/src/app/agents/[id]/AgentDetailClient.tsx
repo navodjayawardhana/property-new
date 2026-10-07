@@ -170,11 +170,34 @@ export default function AgentLandingPage() {
     agentsApi.slides(slug).then(setSlides).catch(() => {});
   }, [slug]);
 
-  useEffect(() => {
-    if (!agent) return;
-    propertiesApi.list({ user_id: agent.id, per_page: 50 })
-      .then((r) => setAgentProps(r.data)).catch(() => {}).finally(() => setPropsLoading(false));
-  }, [agent]);
+ useEffect(() => {
+  if (!agent) return;
+
+  setPropsLoading(true);
+
+  const filters =
+    agent.user_ids && agent.user_ids.length > 0
+      ? {
+          user_ids: agent.user_ids.join(","),
+          per_page: 100,
+        }
+      : {
+          user_id: agent.id,
+          per_page: 100,
+        };
+
+  propertiesApi
+    .list(filters)
+    .then((r) => {
+      setAgentProps(r.data);
+    })
+    .catch(() => {
+      setAgentProps([]);
+    })
+    .finally(() => {
+      setPropsLoading(false);
+    });
+}, [agent]);
 
   if (loading) {
     return (
@@ -186,12 +209,29 @@ export default function AgentLandingPage() {
       </div>
     );
   }
+if (!agent) return null;
 
-  if (!agent) return null;
+const propertiesByLocation = agentProps.reduce<Record<string, Property[]>>(
+  (groups, property) => {
+    const location =
+      property.district ||
+      property.suburb ||
+      property.state ||
+      "Other Locations";
 
-  const hasSocials = SOCIALS.some(({ key }) => agent[key]);
-  const firstName  = agent.name.split(" ")[0];
+    if (!groups[location]) {
+      groups[location] = [];
+    }
 
+    groups[location].push(property);
+
+    return groups;
+  },
+  {}
+);
+
+const hasSocials = SOCIALS.some(({ key }) => agent[key]);
+const firstName = agent.name.split(" ")[0];
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
@@ -375,11 +415,49 @@ export default function AgentLandingPage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {(showAll ? agentProps : agentProps.slice(0, INITIAL_LIMIT)).map((p) => (
-                  <PropertyCard key={p.id} property={p} />
-                ))}
-              </div>
+              <div className="space-y-12">
+  {Object.entries(propertiesByLocation).map(
+    ([location, locationProperties]) => {
+      const visibleProperties = showAll
+        ? locationProperties
+        : locationProperties.filter((property) =>
+            agentProps
+              .slice(0, INITIAL_LIMIT)
+              .some((visibleProperty) => visibleProperty.id === property.id)
+          );
+
+      if (visibleProperties.length === 0) {
+        return null;
+      }
+
+      return (
+        <div key={location}>
+          <div className="flex items-center gap-2 mb-5">
+            <MapPin size={20} className="text-[#16a34a]" />
+
+            <h3 className="text-xl font-black text-gray-900">
+              {location}
+            </h3>
+
+            <span className="text-sm text-gray-400">
+              ({locationProperties.length}{" "}
+              {locationProperties.length === 1 ? "property" : "properties"})
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {visibleProperties.map((property) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+  )}
+</div>
 
               {agentProps.length > INITIAL_LIMIT && (
                 <div className="mt-10 text-center">

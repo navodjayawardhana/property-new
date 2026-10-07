@@ -203,7 +203,14 @@ export type PropertyFilters = {
   listing_type?: 'buy' | 'rent' | 'sold';
   condition?: 'new' | 'used';
   category?: 'domestic' | 'commercial' | 'both';
+
+  // Single agent/user filtering
   user_id?: number;
+
+  // Multiple agent/user IDs belonging to the same company
+  // Example: "10,15,21"
+  user_ids?: string;
+
   q?: string;
   property_type?: string;
   suburb?: string;
@@ -391,6 +398,18 @@ export type Agent = {
   whatsapp: string | null;
   twitter: string | null;
   website: string | null;
+
+  // All agent/user IDs belonging to the same company
+  user_ids?: number[];
+
+  // All unique locations belonging to the company
+  locations?: {
+    suburb: string | null;
+    district: string | null;
+    state: string | null;
+    postcode: string | null;
+    country: string | null;
+  }[];
 };
 
 export type AgentSlide = {
