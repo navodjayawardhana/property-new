@@ -9,7 +9,7 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
 import Footer from "@/components/Footer";
 import { properties as propertiesApi, agentsApi, newsApi, type Property, type Agent, type NewsArticleApi } from "@/lib/api";
-import { ChevronRight, TrendingUp, Home, Key, Award } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePageClient() {
@@ -41,27 +41,6 @@ export default function HomePageClient() {
       <Navbar />
       <div className="-mt-20">
         <SearchHero defaultTab="Buy" title="Buy, Rent & Sell Property in Sri Lanka" />
-      </div>
-
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: <Home size={18} className="text-[#16a34a]" />, value: "120,000+", label: "For sale" },
-            { icon: <Key size={18} className="text-[#16a34a]" />, value: "55,000+", label: "For rent" },
-            { icon: <TrendingUp size={18} className="text-[#16a34a]" />, value: "310,000+", label: "Sold this year" },
-            { icon: <Award size={18} className="text-[#16a34a]" />, value: "32 days", label: "Avg. time on market" },
-          ].map((s) => (
-            <div key={s.label} className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center shrink-0">
-                {s.icon}
-              </div>
-              <div>
-                <p className="font-black text-gray-900 text-base leading-none">{s.value}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       <ExploreSection />
