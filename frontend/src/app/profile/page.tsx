@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { UserAvatar } from "@/components/UserAvatar";
+import MarketingPreference from "@/components/MarketingPreference";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { profile as profileApi } from "@/lib/api";
@@ -169,6 +170,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8 w-full flex-1">
+        {token && <MarketingPreference token={token} />}
 
         {/* ── Avatar card (always visible) ── */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-5">
