@@ -38,13 +38,21 @@ async function newsEntries(): Promise<MetadataRoute.Sitemap> {
 
 async function agentEntries(): Promise<MetadataRoute.Sitemap> {
   try {
-    const res = await agentsApi.list({ per_page: 500 } as never);
-    return res.data.map((a) => ({
-      url: `${BASE_URL}/agents/${a.slug ?? a.id}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }));
+    const entries: MetadataRoute.Sitemap = [];
+    let page = 1;
+    let lastPage = 1;
+    do {
+      const res = await agentsApi.list({ per_page: 100, page });
+      entries.push(...res.data.map((a) => ({
+        url: `${BASE_URL}/agents/${a.slug ?? a.id}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      })));
+      lastPage = res.last_page;
+      page += 1;
+    } while (page <= lastPage);
+    return entries;
   } catch {
     return [];
   }

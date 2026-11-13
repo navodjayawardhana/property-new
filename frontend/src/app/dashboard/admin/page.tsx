@@ -529,6 +529,7 @@ function EditUserModal({ token, user, isSelf, onClose, onSaved }: {
   function handleAvatarPick(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) { setError("Choose a JPG, PNG or WebP image."); return; }
     if (f.size > 2 * 1024 * 1024) { setError("Profile picture must be 2 MB or smaller."); return; }
     setError("");
     setRemoveAvatar(false);
@@ -548,6 +549,7 @@ function EditUserModal({ token, user, isSelf, onClose, onSaved }: {
   const ready = !!form.name.trim() && passwordValid && !saving;
 
   async function handleSave() {
+    if (!ready) return;
     setSaving(true);
     setError("");
     try {
