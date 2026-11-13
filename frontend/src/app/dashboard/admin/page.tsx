@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { UserAvatar } from "@/components/UserAvatar";
 import { CreateListingWizard } from "@/components/CreateListingWizard";
+import BulkEmailDashboard from "@/components/BulkEmailDashboard";
 import { useAuth } from "@/lib/auth-context";
 import {
   admin as adminApi,
@@ -2990,9 +2991,10 @@ function PricingTab({ token }: { token: string }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-type Tab = "overview" | "users" | "properties" | "create-listing" | "inquiries" | "news" | "loans" | "banks" | "slides" | "advertisement-managers" | "pricing";
+type Tab = "bulk-email" | "overview" | "users" | "properties" | "create-listing" | "inquiries" | "news" | "loans" | "banks" | "slides" | "advertisement-managers" | "pricing";
 
 const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "bulk-email", label: "Bulk Emailing", icon: <Mail size={16} /> },
   { id: "overview",        label: "Overview",          icon: <LayoutDashboard size={16} /> },
   { id: "users",           label: "Users",             icon: <Users size={16} /> },
   { id: "properties",      label: "Properties",        icon: <Home size={16} /> },
@@ -3130,6 +3132,7 @@ export default function AdminPage() {
             {tab === "slides"         && token && <SlidesTab token={token} />}
             {tab === "advertisement-managers" && token && <AdvertisementManagersTab token={token} />}
             {tab === "pricing"        && token && <PricingTab token={token} />}
+            {tab === "bulk-email" && token && <BulkEmailDashboard token={token} />}
           </div>
         </main>
 

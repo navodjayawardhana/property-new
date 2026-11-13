@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import MarketingPreference from "@/components/MarketingPreference";
+import { useAuth } from "@/lib/auth-context";
 import Footer from "@/components/Footer";
 import { useState } from "react";
 import { CheckCircle } from "lucide-react";
@@ -44,19 +46,10 @@ const SETTINGS = [
   },
 ];
 
-const COMMS = [
-  { id: "property_alerts", label: "Property alerts & saved searches" },
-  { id: "market_updates", label: "Market reports & price updates" },
-  { id: "newsletters", label: "Weekly property newsletter" },
-  { id: "promotions", label: "Promotional offers & events" },
-];
-
 export default function PrivacySettingsPage() {
+  const { token, loading } = useAuth();
   const [cookies, setCookies] = useState<Record<string, boolean>>(
     Object.fromEntries(SETTINGS.map((s) => [s.id, s.default]))
-  );
-  const [comms, setComms] = useState<Record<string, boolean>>(
-    Object.fromEntries(COMMS.map((c) => [c.id, true]))
   );
   const [saved, setSaved] = useState(false);
 
@@ -115,27 +108,15 @@ export default function PrivacySettingsPage() {
           </div>
         </section>
 
-        {/* Communication preferences */}
-        <section>
-          <h2 className="text-lg font-black text-gray-900 mb-1">Communication preferences</h2>
-          <p className="text-sm text-gray-500 mb-5">Choose which emails you'd like to receive from us.</p>
-          <div className="space-y-3">
-            {COMMS.map((c) => (
-              <label key={c.id} className="flex items-center justify-between gap-4 p-4 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                <span className="text-sm text-gray-700">{c.label}</span>
-                <input type="checkbox" checked={comms[c.id]}
-                  onChange={() => setComms(p => ({ ...p, [c.id]: !p[c.id] }))}
-                  className="w-4 h-4 accent-[#16a34a] shrink-0" />
-              </label>
-            ))}
-          </div>
+        <section aria-label="Communication preferences">
+          {loading ? <p>Loading email preferences...</p> : token ? <MarketingPreference token={token} /> : <p className="text-sm text-gray-600"><Link href="/signin" className="text-green-700 underline">Sign in</Link> to manage marketing email consent. You can also unsubscribe using the link in any campaign email.</p>}
         </section>
 
         {/* Save */}
         <div className="flex items-center gap-4 pt-2">
           <button onClick={handleSave}
             className="bg-[#16a34a] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#15803d] transition-colors text-sm">
-            Save preferences
+            Save cookie preferences
           </button>
           {saved && (
             <span className="flex items-center gap-1.5 text-sm text-[#16a34a] font-semibold">

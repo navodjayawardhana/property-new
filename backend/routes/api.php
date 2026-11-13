@@ -67,6 +67,28 @@ Route::middleware(VerifyPartnerApiKey::class)->prefix('external')->group(functio
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/marketing-preferences', [\App\Http\Controllers\MarketingPreferenceController::class, 'show']);
+    Route::put('/marketing-preferences', [\App\Http\Controllers\MarketingPreferenceController::class, 'update']);
+    Route::prefix('admin/bulk-email')->middleware(\App\Http\Middleware\BulkEmailAdmin::class)->group(function () {
+        $controller = \App\Http\Controllers\BulkEmailController::class;
+        Route::get('/stats', [$controller, 'stats']);
+        Route::post('/audience', [$controller, 'audience']);
+        Route::post('/preview', [$controller, 'preview'])->middleware('throttle:60,1');
+        Route::get('/campaigns', [$controller, 'index']);
+        Route::post('/campaigns', [$controller, 'store']);
+        Route::get('/campaigns/{campaign}', [$controller, 'show']);
+        Route::put('/campaigns/{campaign}', [$controller, 'update']);
+        Route::post('/campaigns/{campaign}/{action}', [$controller, 'action'])->middleware('throttle:10,1');
+        Route::get('/templates', [$controller, 'templates']);
+        Route::post('/templates', [$controller, 'saveTemplate']);
+        Route::put('/templates/{template}', [$controller, 'saveTemplate']);
+        Route::delete('/templates/{template}', [$controller, 'deleteTemplate']);
+        Route::get('/contacts', [$controller, 'contacts']);
+        Route::post('/contacts', [$controller, 'storeContact']);
+        Route::get('/suppressions', [$controller, 'suppressions']);
+        Route::post('/suppressions', [$controller, 'suppress']);
+        Route::delete('/suppressions/{suppression}', [$controller, 'unsuppress']);
+    });
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
