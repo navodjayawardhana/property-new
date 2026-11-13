@@ -5,34 +5,126 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { UserAvatar } from "@/components/UserAvatar";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
-import { agentsApi, properties as propertiesApi, type Agent, type AgentSlide, type Property } from "@/lib/api";
-import { MapPin, Mail, Phone, ArrowLeft, Building2, Globe, MessageCircle, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import {
+  agentsApi,
+  properties as propertiesApi,
+  type Agent,
+  type AgentSlide,
+  type Property,
+} from "@/lib/api";
+import {
+  MapPin,
+  Mail,
+  Phone,
+  ArrowLeft,
+  Building2,
+  Globe,
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+} from "lucide-react";
 
 /* ── Social SVG icons ───────────────────────────────────────────────────── */
-function FbIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>; }
-function IgIcon()  { return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>; }
-function LiIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V9h4v1.5a6 6 0 0 1 4-1.5z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>; }
-function TwIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>; }
-function WaIcon()  { return <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>; }
+function FbIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+function IgIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="w-5 h-5"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+function LiIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4V9h4v1.5a6 6 0 0 1 4-1.5z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+function TwIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+function WaIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
+    </svg>
+  );
+}
 
 const SOCIALS = [
-  { key: "facebook"  as keyof Agent, Icon: FbIcon,        label: "Facebook",  bg: "bg-[#1877F2]" },
-  { key: "instagram" as keyof Agent, Icon: IgIcon,        label: "Instagram", bg: "bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]" },
-  { key: "linkedin"  as keyof Agent, Icon: LiIcon,        label: "LinkedIn",  bg: "bg-[#0A66C2]" },
-  { key: "twitter"   as keyof Agent, Icon: TwIcon,        label: "Twitter",   bg: "bg-black" },
-  { key: "whatsapp"  as keyof Agent, Icon: WaIcon,        label: "WhatsApp",  bg: "bg-[#25D366]" },
-  { key: "website"   as keyof Agent, Icon: () => <Globe size={20} />, label: "Website", bg: "bg-gray-700" },
+  {
+    key: "facebook" as keyof Agent,
+    Icon: FbIcon,
+    label: "Facebook",
+    bg: "bg-[#1877F2]",
+  },
+  {
+    key: "instagram" as keyof Agent,
+    Icon: IgIcon,
+    label: "Instagram",
+    bg: "bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]",
+  },
+  {
+    key: "linkedin" as keyof Agent,
+    Icon: LiIcon,
+    label: "LinkedIn",
+    bg: "bg-[#0A66C2]",
+  },
+  {
+    key: "twitter" as keyof Agent,
+    Icon: TwIcon,
+    label: "Twitter",
+    bg: "bg-black",
+  },
+  {
+    key: "whatsapp" as keyof Agent,
+    Icon: WaIcon,
+    label: "WhatsApp",
+    bg: "bg-[#25D366]",
+  },
+  {
+    key: "website" as keyof Agent,
+    Icon: () => <Globe size={20} />,
+    label: "Website",
+    bg: "bg-gray-700",
+  },
 ];
 
 function socialHref(key: keyof Agent, val: string): string {
   if (key === "whatsapp") return `https://wa.me/${val.replace(/\D/g, "")}`;
-  if (key === "website")  return val.startsWith("http") ? val : `https://${val}`;
-  if (key === "facebook")  return val.startsWith("http") ? val : `https://facebook.com/${val}`;
-  if (key === "instagram") return val.startsWith("http") ? val : `https://instagram.com/${val}`;
-  if (key === "linkedin")  return val.startsWith("http") ? val : `https://linkedin.com/in/${val}`;
-  if (key === "twitter")   return val.startsWith("http") ? val : `https://twitter.com/${val}`;
+  if (key === "website") return val.startsWith("http") ? val : `https://${val}`;
+  if (key === "facebook")
+    return val.startsWith("http") ? val : `https://facebook.com/${val}`;
+  if (key === "instagram")
+    return val.startsWith("http") ? val : `https://instagram.com/${val}`;
+  if (key === "linkedin")
+    return val.startsWith("http") ? val : `https://linkedin.com/in/${val}`;
+  if (key === "twitter")
+    return val.startsWith("http") ? val : `https://twitter.com/${val}`;
   return val;
 }
 
@@ -40,31 +132,36 @@ function socialHref(key: keyof Agent, val: string): string {
 const DEFAULT_SLIDES = [
   {
     gradient: "from-[#0f172a] via-[#1e3a8a] to-[#1d4ed8]",
-    pattern: "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.07) 1px, transparent 0)",
+    pattern:
+      "radial-gradient(circle at 2px 2px, rgba(255,255,255,0.07) 1px, transparent 0)",
     patternSize: "40px 40px",
     accent: "bg-blue-500/20",
   },
   {
     gradient: "from-[#0f172a] via-[#14532d] to-[#16a34a]",
-    pattern: "linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 75%)",
+    pattern:
+      "linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.03) 75%)",
     patternSize: "60px 60px",
     accent: "bg-green-500/20",
   },
   {
     gradient: "from-[#1e1b4b] via-[#4c1d95] to-[#7c3aed]",
-    pattern: "radial-gradient(circle at 3px 3px, rgba(255,255,255,0.06) 1px, transparent 0)",
+    pattern:
+      "radial-gradient(circle at 3px 3px, rgba(255,255,255,0.06) 1px, transparent 0)",
     patternSize: "28px 28px",
     accent: "bg-violet-500/20",
   },
   {
     gradient: "from-[#0f172a] via-[#7c2d12] to-[#c2410c]",
-    pattern: "linear-gradient(135deg, rgba(255,255,255,0.04) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.04) 75%)",
+    pattern:
+      "linear-gradient(135deg, rgba(255,255,255,0.04) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.04) 75%)",
     patternSize: "50px 50px",
     accent: "bg-orange-500/20",
   },
   {
     gradient: "from-[#0c4a6e] via-[#0369a1] to-[#0ea5e9]",
-    pattern: "radial-gradient(ellipse at 4px 4px, rgba(255,255,255,0.05) 2px, transparent 0)",
+    pattern:
+      "radial-gradient(ellipse at 4px 4px, rgba(255,255,255,0.05) 2px, transparent 0)",
     patternSize: "36px 36px",
     accent: "bg-sky-500/20",
   },
@@ -74,13 +171,26 @@ function DefaultSlide({ idx }: { idx: number }) {
   const s = DEFAULT_SLIDES[idx % DEFAULT_SLIDES.length];
   return (
     <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient}`}>
-      <div className="absolute inset-0" style={{ backgroundImage: s.pattern, backgroundSize: s.patternSize }} />
+      <div
+        className="absolute inset-0"
+        style={{ backgroundImage: s.pattern, backgroundSize: s.patternSize }}
+      />
       {/* Decorative circles */}
-      <div className={`absolute -top-24 -right-24 w-96 h-96 rounded-full ${s.accent} blur-3xl`} />
-      <div className={`absolute -bottom-16 -left-16 w-64 h-64 rounded-full ${s.accent} blur-2xl`} />
+      <div
+        className={`absolute -top-24 -right-24 w-96 h-96 rounded-full ${s.accent} blur-3xl`}
+      />
+      <div
+        className={`absolute -bottom-16 -left-16 w-64 h-64 rounded-full ${s.accent} blur-2xl`}
+      />
       {/* Diagonal stripe overlay */}
-      <div className="absolute inset-0 opacity-5"
-        style={{ backgroundImage: "repeating-linear-gradient(-45deg, white 0, white 1px, transparent 0, transparent 50%)", backgroundSize: "20px 20px" }} />
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(-45deg, white 0, white 1px, transparent 0, transparent 50%)",
+          backgroundSize: "20px 20px",
+        }}
+      />
     </div>
   );
 }
@@ -91,24 +201,34 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
 
   // Pad with default slides: 0 real → 5 defaults, 1 real → 4 defaults appended
   const defaultCount = active.length === 0 ? 5 : active.length === 1 ? 4 : 0;
-  const totalCount   = active.length + defaultCount;
+  const totalCount = active.length + defaultCount;
 
   const [cur, setCur] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function reset() {
     if (timer.current) clearTimeout(timer.current);
-    if (totalCount > 1) timer.current = setTimeout(() => setCur((c) => (c + 1) % totalCount), 5000);
+    if (totalCount > 1)
+      timer.current = setTimeout(
+        () => setCur((c) => (c + 1) % totalCount),
+        5000,
+      );
   }
-  useEffect(() => { reset(); return () => { if (timer.current) clearTimeout(timer.current); }; }, [cur, totalCount]);
+  useEffect(() => {
+    reset();
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [cur, totalCount]);
 
   return (
-    <div className="relative w-full h-[70vh] min-h-[480px] overflow-hidden">
-
+    <div className="relative w-full h-[380px] md:h-[55vh] md:min-h-[420px] overflow-hidden">
       {/* Real image slides */}
       {active.map((slide, i) => (
-        <div key={`real-${slide.id}`}
-          className={`absolute inset-0 transition-opacity duration-1000 ${i === cur ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+        <div
+          key={`real-${slide.id}`}
+          className={`absolute inset-0 transition-opacity duration-1000 ${i === cur ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        >
           <img src={slide.url} alt="" className="w-full h-full object-cover" />
         </div>
       ))}
@@ -117,8 +237,10 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
       {Array.from({ length: defaultCount }, (_, i) => {
         const idx = active.length + i;
         return (
-          <div key={`def-${i}`}
-            className={`absolute inset-0 transition-opacity duration-1000 ${idx === cur ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+          <div
+            key={`def-${i}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ${idx === cur ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          >
             <DefaultSlide idx={i} />
           </div>
         );
@@ -131,18 +253,34 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
       {/* Arrows */}
       {totalCount > 1 && (
         <>
-          <button onClick={() => { setCur((c) => (c - 1 + totalCount) % totalCount); reset(); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all">
+          <button
+            onClick={() => {
+              setCur((c) => (c - 1 + totalCount) % totalCount);
+              reset();
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all"
+          >
             <ChevronLeft size={20} />
           </button>
-          <button onClick={() => { setCur((c) => (c + 1) % totalCount); reset(); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all">
+          <button
+            onClick={() => {
+              setCur((c) => (c + 1) % totalCount);
+              reset();
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all"
+          >
             <ChevronRight size={20} />
           </button>
-          <div className="absolute bottom-8 right-6 flex gap-1.5">
+          <div className="absolute top-7 right-6 flex gap-1.5">
             {Array.from({ length: totalCount }, (_, i) => (
-              <button key={i} onClick={() => { setCur(i); reset(); }}
-                className={`rounded-full transition-all duration-300 ${i === cur ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`} />
+              <button
+                key={i}
+                onClick={() => {
+                  setCur(i);
+                  reset();
+                }}
+                className={`rounded-full transition-all duration-300 ${i === cur ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`}
+              />
             ))}
           </div>
         </>
@@ -156,48 +294,73 @@ export default function AgentLandingPage() {
   const { id: slug } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const [agent,        setAgent]        = useState<Agent | null>(null);
-  const [slides,       setSlides]       = useState<AgentSlide[]>([]);
-  const [agentProps,   setAgentProps]   = useState<Property[]>([]);
-  const [loading,      setLoading]      = useState(true);
+  const [agent, setAgent] = useState<Agent | null>(null);
+  const [slides, setSlides] = useState<AgentSlide[]>([]);
+  const [agentProps, setAgentProps] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [propsLoading, setPropsLoading] = useState(true);
-  const [showAll,      setShowAll]      = useState(false);
-
-  const INITIAL_LIMIT = 12;
+  const [propertyPage, setPropertyPage] = useState(1);
+  const [propertyTotal, setPropertyTotal] = useState(0);
+  const [propertyLastPage, setPropertyLastPage] = useState(1);
+  const [propertyError, setPropertyError] = useState("");
+  const [retryProperties, setRetryProperties] = useState(0);
 
   useEffect(() => {
-    agentsApi.get(slug).then(setAgent).catch(() => router.replace("/agents")).finally(() => setLoading(false));
-    agentsApi.slides(slug).then(setSlides).catch(() => {});
-  }, [slug]);
+    let active = true;
+    setLoading(true);
+    setAgent(null);
+    setSlides([]);
+    setPropertyPage(1);
+    agentsApi
+      .get(slug)
+      .then((value) => {
+        if (active) setAgent(value);
+      })
+      .catch(() => {
+        if (active) router.replace("/agents");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    agentsApi
+      .slides(slug)
+      .then((value) => {
+        if (active) setSlides(value);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [slug, router]);
 
- useEffect(() => {
-  if (!agent) return;
-
-  setPropsLoading(true);
-
-  const filters =
-    agent.user_ids && agent.user_ids.length > 0
-      ? {
-          user_ids: agent.user_ids.join(","),
-          per_page: 100,
-        }
-      : {
-          user_id: agent.id,
-          per_page: 100,
-        };
-
-  propertiesApi
-    .list(filters)
-    .then((r) => {
-      setAgentProps(r.data);
-    })
-    .catch(() => {
-      setAgentProps([]);
-    })
-    .finally(() => {
-      setPropsLoading(false);
-    });
-}, [agent]);
+  useEffect(() => {
+    if (!agent) return;
+    let active = true;
+    setPropsLoading(true);
+    setPropertyError("");
+    propertiesApi
+      .list({
+        user_ids: (agent.user_ids ?? [agent.id]).join(","),
+        page: propertyPage,
+        per_page: 12,
+      })
+      .then((result) => {
+        if (!active) return;
+        setAgentProps(result.data);
+        setPropertyTotal(result.total);
+        setPropertyLastPage(result.last_page);
+      })
+      .catch(() => {
+        if (active)
+          setPropertyError("Unable to load listings. Please try again.");
+      })
+      .finally(() => {
+        if (active) setPropsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [agent, propertyPage, retryProperties]);
 
   if (loading) {
     return (
@@ -209,29 +372,29 @@ export default function AgentLandingPage() {
       </div>
     );
   }
-if (!agent) return null;
+  if (!agent) return null;
 
-const propertiesByLocation = agentProps.reduce<Record<string, Property[]>>(
-  (groups, property) => {
-    const location =
-      property.district ||
-      property.suburb ||
-      property.state ||
-      "Other Locations";
+  const propertiesByLocation = agentProps.reduce<Record<string, Property[]>>(
+    (groups, property) => {
+      const location =
+        property.district ||
+        property.suburb ||
+        property.state ||
+        "Other Locations";
 
-    if (!groups[location]) {
-      groups[location] = [];
-    }
+      if (!groups[location]) {
+        groups[location] = [];
+      }
 
-    groups[location].push(property);
+      groups[location].push(property);
 
-    return groups;
-  },
-  {}
-);
+      return groups;
+    },
+    {},
+  );
 
-const hasSocials = SOCIALS.some(({ key }) => agent[key]);
-const firstName = agent.name.split(" ")[0];
+  const hasSocials = SOCIALS.some(({ key }) => agent[key]);
+  const firstName = agent.name.split(" ")[0];
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
@@ -242,8 +405,10 @@ const firstName = agent.name.split(" ")[0];
 
         {/* Back button — floats over hero */}
         <div className="absolute top-5 left-5 z-20">
-          <Link href="/agents"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white bg-black/30 hover:bg-black/50 backdrop-blur-sm border border-white/10 px-3 py-1.5 rounded-full transition-all">
+          <Link
+            href="/agents"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/80 hover:text-white bg-black/30 hover:bg-black/50 backdrop-blur-sm border border-white/10 px-3 py-1.5 rounded-full transition-all"
+          >
             <ArrowLeft size={13} /> All Agents
           </Link>
         </div>
@@ -251,27 +416,33 @@ const firstName = agent.name.split(" ")[0];
         {/* Agent identity — anchored to hero bottom, overlaps into next section */}
         <div className="absolute bottom-0 left-0 right-0 z-10">
           <div className="max-w-6xl mx-auto px-6 pb-0">
-            <div className="flex items-end gap-6">
+            <div className="flex items-end gap-3 md:gap-6">
               {/* Avatar — pokes above the white section */}
               <div className="relative shrink-0 translate-y-12">
                 <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-[#16a34a] flex items-center justify-center">
-                  {agent.avatar
-                    ? <img src={agent.avatar} alt={agent.name} className="w-full h-full object-cover" />
-                    : <span className="text-white font-black text-5xl">{agent.name.charAt(0)}</span>}
+                  <UserAvatar
+                    src={agent.avatar}
+                    name={agent.name}
+                    avatarBg="bg-green-600"
+                    textSize="text-5xl"
+                  />
                 </div>
-                <div className="absolute bottom-3 right-2 w-4 h-4 bg-green-400 rounded-full border-2 border-white shadow" />
               </div>
 
               {/* Name + title over hero */}
-              <div className="pb-5">
-                <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">Real Estate Agent</p>
-                <h1 className="text-3xl md:text-5xl font-black text-white leading-none tracking-tight drop-shadow-lg">
+              <div className="pb-5 min-w-0">
+                <p className="text-white/60 text-xs font-bold uppercase tracking-widest mb-1">
+                  Real Estate Agent
+                </p>
+                <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-white break-words leading-tight tracking-tight drop-shadow-lg">
                   {agent.name}
                 </h1>
                 {(agent.district || agent.state) && (
                   <p className="text-white/70 text-sm flex items-center gap-1 mt-2">
                     <MapPin size={13} className="shrink-0" />
-                    {[agent.district, agent.state, agent.country].filter(Boolean).join(" · ")}
+                    {[agent.district, agent.state, agent.country]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                 )}
               </div>
@@ -285,37 +456,55 @@ const firstName = agent.name.split(" ")[0];
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-wrap items-center gap-8 md:gap-16 pl-0 md:pl-44">
             <div className="text-center">
-              <p className="text-3xl font-black text-white">{propsLoading ? "—" : agentProps.length}</p>
-              <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">Listings</p>
+              <p className="text-3xl font-black text-white">
+                {propsLoading ? "—" : propertyTotal}
+              </p>
+              <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">
+                Listings
+              </p>
             </div>
             {agent.district && (
               <div className="text-center">
-                <p className="text-lg font-black text-white">{agent.district}</p>
-                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">District</p>
+                <p className="text-lg font-black text-white">
+                  {agent.district}
+                </p>
+                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">
+                  District
+                </p>
               </div>
             )}
             {agent.state && (
               <div className="text-center">
                 <p className="text-lg font-black text-white">{agent.state}</p>
-                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">Province</p>
+                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">
+                  Province
+                </p>
               </div>
             )}
             {agent.phone && (
               <div className="hidden md:block">
                 <p className="text-white font-bold text-sm">{agent.phone}</p>
-                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">Phone</p>
+                <p className="text-gray-400 text-xs font-medium mt-0.5 uppercase tracking-wide">
+                  Phone
+                </p>
               </div>
             )}
 
             {/* CTA buttons on the right */}
             <div className="flex gap-3 md:ml-auto flex-wrap">
-              <a href={`mailto:${agent.email}`}
-                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-green-900/30">
-                <Mail size={15} /> Email Agent
-              </a>
+              {agent.email && (
+                <a
+                  href={`mailto:${agent.email}`}
+                  className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-green-900/30"
+                >
+                  <Mail size={15} /> Email Agent
+                </a>
+              )}
               {agent.phone && (
-                <a href={`tel:${agent.phone}`}
-                  className="flex items-center gap-2 border border-white/20 hover:border-white/50 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors backdrop-blur-sm">
+                <a
+                  href={`tel:${agent.phone}`}
+                  className="flex items-center gap-2 border border-white/20 hover:border-white/50 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors backdrop-blur-sm"
+                >
                   <Phone size={15} /> Call
                 </a>
               )}
@@ -333,9 +522,14 @@ const firstName = agent.name.split(" ")[0];
                 const val = agent[key] as string | null;
                 if (!val) return null;
                 return (
-                  <a key={key} href={socialHref(key, val)} target="_blank" rel="noopener noreferrer"
+                  <a
+                    key={key}
+                    href={socialHref(key, val)}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     title={label}
-                    className={`${bg} text-white w-9 h-9 rounded-xl flex items-center justify-center hover:opacity-80 hover:scale-105 transition-all shadow-md`}>
+                    className={`${bg} text-white w-9 h-9 rounded-xl flex items-center justify-center hover:opacity-80 hover:scale-105 transition-all shadow-md`}
+                  >
                     <Icon />
                   </a>
                 );
@@ -346,15 +540,41 @@ const firstName = agent.name.split(" ")[0];
       )}
 
       {/* ── About ────────────────────────────────────────────────────────── */}
+      {!!agent.locations?.length && (
+        <section className="max-w-6xl mx-auto w-full px-6 pt-8">
+          <h2 className="font-bold text-lg mb-3">Locations</h2>
+          <div className="flex flex-wrap gap-2">
+            {agent.locations.map((location, index) => (
+              <span
+                key={index}
+                className="rounded-full bg-green-50 text-green-800 px-3 py-1 text-sm"
+              >
+                {[
+                  location.suburb,
+                  location.district,
+                  location.state,
+                  location.country,
+                ]
+                  .filter(Boolean)
+                  .join(" / ") || "Location not specified"}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
       {agent.bio && (
         <section className="bg-white py-16 border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-6">
             <div className="max-w-3xl">
-              <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-3">About</p>
+              <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-3">
+                About
+              </p>
               <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-6">
                 Meet {firstName}
               </h2>
-              <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line">{agent.bio}</p>
+              <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line">
+                {agent.bio}
+              </p>
             </div>
           </div>
         </section>
@@ -365,13 +585,27 @@ const firstName = agent.name.split(" ")[0];
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: "Local Expertise",    body: `${firstName} knows the local market inside out, giving you accurate valuations and the best opportunities.` },
-              { title: "Full-Service Agent", body: "From listing to settlement, every step is handled professionally with your best interests at heart." },
-              { title: "Proven Results",     body: `With ${agentProps.length || "multiple"} active listing${agentProps.length !== 1 ? "s" : ""}, ${firstName} has a track record you can trust.` },
+              {
+                title: "Local Expertise",
+                body: `${firstName} knows the local market inside out, giving you accurate valuations and the best opportunities.`,
+              },
+              {
+                title: "Full-Service Agent",
+                body: "From listing to settlement, every step is handled professionally with your best interests at heart.",
+              },
+              {
+                title: "Proven Results",
+                body: `With ${propertyTotal || "multiple"} active listing${propertyTotal !== 1 ? "s" : ""}, ${firstName} has a track record you can trust.`,
+              },
             ].map(({ title, body }) => (
-              <div key={title} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div
+                key={title}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+              >
                 <CheckCircle2 size={22} className="text-[#16a34a] mb-3" />
-                <h3 className="font-black text-gray-900 text-base mb-2">{title}</h3>
+                <h3 className="font-black text-gray-900 text-base mb-2">
+                  {title}
+                </h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{body}</p>
               </div>
             ))}
@@ -384,114 +618,112 @@ const firstName = agent.name.split(" ")[0];
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-2">Portfolio</p>
+              <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-2">
+                Portfolio
+              </p>
               <h2 className="text-2xl md:text-3xl font-black text-gray-900">
                 {firstName}&apos;s Listings
               </h2>
             </div>
-            {!propsLoading && agentProps.length > 0 && (
+            {!propsLoading && propertyTotal > 0 && (
               <div className="flex items-center gap-2 pb-1">
                 <span className="text-sm text-gray-400 font-medium">
-                  {agentProps.length} propert{agentProps.length !== 1 ? "ies" : "y"}
+                  {propertyTotal} propert{propertyTotal !== 1 ? "ies" : "y"}
                 </span>
-                {agentProps.length > INITIAL_LIMIT && (
-                  <span className="text-xs bg-[#16a34a]/10 text-[#16a34a] font-bold px-2 py-0.5 rounded-full">
-                    {showAll ? "All shown" : `+${agentProps.length - INITIAL_LIMIT} more`}
-                  </span>
-                )}
               </div>
             )}
           </div>
 
-          {propsLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => <PropertyCardSkeleton key={i} />)}
+          {propertyError ? (
+            <div role="alert" className="p-6 bg-red-50 text-red-700 rounded-xl">
+              {propertyError}{" "}
+              <button
+                className="underline"
+                onClick={() => setRetryProperties((value) => value + 1)}
+              >
+                Retry
+              </button>
             </div>
-          ) : agentProps.length === 0 ? (
+          ) : propsLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <PropertyCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : propertyTotal === 0 ? (
             <div className="bg-gray-50 rounded-2xl border border-gray-100 py-20 text-center">
               <Building2 size={36} className="text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 font-semibold">No listings yet</p>
-              <p className="text-gray-400 text-sm mt-1">Check back soon for {firstName}&apos;s properties.</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Check back soon for {firstName}&apos;s properties.
+              </p>
             </div>
           ) : (
             <>
               <div className="space-y-12">
-  {Object.entries(propertiesByLocation).map(
-    ([location, locationProperties]) => {
-      const visibleProperties = showAll
-        ? locationProperties
-        : locationProperties.filter((property) =>
-            agentProps
-              .slice(0, INITIAL_LIMIT)
-              .some((visibleProperty) => visibleProperty.id === property.id)
-          );
+                {Object.entries(propertiesByLocation).map(
+                  ([location, locationProperties]) => {
+                    const visibleProperties = locationProperties;
 
-      if (visibleProperties.length === 0) {
-        return null;
-      }
+                    if (visibleProperties.length === 0) {
+                      return null;
+                    }
 
-      return (
-        <div key={location}>
-          <div className="flex items-center gap-2 mb-5">
-            <MapPin size={20} className="text-[#16a34a]" />
+                    return (
+                      <div key={location}>
+                        <div className="flex items-center gap-2 mb-5">
+                          <MapPin size={20} className="text-[#16a34a]" />
 
-            <h3 className="text-xl font-black text-gray-900">
-              {location}
-            </h3>
+                          <h3 className="text-xl font-black text-gray-900">
+                            {location}
+                          </h3>
 
-            <span className="text-sm text-gray-400">
-              ({locationProperties.length}{" "}
-              {locationProperties.length === 1 ? "property" : "properties"})
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {visibleProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                property={property}
-              />
-            ))}
-          </div>
-        </div>
-      );
-    }
-  )}
-</div>
-
-              {agentProps.length > INITIAL_LIMIT && (
-                <div className="mt-10 text-center">
-                  {!showAll ? (
-                    <div className="space-y-3">
-                      {/* Progress bar */}
-                      <div className="flex items-center gap-3 max-w-xs mx-auto">
-                        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[#16a34a] rounded-full transition-all"
-                            style={{ width: `${(INITIAL_LIMIT / agentProps.length) * 100}%` }}
-                          />
+                          <span className="text-sm text-gray-400">
+                            ({locationProperties.length}{" "}
+                            {locationProperties.length === 1
+                              ? "property"
+                              : "properties"}{" "}
+                            on this page)
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">
-                          {INITIAL_LIMIT} of {agentProps.length}
-                        </span>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                          {visibleProperties.map((property) => (
+                            <PropertyCard
+                              key={property.id}
+                              property={property}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      <button
-                        onClick={() => setShowAll(true)}
-                        className="inline-flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold text-sm px-7 py-3 rounded-xl transition-colors shadow-md"
-                      >
-                        View all {agentProps.length} listings
-                        <ChevronRight size={16} />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => { setShowAll(false); document.getElementById("listings-section")?.scrollIntoView({ behavior: "smooth" }); }}
-                      className="inline-flex items-center gap-2 border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-sm px-7 py-3 rounded-xl transition-colors"
-                    >
-                      <ChevronLeft size={16} /> Show less
-                    </button>
-                  )}
-                </div>
+                    );
+                  },
+                )}
+              </div>
+
+              {propertyLastPage > 1 && (
+                <nav
+                  aria-label="Listing pagination"
+                  className="flex flex-wrap items-center justify-center gap-4 mt-8"
+                >
+                  <button
+                    disabled={propertyPage <= 1}
+                    onClick={() => setPropertyPage((page) => page - 1)}
+                    className="border rounded-lg px-4 py-2 disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {propertyPage} of {propertyLastPage}
+                  </span>
+                  <button
+                    disabled={propertyPage >= propertyLastPage}
+                    onClick={() => setPropertyPage((page) => page + 1)}
+                    className="border rounded-lg px-4 py-2 disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </nav>
               )}
             </>
           )}
@@ -501,21 +733,30 @@ const firstName = agent.name.split(" ")[0];
       {/* ── Contact CTA ──────────────────────────────────────────────────── */}
       <section className="bg-[#0f172a] py-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-3">Get in touch</p>
+          <p className="text-[#16a34a] text-xs font-bold uppercase tracking-widest mb-3">
+            Get in touch
+          </p>
           <h2 className="text-2xl md:text-4xl font-black text-white mb-3">
             Ready to buy, sell or rent?
           </h2>
           <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">
-            Reach out to {firstName} today for a free consultation and expert advice on your next property move.
+            Reach out to {firstName} today for a free consultation and expert
+            advice on your next property move.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <a href={`mailto:${agent.email}`}
-              className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors shadow-lg shadow-green-900/40">
-              <Mail size={16} /> {agent.email}
-            </a>
+            {agent.email && (
+              <a
+                href={`mailto:${agent.email}`}
+                className="flex items-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors shadow-lg shadow-green-900/40"
+              >
+                <Mail size={16} /> {agent.email}
+              </a>
+            )}
             {agent.phone && (
-              <a href={`tel:${agent.phone}`}
-                className="flex items-center gap-2 border border-white/20 hover:border-white/50 hover:bg-white/5 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+              <a
+                href={`tel:${agent.phone}`}
+                className="flex items-center gap-2 border border-white/20 hover:border-white/50 hover:bg-white/5 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors"
+              >
                 <Phone size={16} /> {agent.phone}
               </a>
             )}

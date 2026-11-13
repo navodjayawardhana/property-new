@@ -14,30 +14,31 @@ class PropertyController extends Controller
     private function calcListingFee(): float
     {
         $rows = DB::table('settings')->get()->keyBy('key');
-        $fee  = (float) ($rows['listing_fee']->value        ?? 1000);
-        $pct  = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+        $fee = (float) ($rows['listing_fee']->value ?? 1000);
+        $pct = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+
         return round($fee + $fee * $pct / 100, 2);
     }
 
     public function index(Request $request): JsonResponse
     {
-        $query = Property::with('images')->latest();
+        $query = Property::with('images')->latest()->orderByDesc('id');
 
-         if ($request->filled('user_ids')) {
-    // Support multiple agent/user IDs for one company profile.
-    // Example: ?user_ids=10,15,21
-    $userIds = explode(',', $request->user_ids);
+        if ($request->filled('user_ids')) {
+            // Support multiple agent/user IDs for one company profile.
+            // Example: ?user_ids=10,15,21
+            $userIds = explode(',', $request->user_ids);
 
-    $userIds = array_filter(
-        array_map('intval', $userIds)
-    );
+            $userIds = array_filter(
+                array_map('intval', $userIds)
+            );
 
-    $query->whereIn('user_id', $userIds);
+            $query->whereIn('user_id', $userIds);
 
-} elseif ($request->filled('user_id')) {
-    // Keep existing single-agent filtering working
-    $query->where('user_id', (int) $request->user_id);
-}
+        } elseif ($request->filled('user_id')) {
+            // Keep existing single-agent filtering working
+            $query->where('user_id', (int) $request->user_id);
+        }
 
         if ($request->filled('listing_type')) {
             $query->where('listing_type', $request->listing_type);
@@ -48,11 +49,11 @@ class PropertyController extends Controller
             $q = $request->q;
             $query->where(function ($builder) use ($q) {
                 $builder->where('title', 'like', "%{$q}%")
-                        ->orWhere('address', 'like', "%{$q}%")
-                        ->orWhere('suburb', 'like', "%{$q}%")
-                        ->orWhere('postcode', 'like', "%{$q}%")
-                        ->orWhere('state', 'like', "%{$q}%")
-                        ->orWhere('description', 'like', "%{$q}%");
+                    ->orWhere('address', 'like', "%{$q}%")
+                    ->orWhere('suburb', 'like', "%{$q}%")
+                    ->orWhere('postcode', 'like', "%{$q}%")
+                    ->orWhere('state', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
             });
         }
 
@@ -64,7 +65,7 @@ class PropertyController extends Controller
         }
 
         if ($request->filled('suburb')) {
-            $query->where('suburb', 'like', '%' . $request->suburb . '%');
+            $query->where('suburb', 'like', '%'.$request->suburb.'%');
         }
 
         if ($request->filled('state')) {
@@ -72,7 +73,7 @@ class PropertyController extends Controller
         }
 
         if ($request->filled('postcode')) {
-            $query->where('postcode', 'like', $request->postcode . '%');
+            $query->where('postcode', 'like', $request->postcode.'%');
         }
 
         if ($request->filled('min_price')) {
@@ -109,7 +110,7 @@ class PropertyController extends Controller
             $cat = $request->category;
             $query->where(function ($builder) use ($cat) {
                 $builder->where('category', $cat)
-                        ->orWhere('category', 'both');
+                    ->orWhere('category', 'both');
             });
         }
 
@@ -140,42 +141,42 @@ class PropertyController extends Controller
         if ($user->otp !== $request->listing_otp || ! $user->otp_expires_at || now()->isAfter($user->otp_expires_at)) {
             return response()->json([
                 'message' => 'Invalid or expired verification code.',
-                'errors'  => ['listing_otp' => ['Invalid or expired verification code.']],
+                'errors' => ['listing_otp' => ['Invalid or expired verification code.']],
             ], 422);
         }
 
         $user->update(['otp' => null, 'otp_expires_at' => null]);
 
         $validated = $request->validate([
-            'title'          => 'required|string|max:255',
-            'price'          => 'required|integer|min:0',
+            'title' => 'required|string|max:255',
+            'price' => 'required|integer|min:0',
             'price_per_week' => 'nullable|integer|min:0',
-            'address'        => 'required|string|max:255',
-            'suburb'         => 'required|string|max:100',
-            'district'       => 'nullable|string|max:100',
-            'state'          => 'required|string|max:100',
-            'postcode'       => 'nullable|string|max:10',
-            'country'        => 'nullable|string|max:100',
-            'beds'           => 'required|integer|min:0|max:20',
-            'baths'          => 'required|integer|min:0|max:20',
-            'cars'           => 'required|integer|min:0|max:20',
-            'land_size'      => 'nullable|string|max:50',
-            'property_type'  => 'required|string|max:50',
-            'condition'      => 'required|in:new,used',
-            'category'       => 'required|in:domestic,commercial,both',
-            'listing_type'   => 'required|in:buy,rent,sold',
-            'description'    => 'required|string',
-            'sold_date'      => 'nullable|date',
-            'days_listed'    => 'nullable|integer|min:0',
-            'is_featured'    => 'boolean',
-            'status'         => 'in:active,inactive,sold',
-            'agent_name'     => 'nullable|string|max:255',
-            'agency_name'    => 'nullable|string|max:255',
-            'images'         => 'nullable|array',
-            'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'address' => 'required|string|max:255',
+            'suburb' => 'required|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'state' => 'required|string|max:100',
+            'postcode' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:100',
+            'beds' => 'required|integer|min:0|max:20',
+            'baths' => 'required|integer|min:0|max:20',
+            'cars' => 'required|integer|min:0|max:20',
+            'land_size' => 'nullable|string|max:50',
+            'property_type' => 'required|string|max:50',
+            'condition' => 'required|in:new,used',
+            'category' => 'required|in:domestic,commercial,both',
+            'listing_type' => 'required|in:buy,rent,sold',
+            'description' => 'required|string',
+            'sold_date' => 'nullable|date',
+            'days_listed' => 'nullable|integer|min:0',
+            'is_featured' => 'boolean',
+            'status' => 'in:active,inactive,sold',
+            'agent_name' => 'nullable|string|max:255',
+            'agency_name' => 'nullable|string|max:255',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        $validated['agent_name']  = $validated['agent_name']  ?? $request->user()->name;
+        $validated['agent_name'] = $validated['agent_name'] ?? $request->user()->name;
         $validated['agency_name'] = $validated['agency_name'] ?? $request->user()->name;
         $validated['listing_fee'] = $this->calcListingFee();
 
@@ -186,9 +187,9 @@ class PropertyController extends Controller
                 $path = $image->store("properties/{$property->id}", 'public');
                 PropertyImage::create([
                     'property_id' => $property->id,
-                    'image_path'  => $path,
-                    'is_primary'  => $index === 0,
-                    'sort_order'  => $index,
+                    'image_path' => $path,
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
                 ]);
             }
         }
@@ -203,34 +204,38 @@ class PropertyController extends Controller
         $this->authorize('update', $property);
 
         $validated = $request->validate([
-            'title'          => 'sometimes|string|max:255',
-            'price'          => 'sometimes|integer|min:0',
+            'title' => 'sometimes|string|max:255',
+            'price' => 'sometimes|integer|min:0',
             'price_per_week' => 'nullable|integer|min:0',
-            'address'        => 'sometimes|string|max:255',
-            'suburb'         => 'sometimes|string|max:100',
-            'district'       => 'nullable|string|max:100',
-            'state'          => 'sometimes|string|max:100',
-            'postcode'       => 'nullable|string|max:10',
-            'country'        => 'nullable|string|max:100',
-            'beds'           => 'sometimes|integer|min:0|max:20',
-            'baths'          => 'sometimes|integer|min:0|max:20',
-            'cars'           => 'sometimes|integer|min:0|max:20',
-            'land_size'      => 'nullable|string|max:50',
-            'property_type'  => 'sometimes|string|max:50',
-            'condition'      => 'sometimes|in:new,used',
-            'category'       => 'sometimes|in:domestic,commercial,both',
-            'listing_type'   => 'sometimes|in:buy,rent,sold',
-            'description'    => 'sometimes|string',
-            'sold_date'      => 'nullable|date',
-            'days_listed'    => 'nullable|integer|min:0',
-            'agent_name'     => 'nullable|string|max:255',
-            'agency_name'    => 'nullable|string|max:255',
-            'is_featured'    => 'boolean',
-            'status'         => 'in:active,inactive,sold',
+            'address' => 'sometimes|string|max:255',
+            'suburb' => 'sometimes|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'state' => 'sometimes|string|max:100',
+            'postcode' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:100',
+            'beds' => 'sometimes|integer|min:0|max:20',
+            'baths' => 'sometimes|integer|min:0|max:20',
+            'cars' => 'sometimes|integer|min:0|max:20',
+            'land_size' => 'nullable|string|max:50',
+            'property_type' => 'sometimes|string|max:50',
+            'condition' => 'sometimes|in:new,used',
+            'category' => 'sometimes|in:domestic,commercial,both',
+            'listing_type' => 'sometimes|in:buy,rent,sold',
+            'description' => 'sometimes|string',
+            'sold_date' => 'nullable|date',
+            'days_listed' => 'nullable|integer|min:0',
+            'agent_name' => 'nullable|string|max:255',
+            'agency_name' => 'nullable|string|max:255',
+            'is_featured' => 'boolean',
+            'status' => 'in:active,inactive,sold',
         ]);
 
-        if (empty($validated['agent_name']))  $validated['agent_name']  = $request->user()->name;
-        if (empty($validated['agency_name'])) $validated['agency_name'] = $request->user()->name;
+        if (empty($validated['agent_name'])) {
+            $validated['agent_name'] = $request->user()->name;
+        }
+        if (empty($validated['agency_name'])) {
+            $validated['agency_name'] = $request->user()->name;
+        }
 
         $property->update($validated);
         $property->load('images');
@@ -267,7 +272,7 @@ class PropertyController extends Controller
         $this->authorize('update', $property);
 
         $request->validate([
-            'images'   => 'required|array|min:1',
+            'images' => 'required|array|min:1',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
@@ -279,9 +284,9 @@ class PropertyController extends Controller
             $path = $image->store("properties/{$property->id}", 'public');
             $record = PropertyImage::create([
                 'property_id' => $property->id,
-                'image_path'  => $path,
-                'is_primary'  => ! $hasPrimary && $index === 0,
-                'sort_order'  => $nextOrder + $index,
+                'image_path' => $path,
+                'is_primary' => ! $hasPrimary && $index === 0,
+                'sort_order' => $nextOrder + $index,
             ]);
             $uploaded[] = $record;
         }

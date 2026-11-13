@@ -7,6 +7,7 @@ use App\Models\LoanEnquiry;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Models\User;
+use App\Services\AvatarService;
 use App\Services\SellerListingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,28 +32,28 @@ class AdminController extends Controller
 
         return response()->json([
             'users' => [
-                'total'         => User::count(),
-                'buyers'        => User::where('role', 'buyer')->count(),
-                'sellers'       => User::where('role', 'seller')->count(),
-                'agents'        => User::where('role', 'agent')->count(),
-                'admins'        => User::where('role', 'admin')->count(),
+                'total' => User::count(),
+                'buyers' => User::where('role', 'buyer')->count(),
+                'sellers' => User::where('role', 'seller')->count(),
+                'agents' => User::where('role', 'agent')->count(),
+                'admins' => User::where('role', 'admin')->count(),
                 'new_this_week' => User::where('created_at', '>=', now()->subWeek())->count(),
             ],
             'properties' => [
-                'total'         => Property::count(),
-                'active'        => Property::where('status', 'active')->count(),
-                'inactive'      => Property::where('status', 'inactive')->count(),
-                'sold'          => Property::where('status', 'sold')->count(),
-                'featured'      => Property::where('is_featured', true)->count(),
-                'buy'           => Property::where('listing_type', 'buy')->count(),
-                'rent'          => Property::where('listing_type', 'rent')->count(),
+                'total' => Property::count(),
+                'active' => Property::where('status', 'active')->count(),
+                'inactive' => Property::where('status', 'inactive')->count(),
+                'sold' => Property::where('status', 'sold')->count(),
+                'featured' => Property::where('is_featured', true)->count(),
+                'buy' => Property::where('listing_type', 'buy')->count(),
+                'rent' => Property::where('listing_type', 'rent')->count(),
                 'new_this_week' => Property::where('created_at', '>=', now()->subWeek())->count(),
             ],
             'inquiries' => [
-                'total'         => Inquiry::count(),
-                'pending'       => Inquiry::where('status', 'pending')->count(),
-                'contacted'     => Inquiry::where('status', 'contacted')->count(),
-                'resolved'      => Inquiry::where('status', 'resolved')->count(),
+                'total' => Inquiry::count(),
+                'pending' => Inquiry::where('status', 'pending')->count(),
+                'contacted' => Inquiry::where('status', 'contacted')->count(),
+                'resolved' => Inquiry::where('status', 'resolved')->count(),
                 'new_this_week' => Inquiry::where('created_at', '>=', now()->subWeek())->count(),
             ],
         ]);
@@ -74,8 +75,8 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('phone', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('phone', 'like', "%{$s}%");
             });
         }
 
@@ -96,8 +97,8 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('phone', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('phone', 'like', "%{$s}%");
             });
         }
 
@@ -116,23 +117,23 @@ class AdminController extends Controller
         $this->gate($request);
 
         $rules = [
-            'name'      => 'sometimes|required|string|max:255',
-            'email'     => 'sometimes|nullable|email|unique:users,email,' . $user->id,
-            'role'      => 'sometimes|in:buyer,seller,agent,admin,advertisement_manager',
-            'phone'     => 'sometimes|nullable|string|max:20',
-            'suburb'    => 'sometimes|nullable|string|max:100',
-            'district'  => 'sometimes|nullable|string|max:100',
-            'state'     => 'sometimes|nullable|string|max:100',
-            'postcode'  => 'sometimes|nullable|string|max:10',
-            'country'   => 'sometimes|nullable|string|max:100',
-            'bio'       => 'sometimes|nullable|string|max:2000',
-            'facebook'  => 'sometimes|nullable|string|max:255',
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|nullable|email|unique:users,email,'.$user->id,
+            'role' => 'sometimes|in:buyer,seller,agent,admin,advertisement_manager',
+            'phone' => 'sometimes|nullable|string|max:20',
+            'suburb' => 'sometimes|nullable|string|max:100',
+            'district' => 'sometimes|nullable|string|max:100',
+            'state' => 'sometimes|nullable|string|max:100',
+            'postcode' => 'sometimes|nullable|string|max:10',
+            'country' => 'sometimes|nullable|string|max:100',
+            'bio' => 'sometimes|nullable|string|max:2000',
+            'facebook' => 'sometimes|nullable|string|max:255',
             'instagram' => 'sometimes|nullable|string|max:255',
-            'linkedin'  => 'sometimes|nullable|string|max:255',
-            'whatsapp'  => 'sometimes|nullable|string|max:20',
-            'twitter'   => 'sometimes|nullable|string|max:255',
-            'website'   => 'sometimes|nullable|string|max:255',
-            'avatar'        => 'sometimes|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'linkedin' => 'sometimes|nullable|string|max:255',
+            'whatsapp' => 'sometimes|nullable|string|max:20',
+            'twitter' => 'sometimes|nullable|string|max:255',
+            'website' => 'sometimes|nullable|string|max:255',
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,webp|max:2048',
             'remove_avatar' => 'sometimes|boolean',
         ];
 
@@ -159,22 +160,15 @@ class AdminController extends Controller
         unset($validated['avatar'], $validated['remove_avatar']);
 
         if ($request->hasFile('avatar') || $removeAvatar) {
-            $oldPath = $user->getAttributes()['avatar'] ?? null;
-            if ($oldPath && ! str_starts_with($oldPath, 'http')) {
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $validated['avatar'] = $request->hasFile('avatar')
-                ? $request->file('avatar')->store('avatars', 'public')
-                : null;
+            app(AvatarService::class)->update($user, $request->file('avatar'), $validated);
+        } else {
+            $user->update($validated);
         }
-
-        $user->update($validated);
 
         // Agents are published at /agents/{slug}; backfill one if this account
         // predates the slug column or was created without a name.
         if (! $user->slug) {
-            $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
+            $user->update(['slug' => Str::slug($user->name).'-'.$user->id]);
         }
 
         return response()->json($user->fresh());
@@ -235,9 +229,9 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
-                  ->orWhere('suburb', 'like', "%{$s}%")
-                  ->orWhere('address', 'like', "%{$s}%")
-                  ->orWhere('state', 'like', "%{$s}%");
+                    ->orWhere('suburb', 'like', "%{$s}%")
+                    ->orWhere('address', 'like', "%{$s}%")
+                    ->orWhere('state', 'like', "%{$s}%");
             });
         }
 
@@ -247,8 +241,9 @@ class AdminController extends Controller
     private function calcListingFee(): float
     {
         $rows = DB::table('settings')->get()->keyBy('key');
-        $fee  = (float) ($rows['listing_fee']->value        ?? 1000);
-        $pct  = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+        $fee = (float) ($rows['listing_fee']->value ?? 1000);
+        $pct = (float) ($rows['processing_fee_pct']->value ?? 3.3);
+
         return round($fee + $fee * $pct / 100, 2);
     }
 
@@ -257,33 +252,33 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'title'          => 'required|string|max:255',
-            'price'          => 'required|integer|min:0',
+            'title' => 'required|string|max:255',
+            'price' => 'required|integer|min:0',
             'price_per_week' => 'nullable|integer|min:0',
-            'address'        => 'required|string|max:255',
-            'suburb'         => 'required|string|max:100',
-            'state'          => 'required|string|max:100',
-            'postcode'       => 'nullable|string|max:10',
-            'country'        => 'nullable|string|max:100',
-            'beds'           => 'required|integer|min:0|max:20',
-            'baths'          => 'required|integer|min:0|max:20',
-            'cars'           => 'required|integer|min:0|max:20',
-            'land_size'      => 'nullable|string|max:50',
-            'property_type'  => 'required|string|max:50',
-            'condition'      => 'required|in:new,used',
-            'category'       => 'required|in:domestic,commercial,both',
-            'listing_type'   => 'required|in:buy,rent,sold',
-            'description'    => 'required|string',
-            'is_featured'    => 'boolean',
-            'status'         => 'in:active,inactive,sold',
-            'agent_name'     => 'nullable|string|max:255',
-            'agency_name'    => 'nullable|string|max:255',
-            'images'         => 'nullable|array',
-            'images.*'       => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'address' => 'required|string|max:255',
+            'suburb' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'postcode' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:100',
+            'beds' => 'required|integer|min:0|max:20',
+            'baths' => 'required|integer|min:0|max:20',
+            'cars' => 'required|integer|min:0|max:20',
+            'land_size' => 'nullable|string|max:50',
+            'property_type' => 'required|string|max:50',
+            'condition' => 'required|in:new,used',
+            'category' => 'required|in:domestic,commercial,both',
+            'listing_type' => 'required|in:buy,rent,sold',
+            'description' => 'required|string',
+            'is_featured' => 'boolean',
+            'status' => 'in:active,inactive,sold',
+            'agent_name' => 'nullable|string|max:255',
+            'agency_name' => 'nullable|string|max:255',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
         $admin = $request->user();
-        $validated['agent_name']  = $validated['agent_name']  ?? $admin->name;
+        $validated['agent_name'] = $validated['agent_name'] ?? $admin->name;
         $validated['agency_name'] = $validated['agency_name'] ?? $admin->name;
         $validated['listing_fee'] = 0;
 
@@ -294,9 +289,9 @@ class AdminController extends Controller
                 $path = $image->store("properties/{$property->id}", 'public');
                 PropertyImage::create([
                     'property_id' => $property->id,
-                    'image_path'  => $path,
-                    'is_primary'  => $index === 0,
-                    'sort_order'  => $index,
+                    'image_path' => $path,
+                    'is_primary' => $index === 0,
+                    'sort_order' => $index,
                 ]);
             }
         }
@@ -322,21 +317,21 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'nullable|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'phone'    => 'required|string|max:20',
+            'phone' => 'required|string|max:20',
         ]);
 
         $user = User::create([
-            'name'              => $validated['name'],
-            'email'             => $validated['email'] ?? null,
-            'password'          => $validated['password'],
-            'phone'             => $validated['phone'] ?? null,
-            'role'              => 'advertisement_manager',
+            'name' => $validated['name'],
+            'email' => $validated['email'] ?? null,
+            'password' => $validated['password'],
+            'phone' => $validated['phone'] ?? null,
+            'role' => 'advertisement_manager',
             'email_verified_at' => now(),
         ]);
-        $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
+        $user->update(['slug' => Str::slug($user->name).'-'.$user->id]);
 
         return response()->json(['user' => $user], 201);
     }
@@ -350,17 +345,17 @@ class AdminController extends Controller
         }
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'nullable|email|unique:users,email,' . $user->id,
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'phone'    => 'required|string|max:20',
+            'phone' => 'required|string|max:20',
         ]);
 
         $user->update([
-            'name'  => $validated['name'],
+            'name' => $validated['name'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'],
-            'slug'  => Str::slug($validated['name']) . '-' . $user->id,
+            'slug' => Str::slug($validated['name']).'-'.$user->id,
         ]);
 
         if (! empty($validated['password'])) {
@@ -375,25 +370,25 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'status'         => 'sometimes|in:active,inactive,sold',
-            'is_featured'    => 'sometimes|boolean',
-            'listing_type'   => 'sometimes|in:buy,rent,sold',
-            'title'          => 'sometimes|string|max:255',
-            'price'          => 'sometimes|integer|min:0',
+            'status' => 'sometimes|in:active,inactive,sold',
+            'is_featured' => 'sometimes|boolean',
+            'listing_type' => 'sometimes|in:buy,rent,sold',
+            'title' => 'sometimes|string|max:255',
+            'price' => 'sometimes|integer|min:0',
             'price_per_week' => 'nullable|integer|min:0',
-            'address'        => 'sometimes|string|max:255',
-            'suburb'         => 'sometimes|string|max:100',
-            'state'          => 'sometimes|string|max:100',
-            'postcode'       => 'nullable|string|max:10',
-            'country'        => 'nullable|string|max:100',
-            'beds'           => 'sometimes|integer|min:0|max:20',
-            'baths'          => 'sometimes|integer|min:0|max:20',
-            'cars'           => 'sometimes|integer|min:0|max:20',
-            'land_size'      => 'nullable|string|max:50',
-            'property_type'  => 'sometimes|string|max:50',
-            'condition'      => 'sometimes|in:new,used',
-            'category'       => 'sometimes|in:domestic,commercial,both',
-            'description'    => 'sometimes|string',
+            'address' => 'sometimes|string|max:255',
+            'suburb' => 'sometimes|string|max:100',
+            'state' => 'sometimes|string|max:100',
+            'postcode' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:100',
+            'beds' => 'sometimes|integer|min:0|max:20',
+            'baths' => 'sometimes|integer|min:0|max:20',
+            'cars' => 'sometimes|integer|min:0|max:20',
+            'land_size' => 'nullable|string|max:50',
+            'property_type' => 'sometimes|string|max:50',
+            'condition' => 'sometimes|in:new,used',
+            'category' => 'sometimes|in:domestic,commercial,both',
+            'description' => 'sometimes|string',
         ]);
 
         $property->update($validated);
@@ -438,8 +433,8 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%")
-                  ->orWhere('message', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('message', 'like', "%{$s}%");
             });
         }
 
@@ -484,7 +479,7 @@ class AdminController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
-                  ->orWhere('email', 'like', "%{$s}%");
+                    ->orWhere('email', 'like', "%{$s}%");
             });
         }
 
@@ -520,10 +515,10 @@ class AdminController extends Controller
         $rows = DB::table('settings')->get()->keyBy('key');
 
         return response()->json([
-            'listing_fee'              => (float) ($rows['listing_fee']->value        ?? 1000),
-            'processing_fee_pct'       => (float) ($rows['processing_fee_pct']->value ?? 3.3),
-            'commission_pct'           => 0,
-            'payment_gateway_enabled'  => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
+            'listing_fee' => (float) ($rows['listing_fee']->value ?? 1000),
+            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct' => 0,
+            'payment_gateway_enabled' => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
         ]);
     }
 
@@ -534,9 +529,9 @@ class AdminController extends Controller
         $rows = DB::table('settings')->get()->keyBy('key');
 
         return response()->json([
-            'listing_fee'             => (float) ($rows['listing_fee']->value        ?? 1000),
-            'processing_fee_pct'      => (float) ($rows['processing_fee_pct']->value ?? 3.3),
-            'commission_pct'          => (float) ($rows['commission_pct']->value     ?? 0),
+            'listing_fee' => (float) ($rows['listing_fee']->value ?? 1000),
+            'processing_fee_pct' => (float) ($rows['processing_fee_pct']->value ?? 3.3),
+            'commission_pct' => (float) ($rows['commission_pct']->value ?? 0),
             'payment_gateway_enabled' => (bool) ($rows['payment_gateway_enabled']->value ?? 1),
         ]);
     }
@@ -546,10 +541,10 @@ class AdminController extends Controller
         $this->gate($request);
 
         $validated = $request->validate([
-            'listing_fee'              => 'required|numeric|min:0',
-            'processing_fee_pct'       => 'required|numeric|min:0|max:100',
-            'commission_pct'           => 'required|numeric|min:0|max:100',
-            'payment_gateway_enabled'  => 'required|boolean',
+            'listing_fee' => 'required|numeric|min:0',
+            'processing_fee_pct' => 'required|numeric|min:0|max:100',
+            'commission_pct' => 'required|numeric|min:0|max:100',
+            'payment_gateway_enabled' => 'required|boolean',
         ]);
 
         foreach ($validated as $key => $value) {

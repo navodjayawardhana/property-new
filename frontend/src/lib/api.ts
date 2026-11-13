@@ -380,6 +380,7 @@ export const inquiries = {
 // ─── Agents ──────────────────────────────────────────────────────────────────
 
 export type Agent = {
+  properties_count?: number;
   id: number;
   name: string;
   email: string;
@@ -432,6 +433,8 @@ export type PaginatedAgents = {
 };
 
 export type AgentFilters = {
+  per_page?: number;
+  district?: string;
   search?: string;
   suburb?: string;
   state?: string;

@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\Mail\ContactMessage;
 use App\Mail\OtpNotification;
 use App\Models\User;
+use App\Services\AgentIdentity;
+use App\Services\AvatarService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -21,35 +22,35 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'phone'    => 'nullable|string|max:20',
-            'role'     => 'nullable|in:buyer,seller,agent',
-            'country'  => 'nullable|string|max:100',
-            'state'    => 'nullable|string|max:100',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'nullable|in:buyer,seller,agent',
+            'country' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
             'district' => 'nullable|string|max:100',
-            'suburb'   => 'nullable|string|max:100',
+            'suburb' => 'nullable|string|max:100',
         ]);
 
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => $validated['password'],
-            'phone'    => $validated['phone'] ?? null,
-            'role'     => $validated['role'] ?? 'buyer',
-            'country'  => $validated['country'] ?? null,
-            'state'    => $validated['state'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'role' => $validated['role'] ?? 'buyer',
+            'country' => $validated['country'] ?? null,
+            'state' => $validated['state'] ?? null,
             'district' => $validated['district'] ?? null,
-            'suburb'   => $validated['suburb'] ?? null,
+            'suburb' => $validated['suburb'] ?? null,
         ]);
 
-        $user->update(['slug' => Str::slug($user->name) . '-' . $user->id]);
+        $user->update(['slug' => Str::slug($user->name).'-'.$user->id]);
 
         // Send email verification OTP
         $otp = (string) random_int(100000, 999999);
         $user->update([
-            'otp'            => $otp,
+            'otp' => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
         Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
@@ -58,8 +59,8 @@ class AuthController extends Controller
 
         return response()->json([
             'requires_verification' => true,
-            'email'                 => $user->email,
-            'masked_email'          => $masked,
+            'email' => $user->email,
+            'masked_email' => $masked,
         ], 201);
     }
 
@@ -67,7 +68,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|string|size:6',
+            'otp' => 'required|string|size:6',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -79,8 +80,8 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'otp'               => null,
-            'otp_expires_at'    => null,
+            'otp' => null,
+            'otp_expires_at' => null,
             'email_verified_at' => now(),
         ]);
 
@@ -92,7 +93,7 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email'    => 'required|string',
+            'email' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -130,8 +131,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'requires_verification' => true,
-                'email'                 => $user->email,
-                'masked_email'          => $this->maskEmail($user->email),
+                'email' => $user->email,
+                'masked_email' => $this->maskEmail($user->email),
             ]);
         }
 
@@ -145,7 +146,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|string|size:6',
+            'otp' => 'required|string|size:6',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -180,21 +181,21 @@ class AuthController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'      => 'sometimes|string|max:255',
-            'email'     => 'sometimes|email|unique:users,email,' . $user->id,
-            'phone'     => 'nullable|string|max:20',
-            'suburb'    => 'nullable|string|max:100',
-            'district'  => 'nullable|string|max:100',
-            'state'     => 'nullable|string|max:100',
-            'postcode'  => 'nullable|string|max:10',
-            'country'   => 'nullable|string|max:100',
-            'bio'       => 'nullable|string|max:2000',
-            'facebook'  => 'nullable|string|max:255',
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,'.$user->id,
+            'phone' => 'nullable|string|max:20',
+            'suburb' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'postcode' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:100',
+            'bio' => 'nullable|string|max:2000',
+            'facebook' => 'nullable|string|max:255',
             'instagram' => 'nullable|string|max:255',
-            'linkedin'  => 'nullable|string|max:255',
-            'whatsapp'  => 'nullable|string|max:20',
-            'twitter'   => 'nullable|string|max:255',
-            'website'   => 'nullable|string|max:255',
+            'linkedin' => 'nullable|string|max:255',
+            'whatsapp' => 'nullable|string|max:20',
+            'twitter' => 'nullable|string|max:255',
+            'website' => 'nullable|string|max:255',
         ]);
 
         $user->update($validated);
@@ -206,7 +207,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'password'         => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         if (! Hash::check($request->current_password, $request->user()->password)) {
@@ -228,248 +229,61 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        $oldPath = $user->getAttributes()['avatar'] ?? null;
-        if ($oldPath && ! str_starts_with($oldPath, 'http')) {
-            Storage::disk('public')->delete($oldPath);
-        }
-
-        $path = $request->file('avatar')->store('avatars', 'public');
-        $user->update(['avatar' => $path]);
+        app(AvatarService::class)->update($user, $request->file('avatar'));
 
         return response()->json($user->fresh());
     }
 
     public function agent(string $slug): JsonResponse
-{
-    // Find the selected agent/company profile
-    $agent = User::where('role', 'agent')
-        ->where(function ($q) use ($slug) {
-            $q->where('slug', $slug)
-              ->orWhere('id', is_numeric($slug) ? (int) $slug : 0);
-        })
-        ->firstOrFail();
+    {
+        $agents = $this->directoryAgents();
+        $selected = $agents->first(fn ($agent) => $agent->slug === $slug || (string) $agent->id === $slug);
+        abort_unless($selected, 404);
+        $group = AgentIdentity::groups($agents)->first(fn ($group) => $group->contains('id', $selected->id));
 
-    /*
-     * A company may currently exist as multiple agent records
-     * because different locations were stored separately.
-     *
-     * Find all agent records that belong to the same company
-     * using the company/agent name.
-     */
-    $companyAgents = User::where('role', 'agent')
-        ->whereRaw('LOWER(TRIM(name)) = ?', [
-            strtolower(trim($agent->name))
-        ])
-        ->get();
-
-    // Keep the existing profile fields
-    $data = $agent->only([
-        'id',
-        'name',
-        'email',
-        'phone',
-        'avatar',
-        'slug',
-        'suburb',
-        'state',
-        'postcode',
-        'country',
-        'district',
-        'bio',
-        'facebook',
-        'instagram',
-        'linkedin',
-        'whatsapp',
-        'twitter',
-        'website',
-    ]);
-
-    /*
-     * Return every user/agent ID belonging to this company.
-     * The frontend can use these IDs to load all properties
-     * belonging to the company.
-     */
-    $data['user_ids'] = $companyAgents
-        ->pluck('id')
-        ->values();
-
-    /*
-     * Return all unique locations belonging to this company.
-     */
-    $data['locations'] = $companyAgents
-        ->map(function ($companyAgent) {
-            return [
-                'suburb'   => $companyAgent->suburb,
-                'district' => $companyAgent->district,
-                'state'    => $companyAgent->state,
-                'postcode' => $companyAgent->postcode,
-                'country'  => $companyAgent->country,
-            ];
-        })
-        ->unique(function ($location) {
-            return implode('|', [
-                $location['suburb'] ?? '',
-                $location['district'] ?? '',
-                $location['state'] ?? '',
-                $location['postcode'] ?? '',
-                $location['country'] ?? '',
-            ]);
-        })
-        ->values();
-
-    return response()->json($data);
-}
-
-
-public function agents(Request $request): JsonResponse
-{
-    $query = User::where('role', 'agent')
-        ->orderBy('name');
-
-    /*
-     * Existing filters
-     */
-    if ($request->filled('suburb')) {
-        $query->where(
-            'suburb',
-            'like',
-            '%' . $request->suburb . '%'
-        );
+        return response()->json(AgentIdentity::profile($group));
     }
 
-    if ($request->filled('state')) {
-        $query->where(
-            'state',
-            $request->state
-        );
+    private function directoryAgents()
+    {
+        return User::where('role', 'agent')->where('is_blocked', false)
+            ->withCount(['properties' => fn ($query) => $query->where('status', '!=', 'inactive')])->orderBy('id')->get();
     }
 
-    if ($request->filled('district')) {
-        $query->where(
-            'district',
-            'like',
-            '%' . $request->district . '%'
-        );
+    public function agents(Request $request): JsonResponse
+    {
+        $profiles = AgentIdentity::groups($this->directoryAgents())
+            ->filter(function ($group) use ($request) {
+                foreach (['state', 'district', 'suburb'] as $field) {
+                    if ($request->filled($field) && ! $group->contains(fn ($agent) => $field === 'state'
+                        ? strcasecmp($agent->{$field} ?? '', $request->input($field)) === 0
+                        : str_contains(mb_strtolower($agent->{$field} ?? ''), mb_strtolower($request->input($field))))) {
+                        return false;
+                    }
+                }
+                if ($request->filled('search')) {
+                    $search = mb_strtolower(trim($request->input('search')));
+
+                    return $group->contains(fn ($agent) => collect(['name', 'suburb', 'district', 'state', 'postcode'])
+                        ->contains(fn ($field) => str_contains(mb_strtolower($agent->{$field} ?? ''), $search)));
+                }
+
+                return true;
+            })->map(fn ($group) => AgentIdentity::profile($group))->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        $perPage = max(1, min((int) $request->input('per_page', 24), 100));
+        $page = max(1, (int) $request->input('page', 1));
+
+        return response()->json(new LengthAwarePaginator(
+            $profiles->forPage($page, $perPage)->values(), $profiles->count(), $perPage, $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        ));
     }
-
-    if ($request->filled('search')) {
-        $query->where(
-            'name',
-            'like',
-            '%' . $request->search . '%'
-        );
-    }
-
-    /*
-     * Get all matching agent records first.
-     *
-     * We do not paginate here because duplicate company
-     * records must be grouped before pagination.
-     */
-    $agents = $query
-        ->select([
-            'id',
-            'name',
-            'email',
-            'phone',
-            'avatar',
-            'slug',
-            'suburb',
-            'state',
-            'postcode',
-            'country',
-            'district',
-        ])
-        ->get();
-
-    /*
-     * Group agents by normalized company/agent name.
-     *
-     * Example:
-     *
-     * 73 Avenue Realtors - Colombo
-     * 73 Avenue Realtors - Kandy
-     * 73 Avenue Realtors - Galle
-     *
-     * becomes one:
-     *
-     * 73 Avenue Realtors
-     */
-    $groupedAgents = $agents
-        ->groupBy(function ($agent) {
-            return strtolower(trim($agent->name));
-        })
-        ->map(function ($group) {
-
-            // Use the first record as the main company profile
-            $primary = $group->first();
-
-            /*
-             * Store every user ID belonging to this company.
-             */
-            $primary->user_ids = $group
-                ->pluck('id')
-                ->values();
-
-            /*
-             * Collect all unique company locations.
-             */
-            $primary->locations = $group
-                ->map(function ($agent) {
-                    return [
-                        'suburb'   => $agent->suburb,
-                        'district' => $agent->district,
-                        'state'    => $agent->state,
-                        'postcode' => $agent->postcode,
-                        'country'  => $agent->country,
-                    ];
-                })
-                ->unique(function ($location) {
-                    return implode('|', [
-                        $location['suburb'] ?? '',
-                        $location['district'] ?? '',
-                        $location['state'] ?? '',
-                        $location['postcode'] ?? '',
-                        $location['country'] ?? '',
-                    ]);
-                })
-                ->values();
-
-            return $primary;
-        })
-        ->values();
-
-    /*
-     * Paginate AFTER duplicate companies have been grouped.
-     */
-    $perPage = (int) $request->get('per_page', 24);
-    $page = (int) $request->get('page', 1);
-
-    // Safety limits
-    $perPage = max(1, min($perPage, 100));
-    $page = max(1, $page);
-
-    $paginatedAgents = new \Illuminate\Pagination\LengthAwarePaginator(
-        $groupedAgents
-            ->forPage($page, $perPage)
-            ->values(),
-        $groupedAgents->count(),
-        $perPage,
-        $page,
-        [
-            'path'  => $request->url(),
-            'query' => $request->query(),
-        ]
-    );
-
-    return response()->json($paginatedAgents);
-}
 
     public function sendPhoneOtp(Request $request): JsonResponse
     {
         $request->validate([
             'phone' => 'required|string',
-            'role'  => 'nullable|in:buyer,seller,agent',
+            'role' => 'nullable|in:buyer,seller,agent',
         ]);
 
         $user = User::where('role', '!=', 'admin')
@@ -479,14 +293,14 @@ public function agents(Request $request): JsonResponse
         // Auto-register if no account found for this phone
         if (! $user) {
             $user = User::create([
-                'name'              => 'User ' . substr(preg_replace('/\D/', '', $request->phone), -4),
-                'phone'             => $request->phone,
-                'role'              => $request->role ?? 'buyer',
+                'name' => 'User '.substr(preg_replace('/\D/', '', $request->phone), -4),
+                'phone' => $request->phone,
+                'role' => $request->role ?? 'buyer',
                 'email_verified_at' => now(),
             ]);
         }
 
-        $otp    = (string) random_int(100000, 999999);
+        $otp = (string) random_int(100000, 999999);
         $sendTo = $this->normalizePhone($user->phone);
         $user->update(['otp' => $otp, 'otp_expires_at' => now()->addMinutes(10)]);
 
@@ -494,11 +308,11 @@ public function agents(Request $request): JsonResponse
 
         // TLS verification is skipped only on local dev boxes that lack a CA bundle.
         $smsResponse = Http::withOptions(['verify' => ! app()->isLocal()])->post('https://app.notify.lk/api/v1/send', [
-            'user_id'   => config('services.notify_lk.user_id'),
-            'api_key'   => config('services.notify_lk.api_key'),
+            'user_id' => config('services.notify_lk.user_id'),
+            'api_key' => config('services.notify_lk.api_key'),
             'sender_id' => config('services.notify_lk.service_id'),
-            'to'        => $sendTo,
-            'message'   => "Your Greenbrick.net login code is: {$otp}. Valid for 10 minutes.",
+            'to' => $sendTo,
+            'message' => "Your Greenbrick.net login code is: {$otp}. Valid for 10 minutes.",
         ]);
 
         $smsFailed = $smsResponse->failed() || ($smsResponse->json('status') !== 'success');
@@ -506,8 +320,8 @@ public function agents(Request $request): JsonResponse
         if ($smsFailed) {
             Log::error('notify.lk send failed', [
                 'status' => $smsResponse->status(),
-                'body'   => $smsResponse->body(),
-                'to'     => $sendTo,
+                'body' => $smsResponse->body(),
+                'to' => $sendTo,
             ]);
 
             // In production, tell the user so they aren't left waiting
@@ -531,8 +345,8 @@ public function agents(Request $request): JsonResponse
     public function verifyPhoneOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'phone'   => 'required|string',
-            'otp'     => 'required|string|size:6',
+            'phone' => 'required|string',
+            'otp' => 'required|string|size:6',
             'country' => 'nullable|string|max:100',
         ]);
 
@@ -584,14 +398,14 @@ public function agents(Request $request): JsonResponse
     public function contact(Request $request): JsonResponse
     {
         $request->validate([
-            'name'    => 'required|string|max:100',
-            'email'   => 'required|email',
+            'name' => 'required|string|max:100',
+            'email' => 'required|email',
             'message' => 'required|string|max:2000',
         ]);
 
         Log::info('Contact form submission', [
-            'name'    => $request->name,
-            'email'   => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'message' => $request->message,
         ]);
 
@@ -603,7 +417,7 @@ public function agents(Request $request): JsonResponse
                 $request->message,
             ));
         } catch (\Throwable $e) {
-            Log::error('Contact email failed: ' . $e->getMessage());
+            Log::error('Contact email failed: '.$e->getMessage());
         }
 
         return response()->json(['message' => 'Your message has been sent.']);
@@ -626,11 +440,11 @@ public function agents(Request $request): JsonResponse
         Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
 
         $masked = substr($user->email, 0, 2)
-            . str_repeat('*', max(1, strpos($user->email, '@') - 2))
-            . substr($user->email, strpos($user->email, '@'));
+            .str_repeat('*', max(1, strpos($user->email, '@') - 2))
+            .substr($user->email, strpos($user->email, '@'));
 
         return response()->json([
-            'message'      => 'Reset code sent.',
+            'message' => 'Reset code sent.',
             'masked_email' => $masked,
         ]);
     }
@@ -638,9 +452,9 @@ public function agents(Request $request): JsonResponse
     public function resetPassword(Request $request): JsonResponse
     {
         $request->validate([
-            'email'                 => 'required|email',
-            'otp'                   => 'required|string|size:6',
-            'password'              => 'required|string|min:8|confirmed',
+            'email' => 'required|email',
+            'otp' => 'required|string|size:6',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -652,8 +466,8 @@ public function agents(Request $request): JsonResponse
         }
 
         $user->update([
-            'password'       => $request->password,
-            'otp'            => null,
+            'password' => $request->password,
+            'otp' => null,
             'otp_expires_at' => null,
         ]);
 
@@ -663,36 +477,38 @@ public function agents(Request $request): JsonResponse
     private function phoneVariants(string $phone): array
     {
         $normalized = $this->normalizePhone($phone);         // 94XXXXXXXXX
-        $local      = '0' . substr($normalized, 2);          // 0XXXXXXXXX
-        return array_unique([$normalized, $local, '+' . $normalized, $phone]);
+        $local = '0'.substr($normalized, 2);          // 0XXXXXXXXX
+
+        return array_unique([$normalized, $local, '+'.$normalized, $phone]);
     }
 
     private function normalizePhone(string $phone): string
     {
         $digits = preg_replace('/\D/', '', $phone);
         if (str_starts_with($digits, '0')) {
-            return '94' . substr($digits, 1);
+            return '94'.substr($digits, 1);
         }
         if (! str_starts_with($digits, '94')) {
-            return '94' . $digits;
+            return '94'.$digits;
         }
+
         return $digits;
     }
 
     public function sendListingOtp(Request $request): JsonResponse
     {
         $user = $request->user();
-        $otp  = (string) random_int(100000, 999999);
+        $otp = (string) random_int(100000, 999999);
 
         $user->update([
-            'otp'            => $otp,
+            'otp' => $otp,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
 
         Mail::to($user->email)->send(new OtpNotification($otp, $user->name));
 
         return response()->json([
-            'message'      => 'Verification code sent to your email.',
+            'message' => 'Verification code sent to your email.',
             'masked_email' => $this->maskEmail($user->email),
         ]);
     }
@@ -700,25 +516,22 @@ public function agents(Request $request): JsonResponse
     private function maskPhone(string $phone): string
     {
         $clean = preg_replace('/\D/', '', $phone);
-        return substr($clean, 0, 3) . str_repeat('*', max(1, strlen($clean) - 4)) . substr($clean, -1);
+
+        return substr($clean, 0, 3).str_repeat('*', max(1, strlen($clean) - 4)).substr($clean, -1);
     }
 
     private function maskEmail(string $email): string
     {
         [$local, $domain] = explode('@', $email);
-        return substr($local, 0, 1) . str_repeat('*', max(1, strlen($local) - 1)) . '@' . $domain;
+
+        return substr($local, 0, 1).str_repeat('*', max(1, strlen($local) - 1)).'@'.$domain;
     }
 
     public function deleteAvatar(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        $oldPath = $user->getAttributes()['avatar'] ?? null;
-        if ($oldPath && ! str_starts_with($oldPath, 'http')) {
-            Storage::disk('public')->delete($oldPath);
-        }
-
-        $user->update(['avatar' => null]);
+        app(AvatarService::class)->update($user, null);
 
         return response()->json($user->fresh());
     }

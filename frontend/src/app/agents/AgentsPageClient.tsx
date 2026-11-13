@@ -1,25 +1,18 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import SearchHero from "@/components/SearchHero";
-import ExploreSection from "@/components/ExploreSection";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
+import { UserAvatar } from "@/components/UserAvatar";
 import { agentsApi, type Agent } from "@/lib/api";
 import { useDebouncedValue } from "@/lib/use-debounced-value";
-import {
-  Search,
-  MapPin,
-  Phone,
-  Mail,
-  User as UserIcon,
-  ArrowRight,
-} from "lucide-react";
+import { MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 
-const AU_STATES = [
+const PROVINCES = [
   "Western",
   "Central",
   "Southern",
@@ -31,278 +24,226 @@ const AU_STATES = [
   "Uva",
 ];
 
-function AgentAvatar({
-  agent,
-  size = "lg",
-}: {
-  agent: Agent;
-  size?: "xs" | "sm" | "lg";
-}) {
-  const dim =
-    size === "lg"
-      ? "w-20 h-20 text-2xl"
-      : size === "sm"
-        ? "w-14 h-14 text-lg"
-        : "w-10 h-10 text-sm";
-  return (
-    <div
-      className={`${dim} rounded-full overflow-hidden bg-[#16a34a] flex items-center justify-center shrink-0`}
-    >
-      {agent.avatar ? (
-        <img
-          src={agent.avatar}
-          alt={agent.name}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span className="text-white font-black">
-          {agent.name.charAt(0).toUpperCase()}
-        </span>
-      )}
-    </div>
-  );
-}
-
-const INITIAL_LIMIT = 12;
-
 function AgentsContent() {
-  const searchParams = useSearchParams();
-
-  const [allAgents, setAllAgents] = useState<Agent[]>([]);
+  const params = useSearchParams();
+  const urlSearch = params.get("search") ?? "";
+  const [search, setSearch] = useState(urlSearch);
+  const [province, setProvince] = useState("");
+  const [page, setPage] = useState(1);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [total, setTotal] = useState(0);
+  const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get("search") ?? "");
-  const [stateFilter, setStateFilter] = useState("");
-  const [showAll, setShowAll] = useState(false);
-
-  const fetchAgents = useCallback(async (st = stateFilter) => {
-    setLoading(true);
-    setShowAll(false);
-    try {
-      const res = await agentsApi.list({ state: st, per_page: 100 } as any);
-      setAllAgents(res.data);
-    } catch {
-      setAllAgents([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [stateFilter]);
-
-  useEffect(() => { fetchAgents(stateFilter); }, []);
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const query = useDebouncedValue(search, 250).trim();
 
   useEffect(() => {
-    const urlSearch = searchParams.get("search") ?? "";
     setSearch(urlSearch);
-    setShowAll(false);
-  }, [searchParams.get("search")]);
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setShowAll(false);
-  }
-
-  function handleStateChange(val: string) {
-    setStateFilter(val);
-    fetchAgents(val);
-  }
-
-  // Debounced so the up-to-100-agent filter pass doesn't run on every keystroke.
-  const q = useDebouncedValue(search, 200).trim().toLowerCase();
-  const filtered = q
-    ? allAgents.filter((a) =>
-        a.name.toLowerCase().includes(q) ||
-        (a.suburb ?? "").toLowerCase().includes(q) ||
-        (a.postcode ?? "").toLowerCase().includes(q)
-      )
-    : allAgents;
+    setPage(1);
+  }, [urlSearch]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    agentsApi
+      .list({ search: query, state: province, page, per_page: 24 })
+      .then((result) => {
+        if (!active) return;
+        setAgents(result.data);
+        setTotal(result.total);
+        setLastPage(result.last_page);
+      })
+      .catch(() => {
+        if (active) setError("Unable to load agents. Please try again.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [query, province, page, retry]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
-        <div className="flex flex-wrap items-center gap-3 mb-6 pb-5 border-b border-gray-200">
-          <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-[240px] max-w-sm">
-            <div className="flex flex-1 items-center gap-2 border border-gray-300 rounded px-3 py-1.5 bg-white">
-              <Search size={14} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setShowAll(false); }}
-                placeholder="Search by name, suburb or postcode..."
-                className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400"
-              />
-            </div>
-            <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-sm font-bold px-4 py-1.5 rounded transition-colors">
-              Search
-            </button>
-          </form>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 ml-auto">
-            <p className="text-sm text-gray-600">
-              {loading ? (
-                <svg
-                  className="w-4 h-4 animate-spin text-gray-400 inline-block"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-              ) : (
-                <>
-                  <span className="font-bold text-gray-900">{filtered.length}</span> agent
-                  {filtered.length !== 1 ? "s" : ""} available
-                </>
-              )}
-            </p>
-            <div className="flex items-center gap-2">
-              <MapPin size={14} className="text-gray-400" />
-              <select
-                value={stateFilter}
-                onChange={(e) => handleStateChange(e.target.value)}
-                className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-[#16a34a] bg-white"
-              >
-                <option value="">All states</option>
-                {AU_STATES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+    <main className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
+      <div className="flex flex-col md:flex-row md:items-end gap-4 mb-8">
+        <div className="flex-1">
+          <label
+            htmlFor="agent-search"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            Find an agent or company
+          </label>
+          <input
+            id="agent-search"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Name, suburb, district or postcode"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-green-600"
+          />
         </div>
-
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 animate-pulse">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-14 h-14 rounded-full bg-gray-200" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3.5 bg-gray-200 rounded w-3/4" />
-                    <div className="h-3 bg-gray-100 rounded w-1/2" />
-                  </div>
-                </div>
-                <div className="h-8 bg-gray-100 rounded-lg" />
-              </div>
+        <div>
+          <label
+            htmlFor="agent-province"
+            className="block text-sm font-semibold text-gray-700 mb-2"
+          >
+            Province
+          </label>
+          <select
+            id="agent-province"
+            value={province}
+            onChange={(e) => {
+              setProvince(e.target.value);
+              setPage(1);
+            }}
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white"
+          >
+            <option value="">All provinces</option>
+            {PROVINCES.map((value) => (
+              <option key={value}>{value}</option>
             ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <UserIcon size={28} className="text-gray-400" />
-            </div>
-            <p className="text-gray-500 font-medium">No agents found</p>
-            <p className="text-gray-400 text-sm mt-1">
-              Try adjusting your search or filter
-            </p>
-            <button
-              onClick={() => { setSearch(""); setStateFilter(""); fetchAgents(""); }}
-              className="mt-4 text-sm text-[#16a34a] font-semibold hover:underline"
-            >
-              Clear filters
-            </button>
-          </div>
-        ) : (
-          <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(showAll ? filtered : filtered.slice(0, INITIAL_LIMIT)).map((agent) => (
-              <Link
+          </select>
+        </div>
+      </div>
+      <div aria-live="polite" className="text-sm text-gray-500 mb-5">
+        {loading
+          ? "Loading agents..."
+          : error
+            ? ""
+            : `${total} ${total === 1 ? "profile" : "profiles"} found`}
+      </div>
+      {error ? (
+        <div role="alert" className="rounded-xl bg-red-50 p-6 text-red-700">
+          {error}{" "}
+          <button
+            onClick={() => setRetry((value) => value + 1)}
+            className="underline font-semibold"
+          >
+            Retry
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div
+              key={i}
+              className="h-56 rounded-2xl bg-gray-100 animate-pulse"
+            />
+          ))}
+        </div>
+      ) : agents.length === 0 ? (
+        <div className="text-center py-16 text-gray-500">
+          No agents found. Try another name or location.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {agents.map((agent) => {
+            const locations = Array.from(
+              new Set(
+                (agent.locations ?? [agent])
+                  .map(
+                    (location) =>
+                      location.district || location.suburb || location.state,
+                  )
+                  .filter(Boolean),
+              ),
+            );
+            return (
+              <article
                 key={agent.id}
-                href={`/agents/${agent.slug ?? agent.id}`}
-                className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-[#16a34a] hover:shadow-md transition-all group flex flex-col"
+                className="flex flex-col bg-white border border-gray-200 rounded-2xl p-6 hover:border-green-600 hover:shadow-md transition-all min-w-0"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="relative shrink-0">
-                    <AgentAvatar agent={agent} size="sm" />
-                    <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden shrink-0">
+                    <UserAvatar
+                      src={agent.avatar}
+                      name={agent.name}
+                      avatarBg="bg-green-600"
+                      textSize="text-2xl"
+                    />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-gray-900 text-sm leading-tight truncate group-hover:text-[#16a34a] transition-colors">
-                      {agent.name}
+                    <h2 className="font-bold text-lg text-gray-900 break-words">
+                      <Link href={"/agents/" + (agent.slug || agent.id)}>
+                        {agent.name}
+                      </Link>
+                    </h2>
+                    <p className="text-sm text-green-700">
+                      Real estate agent / company
                     </p>
-                    <p className="text-xs text-[#16a34a] font-semibold">
-                      Real Estate Agent
-                    </p>
-                    {agent.locations && agent.locations.length > 0 ? (
-  <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
-    <MapPin size={9} className="shrink-0" />
-
-    <span className="truncate">
-      {agent.locations
-        .map(
-          (location) =>
-            location.district ||
-            location.suburb ||
-            location.state
-        )
-        .filter(Boolean)
-        .filter(
-          (location, index, locations) =>
-            locations.indexOf(location) === index
-        )
-        .join(" · ")}
-    </span>
-  </p>
-) : (
-  (agent.district || agent.suburb || agent.state) && (
-    <p className="text-xs text-gray-400 flex items-center gap-0.5 mt-0.5 truncate">
-      <MapPin size={9} className="shrink-0" />
-
-      <span className="truncate">
-        {[agent.district || agent.suburb, agent.state]
-          .filter(Boolean)
-          .join(" · ")}
-      </span>
-    </p>
-  )
-)}
                   </div>
                 </div>
-
-                <div className="space-y-1.5 mb-4 text-xs text-gray-500">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <Mail size={11} className="shrink-0 text-gray-400" />
-                    <span className="truncate">{agent.email}</span>
-                  </div>
+                {locations.length > 0 && (
+                  <p className="flex gap-2 text-sm text-gray-600 mb-3">
+                    <MapPin size={16} className="shrink-0 mt-0.5" />
+                    <span>{locations.join(", ")}</span>
+                  </p>
+                )}
+                <div className="space-y-2 text-sm text-gray-600 mb-5">
+                  {agent.email && (
+                    <a
+                      href={"mailto:" + agent.email}
+                      className="flex gap-2 items-center break-all"
+                    >
+                      <Mail size={15} className="shrink-0" />
+                      {agent.email}
+                    </a>
+                  )}
                   {agent.phone && (
-                    <div className="flex items-center gap-1.5">
-                      <Phone size={11} className="shrink-0 text-gray-400" />
-                      <span>{agent.phone}</span>
-                    </div>
+                    <a
+                      href={"tel:" + agent.phone}
+                      className="flex gap-2 items-center"
+                    >
+                      <Phone size={15} className="shrink-0" />
+                      {agent.phone}
+                    </a>
                   )}
                 </div>
-
-                <div className="mt-auto flex items-center justify-between text-xs font-bold text-[#16a34a] group-hover:text-[#15803d]">
-                  <span>View profile</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                <div className="mt-auto pt-4 border-t border-gray-100 flex flex-wrap gap-2 items-center justify-between text-sm">
+                  <span className="text-gray-500">
+                    {agent.properties_count ?? 0} listings
+                  </span>
+                  <Link
+                    href={"/agents/" + (agent.slug || agent.id)}
+                    className="font-semibold text-green-700 inline-flex items-center gap-2"
+                  >
+                    View profile <ArrowRight size={16} />
+                  </Link>
                 </div>
-              </Link>
-            ))}
-          </div>
-          {filtered.length > INITIAL_LIMIT && (
-            <div className="mt-10 mb-4 text-center">
-              {!showAll ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 max-w-xs mx-auto">
-                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#16a34a] rounded-full" style={{ width: `${(INITIAL_LIMIT / filtered.length) * 100}%` }} />
-                    </div>
-                    <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{INITIAL_LIMIT} of {filtered.length}</span>
-                  </div>
-                  <button onClick={() => setShowAll(true)}
-                    className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm px-7 py-3 rounded-xl transition-colors shadow-md">
-                    View {filtered.length - INITIAL_LIMIT} more
-                  </button>
-                </div>
-              ) : (
-                <button onClick={() => { setShowAll(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="inline-flex items-center gap-2 border border-gray-200 hover:border-gray-400 text-gray-600 font-bold text-sm px-7 py-3 rounded-xl transition-colors">
-                  View less
-                </button>
-              )}
-            </div>
-          )}
-          </>
-        )}
-      </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+      {!loading && !error && lastPage > 1 && (
+        <nav
+          aria-label="Agent pagination"
+          className="flex flex-wrap items-center justify-center gap-4 mt-8"
+        >
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((value) => value - 1)}
+            className="border rounded-lg px-4 py-2 disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="text-sm">
+            Page {page} of {lastPage}
+          </span>
+          <button
+            disabled={page >= lastPage}
+            onClick={() => setPage((value) => value + 1)}
+            className="border rounded-lg px-4 py-2 disabled:opacity-40"
+          >
+            Next
+          </button>
+        </nav>
+      )}
+    </main>
   );
 }
 
@@ -311,10 +252,8 @@ export default function AgentsPageClient() {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <SearchHero defaultTab="Agents" title="Real Estate Agents in Sri Lanka" />
-      <ExploreSection />
-
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Agents" }]} />
-      <Suspense fallback={null}>
+      <Suspense fallback={<p className="p-8">Loading agents...</p>}>
         <AgentsContent />
       </Suspense>
       <Footer />

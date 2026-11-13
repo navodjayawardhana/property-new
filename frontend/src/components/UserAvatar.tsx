@@ -10,16 +10,16 @@ interface UserAvatarProps {
 }
 
 export function UserAvatar({ src, name, avatarBg, textSize = "" }: UserAvatarProps) {
-  const [error, setError] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (src && !error) {
+  if (src && src !== failedSrc) {
     return (
       <img
         src={src}
         alt={name}
         referrerPolicy="no-referrer"
         className="w-full h-full object-cover"
-        onError={() => setError(true)}
+        onError={() => setFailedSrc(src)}
       />
     );
   }
