@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
 
+# Only one production deploy at a time; queued runs wait instead of racing on the same server build dir
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to greenbrickz.com
