@@ -14,8 +14,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://greenbrickz.com"),
-  title: "Greenbricks – Sri Lanka's No.1 Property Site",
-  description: "Search properties for sale, rent, and sold across Sri Lanka. Find houses, apartments, villas, and commercial property from verified agents.",
+  title: "Property for Sale & Rent in Sri Lanka | Greenbricks",
+  description: "Discover houses, apartments, land and commercial properties for sale and rent across Sri Lanka with Greenbricks.",
   keywords: "property Sri Lanka, buy property, rent property, real estate, houses for sale",
   authors: [{ name: "Greenbricks" }],
   creator: "Greenbricks",
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     locale: "en_LK",
     url: "https://greenbrickz.com",
     siteName: "Greenbricks",
-    title: "Greenbricks – Sri Lanka's No.1 Property Site",
-    description: "Search properties for sale, rent, and sold across Sri Lanka. Find houses, apartments, villas, and commercial property from verified agents.",
+    title: "Property for Sale & Rent in Sri Lanka | Greenbricks",
+    description: "Discover houses, apartments, land and commercial properties for sale and rent across Sri Lanka with Greenbricks.",
     images: [
       {
         url: "https://greenbrickz.com/GreenBricksLogo.png",
@@ -39,10 +39,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@greenbrickssl",
-    creator: "@greenbrickssl",
-    title: "Greenbricks – Sri Lanka's No.1 Property Site",
-    description: "Search properties for sale, rent, and sold across Sri Lanka.",
+    site: "@GreenBricks12",
+    creator: "@GreenBricks12",
+    title: "Property for Sale & Rent in Sri Lanka | Greenbricks",
+    description: "Search properties for sale, rent, and commercial real estate across Sri Lanka.",
     images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
@@ -68,18 +68,20 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@graph": [
                 {
-                  "@type": ["Organization", "RealEstateAgent"],
+                  "@type": "Organization",
                   "@id": "https://greenbrickz.com/#organization",
                   "name": "Greenbricks",
-                  "description": "Sri Lanka's No.1 property search platform",
+                  "description": "Sri Lanka's real estate marketplace connecting property buyers, renters, landlords, sellers, and agents across all 25 districts.",
                   "url": "https://greenbrickz.com",
                   "logo": {
                     "@type": "ImageObject",
                     "url": "https://greenbrickz.com/GreenBricksLogo.png",
                   },
                   "sameAs": [
-                    "https://www.facebook.com/greenbrickssl/",
+                    "https://web.facebook.com/GreenBrickz",
                     "https://www.instagram.com/greenbricksl/",
+                    "https://x.com/GreenBricks12",
+                    "https://www.youtube.com/@Greenbricks12",
                   ],
                   "contactPoint": {
                     "@type": "ContactPoint",

@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Calculator, DollarSign, Percent, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Breadcrumb from "@/components/Breadcrumb";
+import Footer from "@/components/Footer";
 
 export default function MortgageCalculatorPage() {
   const [loanAmount, setLoanAmount] = useState(50000000);
@@ -29,6 +31,12 @@ export default function MortgageCalculatorPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-gray-50 pt-20">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Mortgage Calculator" },
+          ]}
+        />
         {/* Hero */}
         <section className="bg-[#1a1a5e] py-12">
           <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -189,6 +197,7 @@ export default function MortgageCalculatorPage() {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

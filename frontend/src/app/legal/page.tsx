@@ -6,7 +6,7 @@ const SECTIONS = [
   {
     id: "terms",
     title: "1. Terms of Use",
-    content: `By accessing or using the Greenbricks.net platform, you agree to be bound by these Terms of Use. If you do not agree to all of the terms, you must not use this platform.\n\nGreenbricks.net is operated by Greenbricks.net (Sri Lanka). We reserve the right to modify these terms at any time. Continued use of the platform after changes constitutes your acceptance of the revised terms.`,
+    content: `By accessing or using the Greenbricks (greenbrickz.com) platform, you agree to be bound by these Terms of Use. If you do not agree to all of the terms, you must not use this platform.\n\nGreenbricks is operated in Sri Lanka. We reserve the right to modify these terms at any time. Continued use of the platform after changes constitutes your acceptance of the revised terms.`,
   },
   {
     id: "use",
@@ -16,17 +16,17 @@ const SECTIONS = [
   {
     id: "listings",
     title: "3. Property Listings",
-    content: `All property listings on Greenbricks.net are provided by third-party agents, agencies, and private sellers. Greenbricks.net does not verify the accuracy of listing information and is not responsible for any errors or omissions.\n\nUsers should independently verify all property details before making any decisions. We recommend engaging a qualified solicitor and conducting a full property inspection before any property transaction.`,
+    content: `All property listings on Greenbricks are provided by third-party agents, agencies, and private sellers. Greenbricks does not verify the accuracy of listing information and is not responsible for any errors or omissions.\n\nUsers should independently verify all property details before making any decisions. We recommend engaging a qualified solicitor and conducting a full property inspection before any property transaction.`,
   },
   {
     id: "ip",
     title: "4. Intellectual Property",
-    content: `All content, trademarks, logos, and software on this platform are the intellectual property of Greenbricks.net or its licensors. You may not copy, reproduce, distribute, or create derivative works without our express written consent.\n\nBy uploading content to the platform, you grant Greenbricks.net a non-exclusive, royalty-free, worldwide licence to use, display, and distribute that content on the platform.`,
+    content: `All content, trademarks, logos, and software on this platform are the intellectual property of Greenbricks or its licensors. You may not copy, reproduce, distribute, or create derivative works without our express written consent.\n\nBy uploading content to the platform, you grant Greenbricks a non-exclusive, royalty-free, worldwide licence to use, display, and distribute that content on the platform.`,
   },
   {
     id: "liability",
     title: "5. Limitation of Liability",
-    content: `To the maximum extent permitted by law, Greenbricks.net shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform.\n\nOur total liability to you for any claim arising from these terms shall not exceed the amounts paid by you to us in the 12 months preceding the claim.`,
+    content: `To the maximum extent permitted by law, Greenbricks shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the platform.\n\nOur total liability to you for any claim arising from these terms shall not exceed the amounts paid by you to us in the 12 months preceding the claim.`,
   },
   {
     id: "governing",

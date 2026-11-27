@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import SoldPageClient from "./SoldPageClient";
+import { serverGet } from "@/lib/server-api";
+import type { PaginatedProperties } from "@/lib/api";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Recently Sold Properties in Sri Lanka | Market Insights | Greenbricks",
-  description: "Browse recently sold properties across Sri Lanka. Get insights into market trends, sold prices, and sale history to inform your property decisions.",
-  keywords: "sold properties Sri Lanka, recent sales, property market, sold listings, real estate trends",
+  title: "Recently Sold Properties in Sri Lanka | Greenbricks",
+  description: "Browse recently sold houses, apartments, and land across Sri Lanka to research sale prices and local property market activity.",
+  keywords: "sold properties Sri Lanka, recent property sales, Sri Lanka real estate market",
   alternates: { canonical: "https://greenbrickz.com/sold" },
   openGraph: {
     title: "Recently Sold Properties in Sri Lanka | Greenbricks",
-    description: "Explore recently sold properties and market insights across Sri Lanka.",
+    description: "Explore recently sold properties across Sri Lanka on Greenbricks.",
     url: "https://greenbrickz.com/sold",
     type: "website",
     images: [
@@ -23,11 +27,22 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Recently Sold Properties in Sri Lanka | Greenbricks",
-    description: "View recently sold properties and market insights across Sri Lanka.",
+    description: "View recently sold properties across Sri Lanka.",
     images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 
-export default function SoldPage() {
-  return <SoldPageClient />;
+export default async function SoldPage() {
+  try {
+    const res = await serverGet<PaginatedProperties>("/properties?listing_type=sold&per_page=50", { revalidate: 300 });
+    return (
+      <SoldPageClient
+        initialLoaded
+        initialItems={res.data ?? []}
+        initialTotal={res.total ?? 0}
+      />
+    );
+  } catch {
+    return <SoldPageClient />;
+  }
 }

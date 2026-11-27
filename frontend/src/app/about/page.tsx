@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Greenbricks | Sri Lanka's No.1 Property Portal",
-  description: "Learn about Greenbricks, Sri Lanka's leading property portal. Discover our mission, vision, and commitment to connecting buyers, renters, and sellers across the island.",
+  title: "About Greenbricks | Sri Lanka Property Portal",
+  description: "Learn about Greenbricks, Sri Lanka's real estate marketplace connecting property buyers, renters, landlords, and agents across the island.",
   keywords: "about Greenbricks, real estate platform, property company, Sri Lanka",
   alternates: { canonical: "https://greenbrickz.com/about" },
   openGraph: {

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumb from "@/components/Breadcrumb";
 import { UserAvatar } from "@/components/UserAvatar";
 import PropertyCard from "@/components/PropertyCard";
 import PropertyCardSkeleton from "@/components/PropertyCardSkeleton";
@@ -258,6 +259,7 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
               setCur((c) => (c - 1 + totalCount) % totalCount);
               reset();
             }}
+            aria-label="Previous agent slide"
             className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all"
           >
             <ChevronLeft size={20} />
@@ -267,6 +269,7 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
               setCur((c) => (c + 1) % totalCount);
               reset();
             }}
+            aria-label="Next agent slide"
             className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/25 transition-all"
           >
             <ChevronRight size={20} />
@@ -275,6 +278,7 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
             {Array.from({ length: totalCount }, (_, i) => (
               <button
                 key={i}
+                aria-label={`Show slide ${i + 1}`}
                 onClick={() => {
                   setCur(i);
                   reset();
@@ -290,22 +294,40 @@ function HeroSlider({ slides, agent }: { slides: AgentSlide[]; agent: Agent }) {
 }
 
 /* ── Page ────────────────────────────────────────────────────────────────── */
-export default function AgentLandingPage() {
+export default function AgentLandingPage({
+  initialAgent = null,
+  initialSlides = [],
+  initialProperties = null,
+}: {
+  initialAgent?: Agent | null;
+  initialSlides?: AgentSlide[];
+  initialProperties?: import("@/lib/api").PaginatedProperties | null;
+}) {
   const { id: slug } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const [agent, setAgent] = useState<Agent | null>(null);
-  const [slides, setSlides] = useState<AgentSlide[]>([]);
-  const [agentProps, setAgentProps] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [propsLoading, setPropsLoading] = useState(true);
+  const [agent, setAgent] = useState<Agent | null>(initialAgent);
+  const [slides, setSlides] = useState<AgentSlide[]>(initialSlides);
+  const [agentProps, setAgentProps] = useState<Property[]>(initialProperties?.data ?? []);
+  const [loading, setLoading] = useState(!initialAgent);
+  const [propsLoading, setPropsLoading] = useState(!initialProperties);
   const [propertyPage, setPropertyPage] = useState(1);
-  const [propertyTotal, setPropertyTotal] = useState(0);
-  const [propertyLastPage, setPropertyLastPage] = useState(1);
+  const [propertyTotal, setPropertyTotal] = useState(initialProperties?.total ?? 0);
+  const [propertyLastPage, setPropertyLastPage] = useState(initialProperties?.last_page ?? 1);
   const [propertyError, setPropertyError] = useState("");
   const [retryProperties, setRetryProperties] = useState(0);
 
   useEffect(() => {
+    const matchesInitial =
+      initialAgent &&
+      (String(initialAgent.slug) === String(slug) || String(initialAgent.id) === String(slug));
+    if (matchesInitial) {
+      setAgent(initialAgent);
+      setSlides(initialSlides);
+      setLoading(false);
+      return;
+    }
+
     let active = true;
     setLoading(true);
     setAgent(null);
@@ -331,10 +353,19 @@ export default function AgentLandingPage() {
     return () => {
       active = false;
     };
-  }, [slug, router]);
+  }, [slug, router, initialAgent, initialSlides]);
 
   useEffect(() => {
     if (!agent) return;
+    if (
+      initialProperties &&
+      initialAgent &&
+      agent.id === initialAgent.id &&
+      propertyPage === 1 &&
+      retryProperties === 0
+    ) {
+      return;
+    }
     let active = true;
     setPropsLoading(true);
     setPropertyError("");
@@ -360,7 +391,7 @@ export default function AgentLandingPage() {
     return () => {
       active = false;
     };
-  }, [agent, propertyPage, retryProperties]);
+  }, [agent, propertyPage, retryProperties, initialAgent, initialProperties]);
 
   if (loading) {
     return (
@@ -528,6 +559,7 @@ export default function AgentLandingPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     title={label}
+                    aria-label={`${agent.name} on ${label}`}
                     className={`${bg} text-white w-9 h-9 rounded-xl flex items-center justify-center hover:opacity-80 hover:scale-105 transition-all shadow-md`}
                   >
                     <Icon />
@@ -538,6 +570,15 @@ export default function AgentLandingPage() {
           </div>
         </div>
       )}
+
+      {/* ── Breadcrumb ─────────────────────────────────────────────────── */}
+      <Breadcrumb
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Agents", href: "/agents" },
+          { label: agent.name },
+        ]}
+      />
 
       {/* ── About ────────────────────────────────────────────────────────── */}
       {!!agent.locations?.length && (

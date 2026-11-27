@@ -95,10 +95,11 @@ function fmt(n: number): string {
   return n + "+";
 }
 
-export default function ExploreSection() {
-  const [counts, setCounts] = useState<Counts>({ buy: 0, rent: 0, sold: 0, agents: 0 });
+export default function ExploreSection({ initialCounts }: { initialCounts?: Counts } = {}) {
+  const [counts, setCounts] = useState<Counts>(initialCounts ?? { buy: 0, rent: 0, sold: 0, agents: 0 });
 
   useEffect(() => {
+    if (initialCounts) return;
     Promise.all([
       propertiesApi.list({ listing_type: "buy", per_page: 1 }),
       propertiesApi.list({ listing_type: "rent", per_page: 1 }),
@@ -109,7 +110,7 @@ export default function ExploreSection() {
         setCounts({ buy: buy.total, rent: rent.total, sold: sold.total, agents: agents.total });
       })
       .catch(() => {});
-  }, []);
+  }, [initialCounts]);
 
   const badge: Record<string, string> = {
     buy: fmt(counts.buy),

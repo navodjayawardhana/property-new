@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import NewsPageClient from "./NewsPageClient";
+import { serverGet } from "@/lib/server-api";
+import type { PaginatedNews } from "@/lib/api";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Property News & Real Estate Insights in Sri Lanka | Greenbricks",
-  description: "Read the latest property news, real estate market trends, finance updates, and housing insights for Sri Lanka. Stay informed with Greenbricks news hub.",
-  keywords: "property news Sri Lanka, real estate news, market trends, housing news, finance updates, property insights",
+  title: "Property News & Market Insights Sri Lanka | Greenbricks",
+  description: "Read Sri Lankan property news, real estate market updates, housing finance insights, and buyer guides on Greenbricks.",
+  keywords: "property news Sri Lanka, real estate news, market trends, housing finance Sri Lanka",
   alternates: { canonical: "https://greenbrickz.com/news" },
   openGraph: {
-    title: "Property News & Insights | Greenbricks",
-    description: "Latest real estate news, market trends, and property insights for Sri Lanka.",
+    title: "Property News & Market Insights Sri Lanka | Greenbricks",
+    description: "Latest Sri Lankan real estate news, market trends, and property guides on Greenbricks.",
     url: "https://greenbrickz.com/news",
     type: "website",
     images: [
@@ -22,12 +26,22 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Property News & Insights | Greenbricks",
-    description: "Read latest real estate news and market insights for Sri Lanka.",
+    title: "Property News & Market Insights Sri Lanka | Greenbricks",
+    description: "Read latest Sri Lankan real estate news and property guides.",
     images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 
-export default function NewsPage() {
-  return <NewsPageClient />;
+export default async function NewsPage() {
+  try {
+    const res = await serverGet<PaginatedNews>("/news?per_page=20", { revalidate: 300 });
+    return (
+      <NewsPageClient
+        initialLoaded
+        initialArticles={res.data ?? []}
+      />
+    );
+  } catch {
+    return <NewsPageClient />;
+  }
 }

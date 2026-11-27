@@ -14,7 +14,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
     "@type": "ListItem",
     position: idx + 1,
     name: item.label,
-    item: item.href ? `https://greenbrickz.com${item.href}` : undefined,
+    ...(item.href ? { item: `https://greenbrickz.com${item.href}` } : {}),
   }));
 
   return (
@@ -37,9 +37,9 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
                 {item.label}
               </Link>
             ) : (
-              <span className="text-gray-700 font-medium">{item.label}</span>
+              <span aria-current="page" className="text-gray-700 font-medium">{item.label}</span>
             )}
-            {idx < items.length - 1 && <span className="text-gray-400">/</span>}
+            {idx < items.length - 1 && <span aria-hidden="true" className="text-gray-400">/</span>}
           </div>
         ))}
       </nav>

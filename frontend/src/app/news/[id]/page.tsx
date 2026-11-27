@@ -49,10 +49,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const url = `https://greenbrickz.com/news/${article.id}`;
-  const description = article.excerpt?.slice(0, 160) || `${article.title} — property news and insights from Greenbricks.`;
+  const rawTitle = article.title.trim();
+  const shortTitle = rawTitle.length > 48 ? `${rawTitle.slice(0, 47).trimEnd()}…` : rawTitle;
+  const pageTitle = `${shortTitle} | Greenbricks News`;
+  const description = article.excerpt?.slice(0, 160) || `${article.title} — Sri Lanka property news and insights from Greenbricks.`;
 
   return {
-    title: `${article.title} | Greenbricks Property News`,
+    title: pageTitle,
     description,
     keywords: `${article.category}, ${article.tag ?? ""}, Sri Lanka property news, real estate insights`,
     alternates: { canonical: url },

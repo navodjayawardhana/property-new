@@ -81,9 +81,10 @@ function ActiveFilters({
           {label}
           <button
             onClick={() => onClear(key)}
+            aria-label={`Remove ${label} filter`}
             className="hover:text-red-500 transition-colors ml-0.5"
           >
-            <X size={11} />
+            <X size={11} aria-hidden="true" />
           </button>
         </span>
       ))}
@@ -91,23 +92,37 @@ function ActiveFilters({
   );
 }
 
-function BuyContent() {
+type BuyInitialProps = {
+  initialLoaded?: boolean;
+  initialItems?: Property[];
+  initialTotal?: number;
+  initialNews?: NewsArticleApi[];
+};
+
+function BuyContent({
+  initialLoaded = false,
+  initialItems = [],
+  initialTotal = 0,
+  initialNews = [],
+}: BuyInitialProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const hasUrlFilters = searchParams.toString().length > 0;
 
   const [sort, setSort] = useState("");
-  const [items, setItems] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
+  const [items, setItems] = useState<Property[]>(hasUrlFilters ? [] : initialItems);
+  const [loading, setLoading] = useState(hasUrlFilters || !initialLoaded);
+  const [total, setTotal] = useState(hasUrlFilters ? 0 : initialTotal);
   const [showAll, setShowAll] = useState(false);
-  const [latestNews, setLatestNews] = useState<NewsArticleApi[]>([]);
+  const [latestNews, setLatestNews] = useState<NewsArticleApi[]>(initialNews);
 
   useEffect(() => {
+    if (initialLoaded && initialNews.length > 0) return;
     newsApi
       .list({ per_page: 4 })
       .then((res) => setLatestNews(res.data))
       .catch(() => {});
-  }, []);
+  }, [initialLoaded, initialNews.length]);
 
   const buildFilters = useCallback(
     () => ({
@@ -135,6 +150,12 @@ function BuyContent() {
   );
 
   useEffect(() => {
+    if (initialLoaded && !hasUrlFilters) {
+      setItems(initialItems);
+      setTotal(initialTotal);
+      setLoading(false);
+      return;
+    }
     setShowAll(false);
     setLoading(true);
     propertiesApi
@@ -145,7 +166,7 @@ function BuyContent() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [buildFilters]);
+  }, [buildFilters, initialLoaded, hasUrlFilters, initialItems, initialTotal]);
 
   function setParam(key: string, value: string | null) {
     const p = new URLSearchParams(searchParams.toString());
@@ -216,9 +237,10 @@ function BuyContent() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <select
+              aria-label="Sort properties"
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-400 bg-white"
+              className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-700 bg-white"
             >
               <option value="" disabled>Sort</option>
               {SORT_OPTIONS.map((o) => (
@@ -317,18 +339,18 @@ function BuyContent() {
   );
 }
 
-export default function BuyPageClient() {
+export default function BuyPageClient(props: BuyInitialProps = {}) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       {/* Hero, breadcrumbs and headings sit OUTSIDE the Suspense boundary so they are
           present in the prerendered HTML. Anything reading useSearchParams() bails out
           of prerendering, so only the filtered result list lives inside it. */}
-      <SearchHero defaultTab="Buy" title="Buy Property in Sri Lanka" />
+      <SearchHero defaultTab="Buy" title="Property & Houses for Sale in Sri Lanka" />
       <ExploreSection />
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Buy" }]} />
       <Suspense fallback={null}>
-        <BuyContent />
+        <BuyContent {...props} />
       </Suspense>
       <Footer />
     </div>

@@ -65,7 +65,7 @@ export default function AgentAdminPage() {
       <section className="bg-green-50 border-t border-green-100 py-12">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-black text-gray-900 mb-2">Ready to grow your business?</h2>
-          <p className="text-sm text-gray-500 mb-6">Join thousands of agents already using Greenbricks.net to connect with buyers and renters across Sri Lanka.</p>
+          <p className="text-sm text-gray-500 mb-6">Join real estate agents using Greenbricks to connect with property buyers and renters across Sri Lanka.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/dashboard/agent" className="bg-[#16a34a] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#15803d] transition-colors text-sm">
               Access my dashboard

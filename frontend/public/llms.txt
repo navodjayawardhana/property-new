@@ -1,0 +1,24 @@
+# Greenbricks
+
+> Greenbricks (`https://greenbrickz.com/`) is a Sri Lankan real estate marketplace connecting property buyers, renters, landlords, sellers, and real estate agents across all 25 districts of Sri Lanka.
+
+## Primary Property Search Sections
+- [Properties for Sale in Sri Lanka](https://greenbrickz.com/buy): Browse houses, apartments, villas, and land for sale across Sri Lanka.
+- [Properties for Rent in Sri Lanka](https://greenbrickz.com/rent): Find houses, apartments, and residential rentals across Sri Lanka.
+- [Commercial Property in Sri Lanka](https://greenbrickz.com/commercial): Search offices, retail spaces, warehouses, and commercial premises for sale or lease.
+- [New Homes & Developments](https://greenbrickz.com/new-homes): Explore newly built homes and off-the-plan residential developments.
+- [Recently Sold Properties](https://greenbrickz.com/sold): View recently sold property listings across Sri Lanka.
+
+## Location Pages (Sri Lanka Districts)
+- [Colombo Property for Sale](https://greenbrickz.com/buy/colombo) and [Colombo Rentals](https://greenbrickz.com/rent/colombo)
+- [Gampaha Property for Sale](https://greenbrickz.com/buy/gampaha) and [Gampaha Rentals](https://greenbrickz.com/rent/gampaha)
+- [Kandy Property for Sale](https://greenbrickz.com/buy/kandy) and [Kandy Rentals](https://greenbrickz.com/rent/kandy)
+- [Galle Property for Sale](https://greenbrickz.com/buy/galle) and [Galle Rentals](https://greenbrickz.com/rent/galle)
+- [All 25 District Guides (Site Map)](https://greenbrickz.com/sitemap-page)
+
+## Agents, Tools & Resources
+- [Real Estate Agents Directory](https://greenbrickz.com/agents): Browse real estate agents and agencies in Sri Lanka.
+- [Home Loans Comparison](https://greenbrickz.com/home-loans): Compare indicative housing loan rates in LKR.
+- [Mortgage Calculator](https://greenbrickz.com/tools/mortgage-calculator): Estimate monthly home loan repayments.
+- [Property News & Insights](https://greenbrickz.com/news): Read Sri Lankan real estate news and market updates.
+- [About Greenbricks](https://greenbrickz.com/about) | [Contact](https://greenbrickz.com/contact)

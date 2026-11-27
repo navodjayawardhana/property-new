@@ -210,6 +210,8 @@ export default function Navbar() {
         {/* Mobile hamburger */}
         <button
           className={`lg:hidden transition-colors ${transparent ? "text-white" : "text-gray-700"}`}
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
           onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -228,7 +230,7 @@ export default function Navbar() {
             <Link href={`/dashboard/${user.role}?tab=profile`} className="text-xs font-bold text-amber-700 hover:underline whitespace-nowrap">
               Complete profile →
             </Link>
-            <button onClick={() => setBannerDismissed(true)} className="text-amber-500 hover:text-amber-700 transition-colors">
+            <button onClick={() => setBannerDismissed(true)} aria-label="Dismiss profile banner" className="text-amber-500 hover:text-amber-700 transition-colors">
               <X size={14} />
             </button>
           </div>

@@ -72,9 +72,10 @@ function ActiveFilters({
           {label}
           <button
             onClick={() => onClear(key)}
+            aria-label={`Remove ${label} filter`}
             className="hover:text-red-500 transition-colors ml-0.5"
           >
-            <X size={11} />
+            <X size={11} aria-hidden="true" />
           </button>
         </span>
       ))}
@@ -82,14 +83,25 @@ function ActiveFilters({
   );
 }
 
-function RentContent() {
+type RentInitialProps = {
+  initialLoaded?: boolean;
+  initialItems?: Property[];
+  initialTotal?: number;
+};
+
+function RentContent({
+  initialLoaded = false,
+  initialItems = [],
+  initialTotal = 0,
+}: RentInitialProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const hasUrlFilters = searchParams.toString().length > 0;
 
   const [sort, setSort] = useState("");
-  const [items, setItems] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
+  const [items, setItems] = useState<Property[]>(hasUrlFilters ? [] : initialItems);
+  const [loading, setLoading] = useState(hasUrlFilters || !initialLoaded);
+  const [total, setTotal] = useState(hasUrlFilters ? 0 : initialTotal);
   const [showAll, setShowAll] = useState(false);
 
   const buildFilters = useCallback(
@@ -118,6 +130,12 @@ function RentContent() {
   );
 
   useEffect(() => {
+    if (initialLoaded && !hasUrlFilters) {
+      setItems(initialItems);
+      setTotal(initialTotal);
+      setLoading(false);
+      return;
+    }
     setShowAll(false);
     setLoading(true);
     propertiesApi
@@ -128,7 +146,7 @@ function RentContent() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [buildFilters]);
+  }, [buildFilters, initialLoaded, hasUrlFilters, initialItems, initialTotal]);
 
   function setParam(key: string, value: string | null) {
     const p = new URLSearchParams(searchParams.toString());
@@ -200,9 +218,10 @@ function RentContent() {
           </div>
           <div className="ml-auto">
             <select
+              aria-label="Sort rental properties"
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-400 bg-white"
+              className="text-sm border border-gray-300 rounded px-3 py-1.5 outline-none text-gray-700 bg-white"
             >
               <option value="" disabled>Sort</option>
               {SORT_OPTIONS.map((o) => (
@@ -271,18 +290,18 @@ function RentContent() {
   );
 }
 
-export default function RentPageClient() {
+export default function RentPageClient(props: RentInitialProps = {}) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       {/* Outside <Suspense>: these must appear in the prerendered HTML.
           Only useSearchParams()-dependent output belongs inside it. */}
-      <SearchHero defaultTab="Rent" title="Rent Property in Sri Lanka" />
+      <SearchHero defaultTab="Rent" title="Houses & Apartments for Rent in Sri Lanka" />
       <ExploreSection />
 
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Rent" }]} />
       <Suspense fallback={null}>
-        <RentContent />
+        <RentContent {...props} />
       </Suspense>
       <Footer />
     </div>

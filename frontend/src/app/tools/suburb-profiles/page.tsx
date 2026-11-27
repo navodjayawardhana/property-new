@@ -1,5 +1,8 @@
+import Link from "next/link";
 import { Search, TrendingUp, Users, School, TreePine } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Breadcrumb from "@/components/Breadcrumb";
+import Footer from "@/components/Footer";
 
 const suburbs = [
   { name: "Colombo 7", postcode: "00700", medianPrice: "LKR 150M", growth: "+8.5%", population: "45,000" },
@@ -17,6 +20,12 @@ export default function SuburbProfilesPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-gray-50 pt-20">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Suburb Profiles" },
+          ]}
+        />
         {/* Hero */}
         <section className="bg-[#1a1a5e] py-12">
           <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -28,19 +37,21 @@ export default function SuburbProfilesPage() {
             </p>
 
             {/* Search */}
-            <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
+            <form action="/buy" method="get" className="flex flex-col sm:flex-row gap-3 max-w-2xl">
               <label className="flex-1 flex items-center gap-2.5 bg-white rounded-xl px-4 py-3">
                 <Search className="w-4 h-4 text-[#16a34a] shrink-0" />
                 <input
                   type="text"
+                  name="suburb"
                   placeholder="Search suburb or postcode..."
+                  aria-label="Search suburb or postcode"
                   className="flex-1 text-sm text-gray-800 bg-transparent outline-none placeholder-gray-400"
                 />
               </label>
-              <button className="flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-3 rounded-xl transition-colors">
+              <button type="submit" className="flex items-center justify-center gap-2 bg-[#16a34a] hover:bg-[#15803d] text-white font-bold px-6 py-3 rounded-xl transition-colors">
                 Search
               </button>
-            </div>
+            </form>
           </div>
         </section>
 
@@ -95,9 +106,12 @@ export default function SuburbProfilesPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">{suburb.population}</td>
                       <td className="px-6 py-4">
-                        <button className="text-sm text-[#16a34a] font-semibold hover:underline">
-                          View Profile →
-                        </button>
+                        <Link
+                          href={`/buy?suburb=${encodeURIComponent(suburb.name)}`}
+                          className="text-sm text-[#16a34a] font-semibold hover:underline"
+                        >
+                          View Listings →
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -116,12 +130,16 @@ export default function SuburbProfilesPage() {
             <p className="text-green-100 mb-6">
               Request a custom suburb report from our research team.
             </p>
-            <button className="bg-white text-[#16a34a] font-black px-8 py-3 rounded-xl hover:bg-green-50 transition-colors">
+            <Link
+              href="/contact"
+              className="inline-block bg-white text-[#16a34a] font-black px-8 py-3 rounded-xl hover:bg-green-50 transition-colors"
+            >
               Request Report →
-            </button>
+            </Link>
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

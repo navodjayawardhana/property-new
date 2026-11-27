@@ -8,11 +8,14 @@ export default function NewsCard({ article, large }: { article: NewsArticleApi; 
 
   return (
     <Link href={`/news/${article.id}`} className="group block">
-      <div className="overflow-hidden rounded-lg">
+      <div className={`overflow-hidden rounded-lg bg-gray-100 ${large ? "h-52" : "h-36"}`}>
         <img
           src={article.image_url}
           alt={article.title}
-          className={`w-full object-cover group-hover:scale-105 transition duration-300 ${large ? "h-52" : "h-36"}`}
+          width={400}
+          height={large ? 208 : 144}
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
         />
       </div>
       <div className="mt-2">

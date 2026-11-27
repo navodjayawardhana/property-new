@@ -326,13 +326,13 @@ export default function SignInPage() {
       style={{ backgroundImage: "linear-gradient(135deg, rgba(15,23,42,0.85), rgba(204,0,0,0.6)), url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80)" }}>
       <div className="absolute inset-0 flex flex-col justify-between p-12">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/GreenBricksLogo.png" alt="Greenbrick" width={120} height={40} className="h-10 w-auto" />
+          <Image src="/GreenBricksLogo.png" alt="Greenbricks" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <div>
           <h2 className="text-white font-black text-4xl leading-tight mb-4">Find your next<br />dream home.</h2>
-          <p className="text-white/70 text-base">Sri Lanka&apos;s #1 property platform with thousands of listings updated daily.</p>
+          <p className="text-white/70 text-base">Browse verified houses, apartments, land, and commercial listings across Sri Lanka.</p>
           <div className="flex gap-8 mt-8">
-            {[{ v: "120K+", l: "For sale" }, { v: "55K+", l: "For rent" }, { v: "2M+", l: "Members" }].map((s) => (
+            {[{ v: "25", l: "Districts" }, { v: "Buy & Rent", l: "Listings" }, { v: "Verified", l: "Agents" }].map((s) => (
               <div key={s.l}>
                 <p className="text-white font-black text-2xl">{s.v}</p>
                 <p className="text-white/60 text-xs mt-0.5">{s.l}</p>

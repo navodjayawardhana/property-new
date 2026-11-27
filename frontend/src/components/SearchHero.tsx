@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { slidesApi, type Slide } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import {
@@ -15,7 +16,7 @@ const tabRoutes: Record<string, string> = {
   Buy: "/buy", Rent: "/rent", Sold: "/sold", Address: "/buy", Agents: "/agents",
 };
 
-const AU_STATES = ["Western", "Central", "Southern", "Northern", "Eastern", "Sabaragamuwa", "North Western", "North Central", "Uva"];
+const LK_PROVINCES = ["WESTERN", "CENTRAL", "SOUTHERN", "NORTHERN", "EASTERN", "SABARAGAMUWA", "NORTH WESTERN", "NORTH CENTRAL", "UVA"];
 const priceRangesBuy  = ["Any","Rs 2,000,000","Rs 5,000,000","Rs 10,000,000","Rs 15,000,000","Rs 20,000,000","Rs 30,000,000","Rs 50,000,000","Rs 75,000,000","Rs 100,000,000","Rs 150,000,000","Rs 200,000,000+"];
 const priceRangesRent = ["Any","Rs 15,000/mo","Rs 25,000/mo","Rs 40,000/mo","Rs 60,000/mo","Rs 80,000/mo","Rs 100,000/mo","Rs 150,000/mo","Rs 200,000/mo+"];
 const bedroomOptions  = ["Any","1+","2+","3+","4+","5+"];
@@ -26,11 +27,11 @@ const suggestions     = [
   "Ratnapura","Badulla","Hambantota","Polonnaruwa","Nuwara Eliya",
 ];
 
-const STATS = [
-  { value: "120,000+", label: "Properties for sale" },
-  { value: "55,000+",  label: "Rentals" },
-  { value: "2,400+",   label: "Verified agents" },
-  { value: "25 days",  label: "Avg. days on market" },
+const QUICK_LINKS = [
+  { label: "Colombo Properties", href: "/buy/colombo" },
+  { label: "Houses for Sale", href: "/buy?property_type=House" },
+  { label: "Homes for Rent", href: "/rent" },
+  { label: "All 25 Districts", href: "/sitemap-page" },
 ];
 
 type SlideItem =
@@ -260,13 +261,13 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
     }
 
     if (trimmed) {
-      const stateMatch = trimmed.match(new RegExp(`^(.+?)\\s+(${AU_STATES.join("|")})$`, "i"));
+      const stateMatch = trimmed.match(new RegExp(`^(.+?)\\s+(${LK_PROVINCES.join("|")})$`, "i"));
       if (stateMatch) {
         params.set("suburb", stateMatch[1].trim());
         params.set("state", stateMatch[2].toUpperCase());
-      } else if (/^\d{4}$/.test(trimmed)) {
+      } else if (/^\d{5}$/.test(trimmed)) {
         params.set("postcode", trimmed);
-      } else if (AU_STATES.includes(trimmed.toUpperCase())) {
+      } else if (LK_PROVINCES.includes(trimmed.toUpperCase())) {
         params.set("state", trimmed.toUpperCase());
       } else {
         params.set("q", trimmed);
@@ -328,6 +329,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                 sizes="100vw"
                 // First slide is the LCP element on every page using this hero.
                 priority={i === 0}
+                loading={i === 0 ? undefined : "lazy"}
                 className="object-cover"
               />
             )}
@@ -395,7 +397,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
                   />
                 </div>
                 {query && (
-                  <button onClick={() => { setQuery(""); setShowSugs(false); }} className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 cursor-pointer">
+                  <button onClick={() => { setQuery(""); setShowSugs(false); }} aria-label="Clear search query" className="text-gray-300 hover:text-gray-500 transition-colors shrink-0 cursor-pointer">
                     <X size={15} />
                   </button>
                 )}
@@ -445,13 +447,16 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
               )}
             </div>
 
-            {/* Stats row */}
-            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {STATS.map((s) => (
-                <div key={s.label} className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 sm:px-4 py-3 text-center">
-                  <p className="text-white font-black text-lg leading-none">{s.value}</p>
-                  <p className="text-white/65 text-xs mt-1 font-medium">{s.label}</p>
-                </div>
+            {/* Quick district & category links */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+              {QUICK_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-white text-xs sm:text-sm font-semibold transition-colors"
+                >
+                  {item.label}
+                </Link>
               ))}
             </div>
           </div>
@@ -461,16 +466,19 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           {slides.map((_, i) => (
             <button key={i} onClick={() => goTo(i)}
+              aria-label={`Show slide ${i + 1}`}
               className={`rounded-full transition-all duration-300 cursor-pointer ${i === current ? "w-6 h-2 bg-white" : "w-2 h-2 bg-white/40 hover:bg-white/70"}`} />
           ))}
         </div>
 
         {/* Arrows */}
         <button onClick={prev}
+          aria-label="Previous slide"
           className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105 cursor-pointer">
           <ChevronLeft size={20} />
         </button>
         <button onClick={next}
+          aria-label="Next slide"
           className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm flex items-center justify-center text-white transition-all hover:scale-105 cursor-pointer">
           <ChevronRight size={20} />
         </button>
@@ -487,6 +495,7 @@ export default function SearchHero({ defaultTab = "Buy", title }: Props) {
             <div className="flex items-center justify-between px-5 py-2.5 border-b border-gray-100">
               <h2 className="text-sm font-bold text-gray-900">Search filters</h2>
               <button onClick={() => setShowModal(false)}
+                aria-label="Close search filters"
                 className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors cursor-pointer">
                 <X size={16} />
               </button>

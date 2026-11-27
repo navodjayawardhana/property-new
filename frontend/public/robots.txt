@@ -11,13 +11,12 @@ Disallow: /signin
 Disallow: /join
 Disallow: /profile
 Disallow: /*?sort=
-Disallow: /*?page=
 
 # Allow search engines to index main property and agent pages
 Allow: /property/
 Allow: /agents/
 
-# Crawl delay to be respectful
+# Crawl delay for non-Google crawlers
 Crawl-delay: 1
 
 Sitemap: https://greenbrickz.com/sitemap.xml

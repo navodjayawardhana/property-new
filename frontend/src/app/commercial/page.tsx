@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import CommercialPageClient from "./CommercialPageClient";
+import { serverGet } from "@/lib/server-api";
+import type { PaginatedProperties } from "@/lib/api";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Commercial Properties in Sri Lanka | Offices, Retail & Warehouses | Greenbricks",
-  description: "Browse commercial properties for sale and lease across Sri Lanka. Find offices, retail spaces, warehouses, and more with verified listings and advanced filters.",
-  keywords: "commercial property Sri Lanka, office space, retail, warehouses, commercial real estate, business property",
+  title: "Commercial Property for Sale & Rent Sri Lanka | Greenbricks",
+  description: "Browse commercial properties for sale and lease across Sri Lanka. Find office spaces, retail shops, warehouses, and business premises on Greenbricks.",
+  keywords: "commercial property Sri Lanka, commercial property for rent in Colombo, office space, retail, warehouses",
   alternates: { canonical: "https://greenbrickz.com/commercial" },
   openGraph: {
-    title: "Commercial Properties in Sri Lanka | Greenbricks",
-    description: "Discover commercial properties across Sri Lanka - offices, retail spaces, warehouses, and prime business locations.",
+    title: "Commercial Property for Sale & Rent Sri Lanka | Greenbricks",
+    description: "Discover commercial properties across Sri Lanka — offices, retail spaces, and warehouses.",
     url: "https://greenbrickz.com/commercial",
     type: "website",
     images: [
@@ -22,12 +26,23 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Commercial Properties in Sri Lanka | Greenbricks",
-    description: "Find commercial spaces - offices, retail, warehouses across Sri Lanka.",
+    title: "Commercial Property for Sale & Rent Sri Lanka | Greenbricks",
+    description: "Find commercial spaces — offices, retail, and warehouses across Sri Lanka.",
     images: ["https://greenbrickz.com/GreenBricksLogo.png"],
   },
 };
 
-export default function CommercialPage() {
-  return <CommercialPageClient />;
+export default async function CommercialPage() {
+  try {
+    const res = await serverGet<PaginatedProperties>("/properties?category=commercial&per_page=50", { revalidate: 300 });
+    return (
+      <CommercialPageClient
+        initialLoaded
+        initialItems={res.data ?? []}
+        initialTotal={res.total ?? 0}
+      />
+    );
+  } catch {
+    return <CommercialPageClient />;
+  }
 }

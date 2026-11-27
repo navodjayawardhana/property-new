@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { MapPin, Home, Maximize2, Calendar, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Breadcrumb from "@/components/Breadcrumb";
+import Footer from "@/components/Footer";
 
 export default function PropertyValuationPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -15,6 +17,12 @@ export default function PropertyValuationPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-gray-50 pt-20">
+        <Breadcrumb
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Property Valuation" },
+          ]}
+        />
         {/* Hero */}
         <section className="bg-[#1a1a5e] py-12">
           <div className="max-w-7xl mx-auto px-5 sm:px-8">
@@ -183,13 +191,14 @@ export default function PropertyValuationPage() {
               { title: "Quick Results", desc: "Receive your valuation within 24 hours" },
             ].map((item) => (
               <div key={item.title} className="bg-white rounded-xl p-5 border border-gray-100 text-center">
-                <h3 className="font-bold text-gray-900 mb-1">{item.title}</h3>
+                <h2 className="font-bold text-gray-900 mb-1">{item.title}</h2>
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
             ))}
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

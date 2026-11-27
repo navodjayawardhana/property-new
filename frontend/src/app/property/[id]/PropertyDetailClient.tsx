@@ -22,13 +22,17 @@ type EnquiryForm = {
   inquiry_type: 'buying' | 'renting' | 'general';
 };
 
-export default function PropertyDetailPage() {
+export default function PropertyDetailPage({
+  initialProperty = null,
+}: {
+  initialProperty?: Property | null;
+}) {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { user, token } = useAuth();
 
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [property, setProperty] = useState<Property | null>(initialProperty);
+  const [loading, setLoading] = useState(!initialProperty);
   const [notFound, setNotFound] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -36,13 +40,25 @@ export default function PropertyDetailPage() {
 
   const [form, setForm] = useState<EnquiryForm>({
     name: "", email: "", phone: "", message: "",
-    inquiry_type: "buying",
+    inquiry_type: initialProperty?.listing_type === "rent" ? "renting" : "buying",
   });
   const [sending, setSending] = useState(false);
   const [enquirySent, setEnquirySent] = useState(false);
   const [enquiryError, setEnquiryError] = useState("");
 
   useEffect(() => {
+    if (initialProperty && String(initialProperty.id) === String(id)) {
+      setProperty(initialProperty);
+      setSaved(isSaved(initialProperty.id));
+      setForm((f) => ({
+        ...f,
+        inquiry_type: initialProperty.listing_type === "rent" ? "renting" : "buying",
+      }));
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     propertiesApi.get(id)
       .then((p) => {
         setProperty(p);
@@ -51,7 +67,7 @@ export default function PropertyDetailPage() {
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, initialProperty]);
 
   useEffect(() => {
     if (user) {
@@ -165,10 +181,10 @@ export default function PropertyDetailPage() {
           <img src={images[imgIndex]} alt={property.address} className="w-full h-full object-cover" />
           {images.length > 1 && (
             <>
-              <button onClick={prevImg} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
+              <button onClick={prevImg} aria-label="Previous property image" className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
                 <ChevronLeft size={18} />
               </button>
-              <button onClick={nextImg} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
+              <button onClick={nextImg} aria-label="Next property image" className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors">
                 <ChevronRight size={18} />
               </button>
               <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
@@ -188,6 +204,7 @@ export default function PropertyDetailPage() {
           <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
             {images.map((img, i) => (
               <button key={i} onClick={() => setImgIndex(i)}
+                aria-label={`View image ${i + 1} of ${images.length}`}
                 className={`w-20 h-14 shrink-0 rounded overflow-hidden border-2 transition-colors ${i === imgIndex ? "border-[#16a34a]" : "border-transparent"}`}>
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
@@ -211,11 +228,13 @@ export default function PropertyDetailPage() {
               </div>
               <div className="flex gap-2 shrink-0">
                 <button onClick={handleSave}
+                  aria-label={saved ? "Remove from saved properties" : "Save property"}
                   className={`p-2 rounded-full border transition-colors ${saved ? "bg-red-50 border-red-300 text-red-500" : "border-gray-300 text-gray-500 hover:border-gray-400"}`}
                   title={saved ? "Remove from saved" : "Save property"}>
                   <Heart size={17} fill={saved ? "currentColor" : "none"} />
                 </button>
                 <button onClick={handleShare}
+                  aria-label="Copy property link"
                   className="p-2 rounded-full border border-gray-300 text-gray-500 hover:border-gray-400 transition-colors relative"
                   title="Copy link">
                   <Share2 size={17} />

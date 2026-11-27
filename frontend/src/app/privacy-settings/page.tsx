@@ -33,7 +33,7 @@ const SETTINGS = [
   {
     id: "marketing",
     title: "Marketing & advertising",
-    desc: "Enable relevant property ads from Greenbricks.net and our advertising partners.",
+    desc: "Enable relevant property ads from Greenbricks and our advertising partners.",
     locked: false,
     default: false,
   },
@@ -71,7 +71,7 @@ export default function PrivacySettingsPage() {
       <div className="border-b border-gray-100 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-10">
           <h1 className="text-3xl font-black text-gray-900">Privacy settings</h1>
-          <p className="text-gray-500 text-sm mt-1">Control how Greenbricks.net collects and uses your data.</p>
+          <p className="text-gray-500 text-sm mt-1">Control how Greenbricks collects and uses your data.</p>
         </div>
       </div>
 

@@ -3,7 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Breadcrumb from "@/components/Breadcrumb";
 import PropertyCard from "@/components/PropertyCard";
-import { properties as propertiesApi, type Property } from "@/lib/api";
+import { serverGet } from "@/lib/server-api";
+import { type PaginatedProperties, type Property } from "@/lib/api";
 import { type District, nearbyDistricts } from "@/lib/districts";
 
 type Mode = "buy" | "rent";
@@ -33,11 +34,10 @@ export default async function DistrictLanding({
   let listings: Property[] = [];
   let total = 0;
   try {
-    const res = await propertiesApi.list({
-      listing_type: mode,
-      suburb: district.name,
-      per_page: 24,
-    });
+    const res = await serverGet<PaginatedProperties>(
+      `/properties?listing_type=${encodeURIComponent(mode)}&suburb=${encodeURIComponent(district.name)}&per_page=24`,
+      { revalidate: 1800, timeoutMs: 3500 }
+    );
     listings = res.data;
     total = res.total;
   } catch {

@@ -66,6 +66,7 @@ export default function PropertyCard({ property }: { property: Property }) {
           {/* Save button */}
           <button
             onClick={handleSaveToggle}
+            aria-label={saved ? `Remove ${property.title || property.address} from saved` : `Save ${property.title || property.address}`}
             className={`absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transition-all shadow-sm cursor-pointer ${saved ? "text-red-500 scale-110" : "text-gray-500 hover:text-red-400 hover:scale-110"}`}
           >
             <Heart size={12} fill={saved ? "currentColor" : "none"} />

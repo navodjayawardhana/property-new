@@ -19,14 +19,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const district = getDistrict(slug);
   if (!district) return { title: "District Not Found | Greenbricks" };
 
-  const title = `Property for Sale in ${district.name}, Sri Lanka | Greenbricks`;
-  const description = `Browse houses, apartments and land for sale in ${district.name}, ${district.province} Province. ${district.blurb}`.slice(0, 160);
+  const title = `Property for Sale in ${district.name} | Greenbricks`;
+  const description = `Browse houses, apartments and land for sale in ${district.name}, ${district.province} Province. ${district.blurb}`.slice(0, 158);
   const url = `https://greenbrickz.com/buy/${district.slug}`;
 
   return {
     title,
     description,
-    keywords: `property for sale ${district.name}, houses for sale ${district.name}, land for sale ${district.name}, real estate ${district.name} Sri Lanka`,
+    keywords: `property for sale ${district.name}, houses for sale ${district.name}, apartments for sale ${district.name}, land for sale ${district.name}, real estate ${district.name} Sri Lanka`,
     alternates: { canonical: url },
     openGraph: {
       title,

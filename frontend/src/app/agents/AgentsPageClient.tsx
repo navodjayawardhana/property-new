@@ -24,16 +24,29 @@ const PROVINCES = [
   "Uva",
 ];
 
-function AgentsContent() {
+type AgentsInitialProps = {
+  initialLoaded?: boolean;
+  initialAgents?: Agent[];
+  initialTotal?: number;
+  initialLastPage?: number;
+};
+
+function AgentsContent({
+  initialLoaded = false,
+  initialAgents = [],
+  initialTotal = 0,
+  initialLastPage = 1,
+}: AgentsInitialProps) {
   const params = useSearchParams();
   const urlSearch = params.get("search") ?? "";
   const [search, setSearch] = useState(urlSearch);
   const [province, setProvince] = useState("");
   const [page, setPage] = useState(1);
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [total, setTotal] = useState(0);
-  const [lastPage, setLastPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const hasUrlSearch = urlSearch.length > 0;
+  const [agents, setAgents] = useState<Agent[]>(hasUrlSearch ? [] : initialAgents);
+  const [total, setTotal] = useState(hasUrlSearch ? 0 : initialTotal);
+  const [lastPage, setLastPage] = useState(hasUrlSearch ? 1 : initialLastPage);
+  const [loading, setLoading] = useState(hasUrlSearch || !initialLoaded);
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const query = useDebouncedValue(search, 250).trim();
@@ -43,6 +56,13 @@ function AgentsContent() {
     setPage(1);
   }, [urlSearch]);
   useEffect(() => {
+    if (initialLoaded && !query && !province && page === 1 && retry === 0) {
+      setAgents(initialAgents);
+      setTotal(initialTotal);
+      setLastPage(initialLastPage);
+      setLoading(false);
+      return;
+    }
     let active = true;
     setLoading(true);
     setError("");
@@ -63,7 +83,7 @@ function AgentsContent() {
     return () => {
       active = false;
     };
-  }, [query, province, page, retry]);
+  }, [query, province, page, retry, initialLoaded, initialAgents, initialTotal, initialLastPage]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8 w-full flex-1">
@@ -247,14 +267,14 @@ function AgentsContent() {
   );
 }
 
-export default function AgentsPageClient() {
+export default function AgentsPageClient(props: AgentsInitialProps = {}) {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <SearchHero defaultTab="Agents" title="Real Estate Agents in Sri Lanka" />
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Agents" }]} />
       <Suspense fallback={<p className="p-8">Loading agents...</p>}>
-        <AgentsContent />
+        <AgentsContent {...props} />
       </Suspense>
       <Footer />
     </div>
